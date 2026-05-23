@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masters Rowing — Training & Nutrition Plan</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a4f6e">
+
+  <!--
+    iPhone / iOS PWA support.
+    Safari does not use manifest.json for home-screen installs.
+    These tags are required for a proper iOS standalone experience.
+  -->
+  <!-- Enables full-screen (standalone) mode when launched from home screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- Status bar color. "black" keeps the bar visible with dark text on white.
+       Use "black-translucent" if you add CSS padding for the notch. -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <!-- The label that appears under the icon on the iOS home screen -->
+  <meta name="apple-mobile-web-app-title" content="Rowing">
+  <!-- The icon used on iOS. Must be a direct image — Safari ignores manifest icons -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-lbl">Masters Rowing · Personal Program · July–December 2026</div>
+    <h1>TRAIN.<br><em>EAT.</em><br>RACE.</h1>
+    <p class="hdr-sub">Lift M/W/F. Pete Plan Tu/Th/Sat. 4-cuisine meal rotation. Full calendar July 5–December 31.</p>
+    <div class="hdr-stats">
+      <div><div class="sv">188→165</div><div class="sl">Weight goal</div></div>
+      <div><div class="sv">3× lift</div><div class="sl">Mon/Wed/Fri</div></div>
+      <div><div class="sv">4 cuisines</div><div class="sl">Rotating meals</div></div>
+      <div><div class="sv">120g+</div><div class="sl">Protein/day</div></div>
+    </div>
+  </div>
+  <div class="hdr-wave"></div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- Tab bar -->
+  <div class="tabs">
+    <button class="tab active" onclick="showPanel('calendar',this)">📅 Calendar</button>
+    <button class="tab" onclick="showPanel('workout',this)">🚣 Workouts</button>
+    <button class="tab" onclick="showPanel('meals',this)">🥗 Meals</button>
+    <button class="tab" onclick="showPanel('sauces',this)">🫙 Sauces & Prep</button>
+    <button class="tab" onclick="showPanel('strategy',this)">📈 Strategy</button>
+    <button class="tab" onclick="showPanel('liftlog',this)">🏋️ Lift Log</button>
+    <button class="tab" onclick="showPanel('erglog',this)">🚣 Erg Log</button>
+    <button class="tab" onclick="showPanel('dashboard',this)">📊 Dashboard</button>
+  </div>
+
+  <!-- ===== CALENDAR PANEL ===== -->
+  <div class="panel active" id="panel-calendar">
+    <div class="sh">
+      <h2>Training & Meal Calendar</h2>
+      <p>July 5 – December 31, 2026. Click any day for full workout detail and meals. Colors = workout type.</p>
+    </div>
+    <div class="cal-legend">
+      <div class="leg"><div class="leg-dot bg-lift"></div>Lift (M/W/F)</div>
+      <div class="leg"><div class="leg-dot bg-end"></div>Pete Endurance</div>
+      <div class="leg"><div class="leg-dot bg-water"></div>On Water / Steady</div>
+      <div class="leg"><div class="leg-dot bg-speed"></div>Speed (monthly)</div>
+      <div class="leg"><div class="leg-dot bg-rest"></div>Easy Erg + Recovery</div>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="changeMonth(-1)">◀ Prev</button>
+      <h3 id="cal-title">July 2026</h3>
+      <button class="cal-btn" onclick="changeMonth(1)">Next ▶</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- ===== WORKOUT PANEL ===== -->
+  <div class="panel" id="panel-workout">
+    <div class="sh">
+      <h2>Weekly Training Structure</h2>
+      <p>M/W/F = lifting. Tu/Th/Sat = water or Pete Plan erg. Sun = easy erg + recovery.</p>
+    </div>
+    <div class="rat">
+      <h3>Day-by-Day Rationale</h3>
+      <div class="rg" id="ratGrid"></div>
+    </div>
+    <div class="pete">
+      <h3>Pete Plan Sessions</h3>
+      <p>Endurance intervals on Tuesday. Steady-state Thursday & Saturday (water replaces both). Monthly speed swap on one Thu or Sat.</p>
+      <div class="pg" id="peteGrid"></div>
+    </div>
+    <div class="sh" style="margin-top:20px"><h2>Week-by-Week Schedule</h2></div>
+    <div class="ctabs">
+      <button class="ctab active" onclick="showCycle(1,this)">Pete Wk 1</button>
+      <button class="ctab" onclick="showCycle(2,this)">Pete Wk 2</button>
+      <button class="ctab" onclick="showCycle(3,this)">Pete Wk 3</button>
+    </div>
+    <div class="cpanel active" id="cy-1"><div class="g2" id="g-1"></div></div>
+    <div class="cpanel" id="cy-2"><div class="g2" id="g-2"></div></div>
+    <div class="cpanel" id="cy-3"><div class="g2" id="g-3"></div></div>
+    <div style="margin-top:18px" id="strengthTips"></div>
+  </div>
+
+  <!-- ===== MEALS PANEL ===== -->
+  <div class="panel" id="panel-meals">
+    <div class="sh">
+      <h2>4-Week Rotating Meal Plan</h2>
+      <p>Wk 1 Asian · Wk 2 Mediterranean · Wk 3 Mexican · Wk 4 Thai — then repeat. <span style="color:var(--veg)">●</span> = veg/vegan.</p>
+    </div>
+    <div class="cs">
+      <div class="chip"><div class="cn">~2100</div><div class="cl">Cal/day</div></div>
+      <div class="chip"><div class="cn">120–140g</div><div class="cl">Protein</div></div>
+      <div class="chip"><div class="cn">4 servings</div><div class="cl">All recipes</div></div>
+      <div class="chip"><div class="cn">3–4×</div><div class="cl">Veg dinners</div></div>
+    </div>
+    <div class="pb">
+      <h4>📊 Hitting 120g+ Protein Daily</h4>
+      <div class="pr"><span class="prl">Breakfast</span><span class="prt">~10g</span><span class="prd">Overnight oats: 1c soy milk + ½c oats + 1 tbsp chia seeds + toppings</span></div>
+      <div class="pr"><span class="prl">Lunch</span><span class="prt">~35g</span><span class="prd">Grain bowl with leftover chicken (~33g), salmon (~34g), or tofu+chickpeas (~22g)</span></div>
+      <div class="pr"><span class="prl">Dinner</span><span class="prt">~38g</span><span class="prd">Sheet pan chicken (~41g) or salmon (~40g). Veg nights ~15g — use Ascent shake</span></div>
+      <div class="pr"><span class="prl">Snacks</span><span class="prt">~25g</span><span class="prd">Edamame 1c (~17g) + trail mix 1.5oz (~7g). Edamame is the daily protein anchor.</span></div>
+      <div class="pr"><span class="prl">Evening</span><span class="prt">~3g</span><span class="prd">¼c granola + ¼c soy milk (~150 cal). Small dessert, built into daily target.</span></div>
+      <div class="pr"><span class="prl">Shake (2–3×)</span><span class="prt">+25g</span><span class="prd">Ascent on vegetarian dinner nights. Bridges protein gap to keep floor above 120g.</span></div>
+      <div class="pr" style="border-top:1px solid rgba(10,79,110,.1);margin-top:8px;padding-top:8px">
+        <span class="prl" style="color:var(--grn);font-weight:600">Total</span>
+        <span class="prt">111–136g</span>
+        <span class="prd">Protein days (chicken/salmon) ~136g food-only. Veg nights ~111g + shake = 136g. Always above 120g.</span>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <h3 style="font-family:'Bebas Neue',cursive;font-size:19px;color:var(--water);margin-bottom:10px">Weekly Template — Never Changes</h3>
+      <div class="tg">
+        <div class="tc"><div class="tcs">Breakfast daily</div><div class="tcn">Overnight Oats</div><div class="tcd">5 jars prepped Sunday. 1c soy milk base. Swap toppings each morning.</div></div>
+        <div class="tc"><div class="tcs">Lunch M–F</div><div class="tcn">Grain Bowl</div><div class="tcd">Prepped grain + roasted veg + leftover protein + week's sauce. 5 min assembly.</div></div>
+        <div class="tc"><div class="tcs">Dinner ×2</div><div class="tcn">Sheet Pan Protein</div><div class="tcd">4-serving recipe. Different marinade each rotation.</div></div>
+        <div class="tc"><div class="tcs">Dinner ×2</div><div class="tcn">One-Pot Veg</div><div class="tcd">4-serving curry or stew. Ascent shake these nights.</div></div>
+        <div class="tc"><div class="tcs">Dinner ×1</div><div class="tcn">Flex / Eggs</div><div class="tcd">Leftovers or quick egg dish. Zero prep.</div></div>
+        <div class="tc"><div class="tcs">Snacks daily</div><div class="tcn">Edamame + Trail Mix</div><div class="tcd">1c edamame (~17g protein) + 1.5oz trail mix. Batch prep trail mix weekly.</div></div>
+        <div class="tc"><div class="tcs">Evening daily</div><div class="tcn">Granola + Soy Milk</div><div class="tcd">¼c granola + ¼c soy milk. Small dessert, ~150 cal. Built into daily target.</div></div>
+      </div>
+    </div>
+    <div class="sh"><h2>Rotation Details</h2></div>
+    <div class="rg2" id="rotGrid"></div>
+    <div class="tip"><h4>📐 Serving Math</h4><p>Sheet pan recipe (4 servings): 2 dinners + 2 portions into lunch bowls. One-pot veg (4 servings): 2 dinners + 2 portions into bowls. You cook exactly 2 dinner recipes on Sunday.</p></div>
+
+    <div class="sh" style="margin-top:20px">
+      <h2>Snacks, Dessert & Overnight Oats</h2>
+      <p>Daily snack stack, evening ritual, and the full trail mix recipe.</p>
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--water);margin-bottom:10px">🥜 Weekly Trail Mix — Ratio Recipe</div>
+        <div style="font-size:11px;color:var(--txl);margin-bottom:10px;font-weight:300">Make one batch Sunday (~10.5 oz / 7 servings). Store in a jar. Grab a small bag each morning.</div>
+        <div style="font-size:12px;color:var(--txm);line-height:1.8;margin-bottom:10px">
+          <strong>2 parts</strong> shelled pistachios (roasted, unsalted)<br>
+          <strong>1 part</strong> almonds or cashews<br>
+          <strong>1 part</strong> pumpkin seeds (pepitas)<br>
+          <strong>1 part</strong> dried cherries or cranberries (unsweetened)<br>
+          <strong>½ part</strong> dark chocolate chips (70%+ cacao)<br>
+          <strong>½ part</strong> unsweetened coconut flakes, toasted
+        </div>
+        <div style="background:var(--foam);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--txm);line-height:1.6">
+          <strong>Serving: 1.5 oz / 42g (~¼ cup heaping)</strong> · ~200 cal · 6–7g protein · 14g fat · 13g carbs<br>
+          <strong>Weekly batch:</strong> Use 2 cups pistachios as your base unit — scale everything proportionally. Yields ~10.5 oz / 7 servings.<br>
+          <strong>Tip:</strong> Toast pumpkin seeds and coconut flakes in a dry pan 3–4 min first. Makes a big difference in flavor.
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--water);margin-bottom:10px">🥣 Daily Snack & Dessert Stack</div>
+        <div style="font-size:11px;color:var(--txl);margin-bottom:10px;font-weight:300">~28g protein from snacks + evening. Anchored by edamame.</div>
+        <div class="pi" style="margin-bottom:8px"><div class="pd"></div><div><strong style="font-size:12px">Edamame (daily anchor)</strong><div style="font-size:11px;color:var(--txl);font-weight:300">1 cup frozen steam-in-bag. Microwave fresh each day — no prep. ~17g protein, ~180 cal. Salt lightly.</div></div></div>
+        <div class="pi" style="margin-bottom:8px"><div class="pd"></div><div><strong style="font-size:12px">Trail Mix (daily)</strong><div style="font-size:11px;color:var(--txl);font-weight:300">1.5 oz / 42g portion. ~7g protein, ~200 cal. Pre-portion into bags Sunday morning.</div></div></div>
+        <div class="pi" style="margin-bottom:8px"><div class="pd"></div><div><strong style="font-size:12px">String Cheese (backup)</strong><div style="font-size:11px;color:var(--txl);font-weight:300">1–2 sticks on high-training days. ~7g protein each. Convenient at your desk.</div></div></div>
+        <div class="pi" style="margin-bottom:8px"><div class="pd"></div><div><strong style="font-size:12px">Evening Dessert (daily)</strong><div style="font-size:11px;color:var(--txl);font-weight:300">¼c whole-grain granola + ¼c soy milk. ~150 cal, ~3–4g protein. Built into daily calorie target. Small, satisfying, consistent.</div></div></div>
+        <div class="pi"><div class="pd"></div><div><strong style="font-size:12px">Overnight Oats Base</strong><div style="font-size:11px;color:var(--txl);font-weight:300">1c soy milk + ½c rolled oats + 1 tbsp chia seeds + 1 tsp honey. ~10g protein, ~320 cal. Add fresh toppings each morning.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SAUCES PANEL ===== -->
+  <div class="panel" id="panel-sauces">
+    <div class="sh">
+      <h2>Sauces, Dressings & Prep Recipes</h2>
+      <p>One double-batch sauce per week: half for grain bowl dressing, half as protein marinade.</p>
+    </div>
+    <div class="tip" style="margin-bottom:18px">
+      <h4>🫙 Double-Batch System</h4>
+      <p>Make ~1 cup of the week's sauce on Sunday. Half goes in a jar for bowl drizzling all week. Half marinates the sheet pan protein before roasting. One recipe, two uses, zero extra effort.</p>
+    </div>
+    <div id="allSauces"></div>
+    <div class="sh" style="margin-top:6px">
+      <h2>Sunday Base Prep</h2>
+      <p>Same every week regardless of cuisine rotation.</p>
+    </div>
+    <div class="prepg" id="prepGrid"></div>
+    <div class="tip">
+      <h4>🕐 Full Sunday Timeline (~2 hours)</h4>
+      <p>0:00 Start brown rice · 0:05 Load 2 veg sheet pans into oven · 0:20 Make week's sauce (double batch) + start one-pot veg meal · 0:40 Marinate + load protein sheet pan · 0:50 Prep 5 overnight oat jars (soy milk base) · 1:00 Make trail mix batch + portion snacks · 1:20 Pull everything, portion into containers · 1:45 Clean up · 2:00 Done.</p>
+    </div>
+  </div>
+
+  <!-- ===== STRATEGY PANEL ===== -->
+  <div class="panel" id="panel-strategy">
+    <div class="sh"><h2>The Plan Behind the Plan</h2></div>
+    <div class="progsec">
+      <h3>Weight Loss Trajectory</h3>
+      <p style="font-size:11px;color:var(--txl);margin-bottom:12px;font-weight:300">~1 lb/week from July. Preserves muscle mass for rowing power.</p>
+      <div id="weightProg"></div>
+    </div>
+    <div class="prg" id="prinGrid"></div>
+    <div style="margin-top:16px">
+      <div class="tip"><h4>🏅 Pete Plan at This Volume</h4><p>Three water days + Sunday easy erg = substantial distance work already. Tuesday endurance session is your one guaranteed hard Pete Plan session. Steady-states Thu/Sat are covered by crew practice. Monthly speed session keeps top-end fitness without weekly overload. This is optimal masters athlete load.</p></div>
+      <div class="tip"><h4>📅 4-Week Meal Cycle Logic</h4><p>Asian → Mediterranean → Mexican → Thai → repeat. Each rotation takes exactly 4 weeks before returning, so by the time Week 1 comes back, your palate has been on a month-long tour. Combine with the 3-week Pete Plan cycle and the two schedules never perfectly align — every week feels slightly different even though your routine is identical.</p></div>
+    </div>
+    <div class="progsec" style="margin-top:15px">
+      <h3>Phase Breakdown</h3>
+      <div id="phases"></div>
+    </div>
+  </div>
+
+  <!-- ===== LIFT LOG PANEL ===== -->
+  <div class="panel" id="panel-liftlog">
+    <div class="sh">
+      <h2>Lifting Log</h2>
+      <p>Log every strength session. Data persists in your browser. Export anytime as CSV.</p>
+    </div>
+
+    <div class="log-form card" id="lift-form-card">
+      <div class="log-form-title">Log a Lifting Session</div>
+      <div class="lf-row">
+        <div class="lf-group">
+          <label class="lf-label">Date</label>
+          <input type="date" id="lf-date" class="lf-input">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Session</label>
+          <select id="lf-session" class="lf-input">
+            <option value="A">Strength A — Posterior Chain + Pull</option>
+            <option value="B">Strength B — Hinge + Single Leg</option>
+            <option value="C">Strength C — Upper Body</option>
+          </select>
+        </div>
+      </div>
+      <div class="lf-exercises" id="lf-exercises"></div>
+      <div class="lf-row" style="margin-top:12px">
+        <div class="lf-group" style="flex:2">
+          <label class="lf-label">Session Notes (optional)</label>
+          <input type="text" id="lf-notes" class="lf-input" placeholder="How it felt, any PRs, modifications...">
+        </div>
+        <div class="lf-group" style="flex:0 0 auto;align-self:flex-end">
+          <button class="log-btn" onclick="saveLifting()">Save Session</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-controls">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)" id="lift-count"></div>
+      <div style="display:flex;gap:8px">
+        <button class="log-btn-sm" onclick="exportLifting()">⬇ Export CSV</button>
+        <button class="log-btn-sm danger" onclick="clearLifting()">🗑 Clear All</button>
+      </div>
+    </div>
+    <div id="lift-history"></div>
+  </div>
+
+  <!-- ===== ERG LOG PANEL ===== -->
+  <div class="panel" id="panel-erglog">
+    <div class="sh">
+      <h2>Rowing & Erg Log</h2>
+      <p>Log every on-water and erg session. Data persists in your browser.</p>
+    </div>
+
+    <div class="log-form card" id="erg-form-card">
+      <div class="log-form-title">Log a Rowing Session</div>
+      <div class="lf-row">
+        <div class="lf-group">
+          <label class="lf-label">Date</label>
+          <input type="date" id="ef-date" class="lf-input">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Session Type</label>
+          <select id="ef-type" class="lf-input" onchange="updateErgFields()">
+            <option value="endurance">Pete Plan — Endurance Intervals</option>
+            <option value="speed">Pete Plan — Speed Session</option>
+            <option value="steady">Steady State / Easy Erg</option>
+            <option value="water">On Water (Crew Practice)</option>
+            <option value="recovery">Sunday Recovery Erg</option>
+            <option value="cross">Cross-Training (Run/Tennis)</option>
+          </select>
+        </div>
+        <div class="lf-group" id="ef-subtype-group">
+          <label class="lf-label">Specific Session</label>
+          <select id="ef-subtype" class="lf-input">
+            <option value="5x1500">5 × 1500m</option>
+            <option value="4x2000">4 × 2000m</option>
+            <option value="3k-2.5k-2k">3k / 2.5k / 2k</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="lf-row" id="ef-metrics-row">
+        <div class="lf-group">
+          <label class="lf-label">Total Distance (m)</label>
+          <input type="number" id="ef-dist" class="lf-input" placeholder="e.g. 7500">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Total Time (mm:ss)</label>
+          <input type="text" id="ef-time" class="lf-input" placeholder="e.g. 32:15">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Avg Split /500m</label>
+          <input type="text" id="ef-split" class="lf-input" placeholder="e.g. 2:08">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Avg Stroke Rate</label>
+          <input type="number" id="ef-rate" class="lf-input" placeholder="e.g. 22">
+        </div>
+      </div>
+
+      <div class="lf-row" id="ef-reps-row" style="display:none">
+        <div class="lf-group">
+          <label class="lf-label">Rep Splits (comma-separated, mm:ss each)</label>
+          <input type="text" id="ef-reps" class="lf-input" placeholder="e.g. 2:05, 2:06, 2:07, 2:06, 2:04">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Target Split /500m</label>
+          <input type="text" id="ef-target" class="lf-input" placeholder="e.g. 2:06">
+        </div>
+      </div>
+
+      <div class="lf-row" id="ef-cross-row" style="display:none">
+        <div class="lf-group">
+          <label class="lf-label">Activity</label>
+          <input type="text" id="ef-activity" class="lf-input" placeholder="e.g. 5k run, 1hr tennis">
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Duration</label>
+          <input type="text" id="ef-duration" class="lf-input" placeholder="e.g. 45 min">
+        </div>
+      </div>
+
+      <div class="lf-row">
+        <div class="lf-group">
+          <label class="lf-label">Stroke Rate (erg) / HR avg (if tracking)</label>
+          <input type="number" id="ef-hr" class="lf-input" placeholder="Optional">
+        </div>
+        <div class="lf-group" style="flex:2">
+          <label class="lf-label">Notes</label>
+          <input type="text" id="ef-notes" class="lf-input" placeholder="Conditions, how it felt, crew notes...">
+        </div>
+        <div class="lf-group" style="flex:0 0 auto;align-self:flex-end">
+          <button class="log-btn" onclick="saveErg()">Save Session</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-controls">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)" id="erg-count"></div>
+      <div style="display:flex;gap:8px">
+        <button class="log-btn-sm" onclick="exportErg()">⬇ Export CSV</button>
+        <button class="log-btn-sm danger" onclick="clearErg()">🗑 Clear All</button>
+      </div>
+    </div>
+    <div id="erg-history"></div>
+  </div>
+
+  <!-- ===== DASHBOARD PANEL ===== -->
+  <div class="panel" id="panel-dashboard">
+    <div class="sh">
+      <h2>Training Dashboard</h2>
+      <p>Auto-updated from your logs. Personal records, volume trends, and progress at a glance.</p>
+    </div>
+    <div id="dash-empty" class="tip" style="display:none">
+      <h4>📋 No data yet</h4>
+      <p>Start logging sessions in the Lift Log and Erg Log tabs — your dashboard will populate automatically.</p>
+    </div>
+    <div id="dash-content">
+      <div class="g2" style="margin-bottom:16px" id="dash-stats"></div>
+      <div class="sh"><h2>Personal Records — Lifting</h2><p>Heaviest weight logged per exercise.</p></div>
+      <div class="g3" id="dash-prs" style="margin-bottom:20px"></div>
+      <div class="sh"><h2>Erg Performance</h2><p>Best splits logged per session type.</p></div>
+      <div class="g3" id="dash-erg-prs" style="margin-bottom:20px"></div>
+      <div class="sh"><h2>Recent Sessions</h2><p>Last 10 sessions across all types.</p></div>
+      <div id="dash-recent"></div>
+    </div>
+  </div>
+
+</div><!-- /.main -->
+
+<!-- ===== DAY MODAL ===== -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-date" id="m-date"></div>
+    <div class="modal-dow" id="m-dow"></div>
+    <div class="modal-section">
+      <h4>Training</h4>
+      <div id="m-workout"></div>
+    </div>
+    <div class="modal-section">
+      <h4>Meals Today</h4>
+      <div id="m-meals"></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Starting July 5, 2026 · Water days Tu/Th/Sat · Pete Plan © Pete Marston — thepeteplan.wordpress.com</div>
+
+<!-- ===== SCRIPTS — order matters ===== -->
+<!-- 1. Data constants (all other JS files depend on this) -->
+<script src="js/data.js"></script>
+<!-- 2. Feature modules (depend on data.js) -->
+<script src="js/calendar.js"></script>
+<script src="js/workouts.js"></script>
+<script src="js/meals.js"></script>
+<script src="js/sauces.js"></script>
+<script src="js/strategy.js"></script>
+<script src="js/log.js"></script>
+<!-- 3. App entry point — runs init after all modules are loaded -->
+<script src="js/app.js"></script>
+
+<!-- ===== SERVICE WORKER REGISTRATION ===== -->
+<!--
+  Placed after all app scripts so the SW registers only after
+  the page has fully loaded — this prevents the SW's install
+  network requests from competing with the page's own resources.
+
+  'load' event fires once HTML, CSS, scripts, and images are done.
+-->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(function (registration) {
+          console.log('[SW] Registered. Scope:', registration.scope);
+        })
+        .catch(function (error) {
+          console.warn('[SW] Registration failed:', error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>
