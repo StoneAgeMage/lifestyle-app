@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v1';
+const CACHE_NAME = 'rowing-v7';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.
@@ -45,13 +45,21 @@ const PRECACHE_ASSETS = [
   '/',               // Root URL — browser sends this when user opens the app
   'index.html',      // Direct URL — same content, different request
   'css/styles.css',
-  'js/data.js',
+  'js/storage.js',
+  'js/data-ingredients.js',
+  'js/data-recipes.js',
+  'js/data-cuisines.js',
+  'js/data-workouts.js',
+  'js/data-training-plans.js',
+  'js/engine.js',
   'js/calendar.js',
   'js/workouts.js',
   'js/meals.js',
   'js/sauces.js',
-  'js/strategy.js',
   'js/log.js',
+  'js/settings.js',
+  'js/dashboard.js',
+  'js/meal-planner.js',
   'js/app.js'
   // ✗ NOT caching Google Fonts — they are cross-origin and manage
   //   their own HTTP cache headers. Trying to cache them here

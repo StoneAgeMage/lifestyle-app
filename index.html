@@ -9,19 +9,10 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0a4f6e">
 
-  <!--
-    iPhone / iOS PWA support.
-    Safari does not use manifest.json for home-screen installs.
-    These tags are required for a proper iOS standalone experience.
-  -->
-  <!-- Enables full-screen (standalone) mode when launched from home screen -->
+  <!-- iOS PWA support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <!-- Status bar color. "black" keeps the bar visible with dark text on white.
-       Use "black-translucent" if you add CSS padding for the notch. -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <!-- The label that appears under the icon on the iOS home screen -->
   <meta name="apple-mobile-web-app-title" content="Rowing">
-  <!-- The icon used on iOS. Must be a direct image — Safari ignores manifest icons -->
   <link rel="apple-touch-icon" href="icons/icon-192.png">
 
   <!-- Fonts -->
@@ -32,43 +23,39 @@
 </head>
 <body>
 
-<!-- ===== HEADER ===== -->
-<div class="hdr">
-  <div class="hdr-in">
-    <div class="hdr-lbl">Masters Rowing · Personal Program · July–December 2026</div>
-    <h1>TRAIN.<br><em>EAT.</em><br>RACE.</h1>
-    <p class="hdr-sub">Lift M/W/F. Pete Plan Tu/Th/Sat. 4-cuisine meal rotation. Full calendar July 5–December 31.</p>
-    <div class="hdr-stats">
-      <div><div class="sv">188→165</div><div class="sl">Weight goal</div></div>
-      <div><div class="sv">3× lift</div><div class="sl">Mon/Wed/Fri</div></div>
-      <div><div class="sv">4 cuisines</div><div class="sl">Rotating meals</div></div>
-      <div><div class="sv">120g+</div><div class="sl">Protein/day</div></div>
-    </div>
-  </div>
-  <div class="hdr-wave"></div>
+<!-- ===== APP BAR ===== -->
+<div class="app-bar">
+  <div class="app-bar-title">Masters Rowing</div>
+  <button class="app-bar-settings" onclick="showSettings()">⚙ Settings</button>
 </div>
 
 <!-- ===== MAIN ===== -->
 <div class="main">
 
-  <!-- Tab bar -->
+  <!-- 5-tab bar -->
   <div class="tabs">
-    <button class="tab active" onclick="showPanel('calendar',this)">📅 Calendar</button>
-    <button class="tab" onclick="showPanel('workout',this)">🚣 Workouts</button>
-    <button class="tab" onclick="showPanel('meals',this)">🥗 Meals</button>
-    <button class="tab" onclick="showPanel('sauces',this)">🫙 Sauces & Prep</button>
-    <button class="tab" onclick="showPanel('strategy',this)">📈 Strategy</button>
-    <button class="tab" onclick="showPanel('liftlog',this)">🏋️ Lift Log</button>
-    <button class="tab" onclick="showPanel('erglog',this)">🚣 Erg Log</button>
-    <button class="tab" onclick="showPanel('dashboard',this)">📊 Dashboard</button>
+    <button class="tab active" onclick="showPanel('today',this)">Today</button>
+    <button class="tab" onclick="showPanel('plan',this)">Plan</button>
+    <button class="tab" onclick="showPanel('fuel',this)">Fuel</button>
+    <button id="tab-progress" class="tab" onclick="showPanel('progress',this)">Progress</button>
+    <button id="tab-settings" class="tab" onclick="showPanel('settings',this)">Settings</button>
   </div>
 
-  <!-- ===== CALENDAR PANEL ===== -->
-  <div class="panel active" id="panel-calendar">
-    <div class="sh">
-      <h2>Training & Meal Calendar</h2>
-      <p>July 5 – December 31, 2026. Click any day for full workout detail and meals. Colors = workout type.</p>
+  <!-- ===== TODAY PANEL ===== -->
+  <div class="panel active" id="panel-today">
+    <div id="td-date-ctx"></div>
+    <div id="td-workout"></div>
+    <div class="db-cols">
+      <div id="td-meals"></div>
+      <div class="db-right-col">
+        <div id="td-weight"></div>
+        <div id="td-prep"></div>
+      </div>
     </div>
+  </div>
+
+  <!-- ===== PLAN PANEL (Calendar + Workout Reference) ===== -->
+  <div class="panel" id="panel-plan">
     <div class="cal-legend">
       <div class="leg"><div class="leg-dot bg-lift"></div>Lift (M/W/F)</div>
       <div class="leg"><div class="leg-dot bg-end"></div>Pete Endurance</div>
@@ -78,42 +65,27 @@
     </div>
     <div class="cal-nav">
       <button class="cal-btn" onclick="changeMonth(-1)">◀ Prev</button>
-      <h3 id="cal-title">July 2026</h3>
+      <h3 id="cal-title">June 2026</h3>
       <button class="cal-btn" onclick="changeMonth(1)">Next ▶</button>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
+
+    <!-- Workout reference — collapsible -->
+    <details class="wk-ref">
+      <summary>Workout Reference</summary>
+      <div class="rg" id="ratGrid" style="margin-top:12px;margin-bottom:16px"></div>
+      <div id="strengthTips"></div>
+    </details>
   </div>
 
-  <!-- ===== WORKOUT PANEL ===== -->
-  <div class="panel" id="panel-workout">
-    <div class="sh">
-      <h2>Weekly Training Structure</h2>
-      <p>M/W/F = lifting. Tu/Th/Sat = water or Pete Plan erg. Sun = easy erg + recovery.</p>
-    </div>
-    <div class="rat">
-      <h3>Day-by-Day Rationale</h3>
-      <div class="rg" id="ratGrid"></div>
-    </div>
-    <div class="pete">
-      <h3>Pete Plan Sessions</h3>
-      <p>Endurance intervals on Tuesday. Steady-state Thursday & Saturday (water replaces both). Monthly speed swap on one Thu or Sat.</p>
-      <div class="pg" id="peteGrid"></div>
-    </div>
-    <div class="sh" style="margin-top:20px"><h2>Week-by-Week Schedule</h2></div>
-    <div class="ctabs">
-      <button class="ctab active" onclick="showCycle(1,this)">Pete Wk 1</button>
-      <button class="ctab" onclick="showCycle(2,this)">Pete Wk 2</button>
-      <button class="ctab" onclick="showCycle(3,this)">Pete Wk 3</button>
-    </div>
-    <div class="cpanel active" id="cy-1"><div class="g2" id="g-1"></div></div>
-    <div class="cpanel" id="cy-2"><div class="g2" id="g-2"></div></div>
-    <div class="cpanel" id="cy-3"><div class="g2" id="g-3"></div></div>
-    <div style="margin-top:18px" id="strengthTips"></div>
-  </div>
+  <!-- ===== FUEL PANEL (Meal Planner + Nutrition + Sauces & Prep) ===== -->
+  <div class="panel" id="panel-fuel">
 
-  <!-- ===== MEALS PANEL ===== -->
-  <div class="panel" id="panel-meals">
-    <div class="sh">
+    <!-- Dynamic weekly planner -->
+    <div id="meal-planner-view"></div>
+
+    <!-- Nutrition overview -->
+    <div class="sh" style="margin-top:16px">
       <h2>4-Week Rotating Meal Plan</h2>
       <p>Wk 1 Asian · Wk 2 Mediterranean · Wk 3 Mexican · Wk 4 Thai — then repeat. <span style="color:var(--veg)">●</span> = veg/vegan.</p>
     </div>
@@ -149,8 +121,6 @@
         <div class="tc"><div class="tcs">Evening daily</div><div class="tcn">Granola + Soy Milk</div><div class="tcd">¼c granola + ¼c soy milk. Small dessert, ~150 cal. Built into daily target.</div></div>
       </div>
     </div>
-    <div class="sh"><h2>Rotation Details</h2></div>
-    <div class="rg2" id="rotGrid"></div>
     <div class="tip"><h4>📐 Serving Math</h4><p>Sheet pan recipe (4 servings): 2 dinners + 2 portions into lunch bowls. One-pot veg (4 servings): 2 dinners + 2 portions into bowls. You cook exactly 2 dinner recipes on Sunday.</p></div>
 
     <div class="sh" style="margin-top:20px">
@@ -185,11 +155,9 @@
         <div class="pi"><div class="pd"></div><div><strong style="font-size:12px">Overnight Oats Base</strong><div style="font-size:11px;color:var(--txl);font-weight:300">1c soy milk + ½c rolled oats + 1 tbsp chia seeds + 1 tsp honey. ~10g protein, ~320 cal. Add fresh toppings each morning.</div></div></div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== SAUCES PANEL ===== -->
-  <div class="panel" id="panel-sauces">
-    <div class="sh">
+    <!-- Sauces & Prep -->
+    <div class="sh" style="margin-top:20px">
       <h2>Sauces, Dressings & Prep Recipes</h2>
       <p>One double-batch sauce per week: half for grain bowl dressing, half as protein marinade.</p>
     </div>
@@ -209,189 +177,176 @@
     </div>
   </div>
 
-  <!-- ===== STRATEGY PANEL ===== -->
-  <div class="panel" id="panel-strategy">
-    <div class="sh"><h2>The Plan Behind the Plan</h2></div>
-    <div class="progsec">
-      <h3>Weight Loss Trajectory</h3>
-      <p style="font-size:11px;color:var(--txl);margin-bottom:12px;font-weight:300">~1 lb/week from July. Preserves muscle mass for rowing power.</p>
-      <div id="weightProg"></div>
+  <!-- ===== PROGRESS PANEL (Stats / Lift Log / Erg Log) ===== -->
+  <div class="panel" id="panel-progress">
+    <div class="ctabs">
+      <button id="pg-tab-stats" class="ctab active" onclick="showCycle(1,this)">Stats</button>
+      <button id="pg-tab-lift" class="ctab" onclick="showCycle(2,this)">Lift</button>
+      <button id="pg-tab-erg" class="ctab" onclick="showCycle(3,this)">Erg</button>
     </div>
-    <div class="prg" id="prinGrid"></div>
-    <div style="margin-top:16px">
-      <div class="tip"><h4>🏅 Pete Plan at This Volume</h4><p>Three water days + Sunday easy erg = substantial distance work already. Tuesday endurance session is your one guaranteed hard Pete Plan session. Steady-states Thu/Sat are covered by crew practice. Monthly speed session keeps top-end fitness without weekly overload. This is optimal masters athlete load.</p></div>
-      <div class="tip"><h4>📅 4-Week Meal Cycle Logic</h4><p>Asian → Mediterranean → Mexican → Thai → repeat. Each rotation takes exactly 4 weeks before returning, so by the time Week 1 comes back, your palate has been on a month-long tour. Combine with the 3-week Pete Plan cycle and the two schedules never perfectly align — every week feels slightly different even though your routine is identical.</p></div>
+
+    <!-- Stats sub-panel -->
+    <div class="cpanel active" id="cy-1">
+      <div id="dash-empty" class="tip" style="display:none">
+        <h4>📋 No data yet</h4>
+        <p>Start logging sessions in Lift and Erg — your records will populate automatically.</p>
+      </div>
+      <div id="dash-content">
+        <div class="g2" style="margin-bottom:16px" id="dash-stats"></div>
+        <div class="sh"><h2>Personal Records — Lifting</h2><p>Heaviest weight logged per exercise.</p></div>
+        <div class="g3" id="dash-prs" style="margin-bottom:20px"></div>
+        <div class="sh"><h2>Erg Performance</h2><p>Best splits logged per session type.</p></div>
+        <div class="g3" id="dash-erg-prs" style="margin-bottom:20px"></div>
+        <div class="sh"><h2>Recent Sessions</h2><p>Last 10 sessions across all types.</p></div>
+        <div id="dash-recent"></div>
+      </div>
     </div>
-    <div class="progsec" style="margin-top:15px">
-      <h3>Phase Breakdown</h3>
-      <div id="phases"></div>
+
+    <!-- Lift Log sub-panel -->
+    <div class="cpanel" id="cy-2">
+      <div class="log-form card" id="lift-form-card">
+        <div class="log-form-title">Log a Lifting Session</div>
+        <div class="lf-row">
+          <div class="lf-group">
+            <label class="lf-label">Date</label>
+            <input type="date" id="lf-date" class="lf-input">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Session</label>
+            <select id="lf-session" class="lf-input">
+              <option value="A">Strength A — Posterior Chain + Pull</option>
+              <option value="B">Strength B — Hinge + Single Leg</option>
+              <option value="C">Strength C — Upper Body</option>
+            </select>
+          </div>
+        </div>
+        <div class="lf-exercises" id="lf-exercises"></div>
+        <div class="lf-row" style="margin-top:12px">
+          <div class="lf-group" style="flex:2">
+            <label class="lf-label">Session Notes (optional)</label>
+            <input type="text" id="lf-notes" class="lf-input" placeholder="How it felt, any PRs, modifications...">
+          </div>
+          <div class="lf-group" style="flex:0 0 auto;align-self:flex-end">
+            <button class="log-btn" onclick="saveLifting()">Save Session</button>
+          </div>
+        </div>
+      </div>
+      <div class="log-controls">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)" id="lift-count"></div>
+        <div style="display:flex;gap:8px">
+          <button class="log-btn-sm" onclick="exportLifting()">⬇ Export CSV</button>
+          <button class="log-btn-sm danger" onclick="clearLifting()">🗑 Clear All</button>
+        </div>
+      </div>
+      <div id="lift-history"></div>
+    </div>
+
+    <!-- Erg Log sub-panel -->
+    <div class="cpanel" id="cy-3">
+      <div class="log-form card" id="erg-form-card">
+        <div class="log-form-title">Log a Rowing Session</div>
+        <div class="lf-row">
+          <div class="lf-group">
+            <label class="lf-label">Date</label>
+            <input type="date" id="ef-date" class="lf-input">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Session Type</label>
+            <select id="ef-type" class="lf-input" onchange="updateErgFields()">
+              <option value="endurance">Pete Plan — Endurance Intervals</option>
+              <option value="speed">Pete Plan — Speed Session</option>
+              <option value="steady">Steady State / Easy Erg</option>
+              <option value="water">On Water (Crew Practice)</option>
+              <option value="recovery">Sunday Recovery Erg</option>
+              <option value="cross">Cross-Training (Run/Tennis)</option>
+            </select>
+          </div>
+          <div class="lf-group" id="ef-subtype-group">
+            <label class="lf-label">Specific Session</label>
+            <select id="ef-subtype" class="lf-input">
+              <option value="5x1500">5 × 1500m</option>
+              <option value="4x2000">4 × 2000m</option>
+              <option value="3k-2.5k-2k">3k / 2.5k / 2k</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="lf-row" id="ef-metrics-row">
+          <div class="lf-group">
+            <label class="lf-label">Total Distance (m)</label>
+            <input type="number" id="ef-dist" class="lf-input" placeholder="e.g. 7500">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Total Time (mm:ss)</label>
+            <input type="text" id="ef-time" class="lf-input" placeholder="e.g. 32:15">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Avg Split /500m</label>
+            <input type="text" id="ef-split" class="lf-input" placeholder="e.g. 2:08">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Avg Stroke Rate</label>
+            <input type="number" id="ef-rate" class="lf-input" placeholder="e.g. 22">
+          </div>
+        </div>
+
+        <div class="lf-row" id="ef-reps-row" style="display:none">
+          <div class="lf-group">
+            <label class="lf-label">Rep Splits (comma-separated, mm:ss each)</label>
+            <input type="text" id="ef-reps" class="lf-input" placeholder="e.g. 2:05, 2:06, 2:07, 2:06, 2:04">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Target Split /500m</label>
+            <input type="text" id="ef-target" class="lf-input" placeholder="e.g. 2:06">
+          </div>
+        </div>
+
+        <div class="lf-row" id="ef-cross-row" style="display:none">
+          <div class="lf-group">
+            <label class="lf-label">Activity</label>
+            <input type="text" id="ef-activity" class="lf-input" placeholder="e.g. 5k run, 1hr tennis">
+          </div>
+          <div class="lf-group">
+            <label class="lf-label">Duration</label>
+            <input type="text" id="ef-duration" class="lf-input" placeholder="e.g. 45 min">
+          </div>
+        </div>
+
+        <div class="lf-row">
+          <div class="lf-group">
+            <label class="lf-label">Stroke Rate (erg) / HR avg (if tracking)</label>
+            <input type="number" id="ef-hr" class="lf-input" placeholder="Optional">
+          </div>
+          <div class="lf-group" style="flex:2">
+            <label class="lf-label">Notes</label>
+            <input type="text" id="ef-notes" class="lf-input" placeholder="Conditions, how it felt, crew notes...">
+          </div>
+          <div class="lf-group" style="flex:0 0 auto;align-self:flex-end">
+            <button class="log-btn" onclick="saveErg()">Save Session</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="log-controls">
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)" id="erg-count"></div>
+        <div style="display:flex;gap:8px">
+          <button class="log-btn-sm" onclick="exportErg()">⬇ Export CSV</button>
+          <button class="log-btn-sm danger" onclick="clearErg()">🗑 Clear All</button>
+        </div>
+      </div>
+      <div id="erg-history"></div>
     </div>
   </div>
 
-  <!-- ===== LIFT LOG PANEL ===== -->
-  <div class="panel" id="panel-liftlog">
+  <!-- ===== SETTINGS PANEL ===== -->
+  <div class="panel" id="panel-settings">
     <div class="sh">
-      <h2>Lifting Log</h2>
-      <p>Log every strength session. Data persists in your browser. Export anytime as CSV.</p>
+      <h2>Settings</h2>
+      <p>Personalize your training and nutrition plan.</p>
     </div>
-
-    <div class="log-form card" id="lift-form-card">
-      <div class="log-form-title">Log a Lifting Session</div>
-      <div class="lf-row">
-        <div class="lf-group">
-          <label class="lf-label">Date</label>
-          <input type="date" id="lf-date" class="lf-input">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Session</label>
-          <select id="lf-session" class="lf-input">
-            <option value="A">Strength A — Posterior Chain + Pull</option>
-            <option value="B">Strength B — Hinge + Single Leg</option>
-            <option value="C">Strength C — Upper Body</option>
-          </select>
-        </div>
-      </div>
-      <div class="lf-exercises" id="lf-exercises"></div>
-      <div class="lf-row" style="margin-top:12px">
-        <div class="lf-group" style="flex:2">
-          <label class="lf-label">Session Notes (optional)</label>
-          <input type="text" id="lf-notes" class="lf-input" placeholder="How it felt, any PRs, modifications...">
-        </div>
-        <div class="lf-group" style="flex:0 0 auto;align-self:flex-end">
-          <button class="log-btn" onclick="saveLifting()">Save Session</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="log-controls">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)" id="lift-count"></div>
-      <div style="display:flex;gap:8px">
-        <button class="log-btn-sm" onclick="exportLifting()">⬇ Export CSV</button>
-        <button class="log-btn-sm danger" onclick="clearLifting()">🗑 Clear All</button>
-      </div>
-    </div>
-    <div id="lift-history"></div>
-  </div>
-
-  <!-- ===== ERG LOG PANEL ===== -->
-  <div class="panel" id="panel-erglog">
-    <div class="sh">
-      <h2>Rowing & Erg Log</h2>
-      <p>Log every on-water and erg session. Data persists in your browser.</p>
-    </div>
-
-    <div class="log-form card" id="erg-form-card">
-      <div class="log-form-title">Log a Rowing Session</div>
-      <div class="lf-row">
-        <div class="lf-group">
-          <label class="lf-label">Date</label>
-          <input type="date" id="ef-date" class="lf-input">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Session Type</label>
-          <select id="ef-type" class="lf-input" onchange="updateErgFields()">
-            <option value="endurance">Pete Plan — Endurance Intervals</option>
-            <option value="speed">Pete Plan — Speed Session</option>
-            <option value="steady">Steady State / Easy Erg</option>
-            <option value="water">On Water (Crew Practice)</option>
-            <option value="recovery">Sunday Recovery Erg</option>
-            <option value="cross">Cross-Training (Run/Tennis)</option>
-          </select>
-        </div>
-        <div class="lf-group" id="ef-subtype-group">
-          <label class="lf-label">Specific Session</label>
-          <select id="ef-subtype" class="lf-input">
-            <option value="5x1500">5 × 1500m</option>
-            <option value="4x2000">4 × 2000m</option>
-            <option value="3k-2.5k-2k">3k / 2.5k / 2k</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="lf-row" id="ef-metrics-row">
-        <div class="lf-group">
-          <label class="lf-label">Total Distance (m)</label>
-          <input type="number" id="ef-dist" class="lf-input" placeholder="e.g. 7500">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Total Time (mm:ss)</label>
-          <input type="text" id="ef-time" class="lf-input" placeholder="e.g. 32:15">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Avg Split /500m</label>
-          <input type="text" id="ef-split" class="lf-input" placeholder="e.g. 2:08">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Avg Stroke Rate</label>
-          <input type="number" id="ef-rate" class="lf-input" placeholder="e.g. 22">
-        </div>
-      </div>
-
-      <div class="lf-row" id="ef-reps-row" style="display:none">
-        <div class="lf-group">
-          <label class="lf-label">Rep Splits (comma-separated, mm:ss each)</label>
-          <input type="text" id="ef-reps" class="lf-input" placeholder="e.g. 2:05, 2:06, 2:07, 2:06, 2:04">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Target Split /500m</label>
-          <input type="text" id="ef-target" class="lf-input" placeholder="e.g. 2:06">
-        </div>
-      </div>
-
-      <div class="lf-row" id="ef-cross-row" style="display:none">
-        <div class="lf-group">
-          <label class="lf-label">Activity</label>
-          <input type="text" id="ef-activity" class="lf-input" placeholder="e.g. 5k run, 1hr tennis">
-        </div>
-        <div class="lf-group">
-          <label class="lf-label">Duration</label>
-          <input type="text" id="ef-duration" class="lf-input" placeholder="e.g. 45 min">
-        </div>
-      </div>
-
-      <div class="lf-row">
-        <div class="lf-group">
-          <label class="lf-label">Stroke Rate (erg) / HR avg (if tracking)</label>
-          <input type="number" id="ef-hr" class="lf-input" placeholder="Optional">
-        </div>
-        <div class="lf-group" style="flex:2">
-          <label class="lf-label">Notes</label>
-          <input type="text" id="ef-notes" class="lf-input" placeholder="Conditions, how it felt, crew notes...">
-        </div>
-        <div class="lf-group" style="flex:0 0 auto;align-self:flex-end">
-          <button class="log-btn" onclick="saveErg()">Save Session</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="log-controls">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)" id="erg-count"></div>
-      <div style="display:flex;gap:8px">
-        <button class="log-btn-sm" onclick="exportErg()">⬇ Export CSV</button>
-        <button class="log-btn-sm danger" onclick="clearErg()">🗑 Clear All</button>
-      </div>
-    </div>
-    <div id="erg-history"></div>
-  </div>
-
-  <!-- ===== DASHBOARD PANEL ===== -->
-  <div class="panel" id="panel-dashboard">
-    <div class="sh">
-      <h2>Training Dashboard</h2>
-      <p>Auto-updated from your logs. Personal records, volume trends, and progress at a glance.</p>
-    </div>
-    <div id="dash-empty" class="tip" style="display:none">
-      <h4>📋 No data yet</h4>
-      <p>Start logging sessions in the Lift Log and Erg Log tabs — your dashboard will populate automatically.</p>
-    </div>
-    <div id="dash-content">
-      <div class="g2" style="margin-bottom:16px" id="dash-stats"></div>
-      <div class="sh"><h2>Personal Records — Lifting</h2><p>Heaviest weight logged per exercise.</p></div>
-      <div class="g3" id="dash-prs" style="margin-bottom:20px"></div>
-      <div class="sh"><h2>Erg Performance</h2><p>Best splits logged per session type.</p></div>
-      <div class="g3" id="dash-erg-prs" style="margin-bottom:20px"></div>
-      <div class="sh"><h2>Recent Sessions</h2><p>Last 10 sessions across all types.</p></div>
-      <div id="dash-recent"></div>
+    <div class="card" style="max-width:560px">
+      <div class="log-form-title">Preferences</div>
+      <div id="settings-form"></div>
     </div>
   </div>
 
@@ -414,29 +369,31 @@
   </div>
 </div>
 
-<div class="footer">Starting July 5, 2026 · Water days Tu/Th/Sat · Pete Plan © Pete Marston — thepeteplan.wordpress.com</div>
+<div class="footer">Starting June 7, 2026 · Water days Tu/Th/Sat · Pete Plan © Pete Marston — thepeteplan.wordpress.com</div>
 
 <!-- ===== SCRIPTS — order matters ===== -->
-<!-- 1. Data constants (all other JS files depend on this) -->
-<script src="js/data.js"></script>
-<!-- 2. Feature modules (depend on data.js) -->
+<!-- 0. Storage layer -->
+<script src="js/storage.js"></script>
+<!-- 1. Structured data catalogs + engine -->
+<script src="js/data-ingredients.js"></script>
+<script src="js/data-recipes.js"></script>
+<script src="js/data-cuisines.js"></script>
+<script src="js/data-workouts.js"></script>
+<script src="js/data-training-plans.js"></script>
+<script src="js/engine.js"></script>
+<!-- 2. Feature modules -->
 <script src="js/calendar.js"></script>
 <script src="js/workouts.js"></script>
 <script src="js/meals.js"></script>
 <script src="js/sauces.js"></script>
-<script src="js/strategy.js"></script>
 <script src="js/log.js"></script>
-<!-- 3. App entry point — runs init after all modules are loaded -->
+<script src="js/settings.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/meal-planner.js"></script>
+<!-- 3. App entry point -->
 <script src="js/app.js"></script>
 
 <!-- ===== SERVICE WORKER REGISTRATION ===== -->
-<!--
-  Placed after all app scripts so the SW registers only after
-  the page has fully loaded — this prevents the SW's install
-  network requests from competing with the page's own resources.
-
-  'load' event fires once HTML, CSS, scripts, and images are done.
--->
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {

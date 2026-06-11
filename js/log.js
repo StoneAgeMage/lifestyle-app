@@ -3,8 +3,6 @@
 // No external data dependencies
 // ============================================================
 
-const LIFT_KEY = 'rowing_lift_log_v1';
-const ERG_KEY  = 'rowing_erg_log_v1';
 
 const sessionExercises = {
   A: ['Ring Rows','DB Romanian Deadlift','Goblet Squat','Ring Push-ups','Pallof Press','Plank'],
@@ -29,10 +27,22 @@ const ergTypeBg = {
 };
 
 // ---- Storage helpers ----
-function loadLifts()  { try { return JSON.parse(localStorage.getItem(LIFT_KEY)) || []; } catch(e) { return []; } }
-function saveLifts(d) { localStorage.setItem(LIFT_KEY, JSON.stringify(d)); }
-function loadErgs()   { try { return JSON.parse(localStorage.getItem(ERG_KEY))  || []; } catch(e) { return []; } }
-function saveErgs(d)  { localStorage.setItem(ERG_KEY, JSON.stringify(d)); }
+function loadLifts() {
+  return storage.readLogs().filter(e => e._logType === 'lift');
+}
+function saveLifts(d) {
+  const others = storage.readLogs().filter(e => e._logType !== 'lift');
+  const tagged = d.map(e => Object.assign({}, e, {_logType: 'lift'}));
+  storage.writeLogs([...tagged, ...others].sort((a, b) => (b.date || '').localeCompare(a.date || '')));
+}
+function loadErgs() {
+  return storage.readLogs().filter(e => e._logType === 'erg');
+}
+function saveErgs(d) {
+  const others = storage.readLogs().filter(e => e._logType !== 'erg');
+  const tagged = d.map(e => Object.assign({}, e, {_logType: 'erg'}));
+  storage.writeLogs([...tagged, ...others].sort((a, b) => (b.date || '').localeCompare(a.date || '')));
+}
 
 // ---- Date helpers ----
 function todayStr() {
@@ -105,7 +115,7 @@ function saveLifting() {
   });
 
   renderLiftHistory();
-  renderDashboard();
+  renderStats();
   showToast('Lifting session saved ✓');
 }
 
@@ -113,7 +123,7 @@ function deleteLift(id) {
   if (!confirm('Delete this entry?')) return;
   saveLifts(loadLifts().filter(e => e.id !== id));
   renderLiftHistory();
-  renderDashboard();
+  renderStats();
 }
 
 function renderLiftHistory() {
@@ -173,7 +183,7 @@ function clearLifting() {
   if (!confirm('Delete ALL lifting entries? This cannot be undone.')) return;
   saveLifts([]);
   renderLiftHistory();
-  renderDashboard();
+  renderStats();
 }
 
 // ---- ERG LOG ----
@@ -231,7 +241,7 @@ function saveErg() {
     .forEach(id => { document.getElementById(id).value = ''; });
 
   renderErgHistory();
-  renderDashboard();
+  renderStats();
   showToast('Rowing session saved ✓');
 }
 
@@ -239,7 +249,7 @@ function deleteErg(id) {
   if (!confirm('Delete this entry?')) return;
   saveErgs(loadErgs().filter(e => e.id !== id));
   renderErgHistory();
-  renderDashboard();
+  renderStats();
 }
 
 function renderErgHistory() {
@@ -288,7 +298,7 @@ function clearErg() {
   if (!confirm('Delete ALL rowing entries? This cannot be undone.')) return;
   saveErgs([]);
   renderErgHistory();
-  renderDashboard();
+  renderStats();
 }
 
 // ---- DASHBOARD ----
@@ -299,7 +309,7 @@ function splitToSeconds(s) {
   return parseInt(parts[0]) * 60 + parseFloat(parts[1]);
 }
 
-function renderDashboard() {
+function renderStats() {
   const lifts      = loadLifts();
   const ergs       = loadErgs();
   const dashContent = document.getElementById('dash-content');
@@ -436,5 +446,5 @@ function initLogs() {
   updateErgFields();
   renderLiftHistory();
   renderErgHistory();
-  renderDashboard();
+  renderStats();
 }

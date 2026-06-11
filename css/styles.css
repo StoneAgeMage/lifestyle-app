@@ -9,22 +9,16 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);font-size:14px}
 
-/* HEADER */
-.hdr{background:var(--water);position:relative;overflow:hidden}
-.hdr-in{max-width:1100px;margin:0 auto;padding:40px 22px 52px;position:relative;z-index:2}
-.hdr-wave{position:absolute;bottom:0;left:0;right:0;height:48px;background:var(--foam);clip-path:ellipse(60% 100% at 50% 100%)}
-.hdr-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--wl);margin-bottom:8px}
-.hdr h1{font-family:'Bebas Neue',cursive;font-size:clamp(44px,7vw,76px);line-height:.93;color:var(--wht);margin-bottom:11px}
-.hdr h1 em{color:var(--oar);font-style:normal}
-.hdr-sub{font-size:13px;color:rgba(232,244,250,.7);font-weight:300;max-width:480px;line-height:1.6}
-.hdr-stats{display:flex;gap:22px;margin-top:18px;flex-wrap:wrap}
-.sv{font-family:'Bebas Neue',cursive;font-size:23px;color:var(--oar);line-height:1}
-.sl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(232,244,250,.45)}
+/* APP BAR */
+.app-bar{background:var(--water);padding:12px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(10,79,110,.2)}
+.app-bar-title{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--wht);letter-spacing:1px}
+.app-bar-settings{background:rgba(255,255,255,.12);color:var(--wht);border:none;padding:6px 14px;border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:background .2s}
+.app-bar-settings:hover{background:rgba(255,255,255,.22)}
 
 /* TABS */
 .main{max-width:1100px;margin:0 auto;padding:28px 22px 80px}
-.tabs{display:flex;gap:3px;margin-bottom:26px;background:rgba(10,79,110,.07);border-radius:13px;padding:4px;width:fit-content;flex-wrap:wrap}
-.tab{font-size:12px;font-weight:500;padding:8px 15px;border-radius:9px;border:none;background:transparent;color:var(--txl);cursor:pointer;transition:all .2s}
+.tabs{display:flex;gap:3px;margin-bottom:26px;background:rgba(10,79,110,.07);border-radius:13px;padding:4px;width:100%}
+.tab{font-size:12px;font-weight:500;padding:8px 14px;border-radius:9px;border:none;background:transparent;color:var(--txl);cursor:pointer;transition:all .2s;flex:1;text-align:center}
 .tab:hover{color:var(--water);background:rgba(10,79,110,.06)}
 .tab.active{background:var(--water);color:var(--wht);box-shadow:0 2px 10px rgba(10,79,110,.28)}
 .panel{display:none}.panel.active{display:block;animation:fi .3s ease}
@@ -279,9 +273,133 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 
 @media(max-width:640px){
   .g2,.rg2,.sg,.prepg,.rg,.pg{grid-template-columns:1fr}
-  .tabs{width:100%}.tab{flex:1;text-align:center;font-size:11px;padding:7px 4px}
+  .tab{font-size:11px;padding:7px 4px}
   .cal-grid{gap:2px}.cal-day{min-height:75px}
   .exercise-row,.ex-header{grid-template-columns:1.4fr 55px 70px 75px}
   .exercise-row .ex-input:nth-child(5),
   .ex-header span:nth-child(5){display:none}
+  .db-cols{grid-template-columns:1fr}
 }
+
+/* ===== SETTINGS ===== */
+.st-radio-group{display:flex;gap:14px;flex-wrap:wrap;padding:4px 0}
+.st-radio{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--txm)}
+.st-radio input[type="radio"]{accent-color:var(--water);width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.st-unit-preview{font-family:'DM Mono',monospace;font-size:10px;color:var(--txl)}
+.st-note{font-size:11px;color:var(--txl);font-weight:300;font-style:italic;margin:14px 0 16px;border-top:1px solid var(--bdr);padding-top:12px;line-height:1.55}
+.st-save-row{display:flex;justify-content:flex-end}
+
+/* ===== TODAY PANEL ===== */
+.db-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;align-items:start}
+.db-right-col{display:flex;flex-direction:column;gap:12px}
+
+.td-ctx{font-family:'DM Mono',monospace;font-size:11px;color:var(--txl);padding:2px 0 10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.td-ctx-sep{opacity:.4}
+.td-section-title{font-family:'Bebas Neue',cursive;font-size:19px;color:var(--water);margin-bottom:12px}
+
+.db-workout-card{padding:0;overflow:hidden}
+.db-workout-header{padding:10px 16px;display:flex;align-items:center;justify-content:space-between}
+.db-workout-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.7);padding:2px 8px;background:rgba(0,0,0,.15);border-radius:20px}
+.db-workout-body{padding:14px 16px}
+.db-workout-body .modal-workout{margin-bottom:8px}
+.db-workout-body .modal-workout:last-child{margin-bottom:0}
+
+.td-complete-row{padding:12px 16px 14px;display:flex;gap:8px;align-items:center}
+.td-complete-btn{background:var(--water);color:var(--wht);border:none;padding:9px 0;border-radius:20px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;flex:1;transition:background .2s}
+.td-complete-btn:hover{background:var(--wm)}
+.td-done-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--grn);letter-spacing:.5px;flex:1}
+.td-log-btn{background:none;border:1.5px solid var(--bdr);color:var(--txm);padding:9px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;white-space:nowrap}
+.td-log-btn:hover{border-color:var(--water);color:var(--water)}
+.td-done-badge{font-family:'DM Mono',monospace;font-size:10px;background:var(--grn);color:var(--wht);padding:3px 10px;border-radius:10px}
+
+.db-weight-row{display:flex;gap:8px;margin-bottom:8px}
+.db-weight-stat{flex:1;text-align:center}
+.db-weight-val{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--water);line-height:1;margin-bottom:2px}
+.db-weight-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txl)}
+.db-weight-form{display:flex;gap:8px;margin-top:12px;align-items:center}
+
+/* ===== MEAL PLANNER ===== */
+.mp-section{margin-bottom:24px}
+.mp-week-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mp-week-date{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--txl)}
+
+.mp-cta{background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:20px;margin-bottom:16px}
+.mp-cta-text{font-size:13px;color:var(--txm);margin-bottom:4px}
+.mp-cta-sub{font-size:11px;color:var(--txl);font-weight:300}
+
+.mp-nav{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.mp-back{background:none;border:1.5px solid var(--bdr);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--txl);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.mp-back:hover{border-color:var(--wm);color:var(--water)}
+.mp-nav-title{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--water);flex:1}
+.mp-pantry-toggle{background:none;border:1.5px solid var(--bdr);border-radius:8px;padding:5px 11px;font-size:10px;color:var(--txl);cursor:pointer;font-family:'DM Mono',monospace;letter-spacing:.5px;transition:all .2s;white-space:nowrap}
+.mp-pantry-toggle:hover{border-color:var(--wm);color:var(--water)}
+
+.mp-plan-card{background:var(--card);border:1px solid var(--bdr);border-radius:13px;overflow:hidden;margin-bottom:16px}
+.mp-plan-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.mp-plan-week{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:2px}
+.mp-plan-cuisine{font-family:'Bebas Neue',cursive;font-size:20px;color:#fff;line-height:1}
+.mp-plan-actions{display:flex;gap:8px}
+.mp-action-btn{background:rgba(255,255,255,.15);color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:background .2s}
+.mp-action-btn:hover{background:rgba(255,255,255,.28)}
+.mp-plan-body{padding:14px 16px}
+.mp-dinner{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px}
+.mp-dinner:last-child{margin-bottom:0}
+.mp-dinner-type{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--txl);width:56px;flex-shrink:0;margin-top:2px;line-height:1.3}
+.mp-dinner-name{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:1px}
+.mp-dinner-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--grn)}
+.mp-list-progress{margin-top:12px;padding:8px 10px;background:var(--foam);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--txl);cursor:pointer;text-align:center;transition:background .15s}
+.mp-list-progress:hover{background:rgba(10,79,110,.1);color:var(--water)}
+
+.mp-cuisine-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.mp-cuisine-tile{border-radius:11px;padding:16px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.mp-cuisine-tile:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.mp-cuisine-tile.active{outline:3px solid var(--water);outline-offset:2px}
+.mp-cuisine-name{font-family:'Bebas Neue',cursive;font-size:22px;color:#fff;line-height:1;margin-bottom:2px}
+.mp-cuisine-sub{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)}
+
+.mp-recipes{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.mp-recipe{background:var(--card);border:2px solid var(--bdr);border-radius:11px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start;cursor:pointer;transition:border-color .2s}
+.mp-recipe:hover{border-color:var(--wm)}
+.mp-recipe.selected{border-color:var(--grn)}
+.mp-recipe-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--grn);flex-shrink:0;margin-top:1px;transition:all .2s}
+.mp-recipe.selected .mp-recipe-check{background:var(--grn);border-color:var(--grn);color:#fff}
+.mp-recipe-info{flex:1}
+.mp-recipe-name{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px}
+.mp-recipe-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--grn);margin-bottom:3px}
+.mp-recipe-desc{font-size:11px;color:var(--txl);font-weight:300;line-height:1.4}
+
+.mp-sl-progress{font-family:'DM Mono',monospace;font-size:10px;color:var(--txl);letter-spacing:1px;margin-bottom:14px}
+.mp-group{margin-bottom:14px}
+.mp-group-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--oard);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--bdr)}
+.mp-item{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.mp-item:hover{background:var(--foam)}
+.mp-item.checked{opacity:.55}
+.mp-item.checked .mp-item-name{text-decoration:line-through;color:var(--txl)}
+.mp-item-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--grn);flex-shrink:0;transition:all .15s}
+.mp-item.checked .mp-item-check{background:var(--grn);border-color:var(--grn);color:#fff}
+.mp-item-main{flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mp-item-name{font-size:12px;color:var(--txt);font-weight:500}
+.mp-pantry-badge{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--txl);background:var(--foam);border:1px solid var(--bdr);border-radius:4px;padding:1px 5px}
+.mp-item-amt{font-family:'DM Mono',monospace;font-size:10px;color:var(--txm);white-space:nowrap}
+.mp-hidden-staples{display:flex;flex-wrap:wrap;gap:6px;padding:4px 10px 8px}
+.mp-need-this{background:none;border:1px dashed var(--bdr);border-radius:6px;padding:4px 10px;font-size:10px;color:var(--txl);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.mp-need-this:hover{border-color:var(--oar);color:var(--oard)}
+
+/* ===== PLAN — workout reference collapsible ===== */
+.wk-ref{margin-top:20px;background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:16px 20px}
+.wk-ref summary{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--water);cursor:pointer;user-select:none;list-style:none;display:flex;align-items:center;gap:8px}
+.wk-ref summary::-webkit-details-marker{display:none}
+.wk-ref summary::after{content:'▸';font-size:14px;color:var(--txl);margin-left:auto;transition:transform .2s}
+.wk-ref[open] summary::after{transform:rotate(90deg)}
+
+/* ===== SETTINGS — backup buttons ===== */
+.st-backup-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.st-backup-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--bdr);background:var(--card);color:var(--txm);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .15s}
+.st-backup-btn:active{opacity:.7}
+.st-import-label{display:inline-block}
+
+/* ===== SETTINGS — toggle ===== */
+.st-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;color:var(--txm);padding:4px 0}
+.st-toggle input[type="checkbox"]{accent-color:var(--water);width:15px;height:15px;cursor:pointer;flex-shrink:0}
+
+@media(max-width:640px){.mp-cuisine-grid{grid-template-columns:1fr}}
