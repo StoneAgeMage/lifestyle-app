@@ -48,6 +48,21 @@ function markWorkoutComplete() {
   showToast('Workout marked complete ✓');
 }
 
+function unmarkWorkoutComplete() {
+  const plan  = TRAINING_PLANS[ACTIVE_PLAN_ID];
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  const wf    = TrainingEngine.getWorkoutForDate(plan, today);
+  if (!wf) return;
+
+  const dateStr = todayStr();
+  const filtered = loadCompletions().filter(function(c) {
+    return !(c.date === dateStr && c.workoutId === wf.workoutId);
+  });
+  saveCompletions(filtered);
+  renderTodayWorkout();
+  showToast('Completion removed');
+}
+
 // ---- Date Context -------------------------------------------
 
 function renderDateContext() {
@@ -71,9 +86,7 @@ function renderDateContext() {
     '<div class="td-ctx">' +
     '<span>' + ctx.dowName + ', ' + dateStr + '</span>' +
     '<span class="td-ctx-sep">·</span>' +
-    '<span>' + ctx.cuisineName + ' Week</span>' +
-    '<span class="td-ctx-sep">·</span>' +
-    '<span>Pete Wk ' + ctx.peteWeekDisplay + '</span>' +
+    '<span>' + (ctx.blockDisplay || 'Wk ' + ctx.peteWeekDisplay) + '</span>' +
     '</div>';
 }
 
@@ -91,17 +104,56 @@ function renderTodayWorkout() {
     el.innerHTML =
       '<div class="card db-workout-card" style="margin-bottom:16px">' +
       '<div class="db-workout-header bg-rest"><span class="db-workout-badge">Rest Day</span></div>' +
-      '<div class="db-workout-body"><div class="tip" style="margin:0"><h4>Plan begins June 7, 2026</h4><p>No workout scheduled for today. Come back on June 7.</p></div></div>' +
+      '<div class="db-workout-body"><div class="tip" style="margin:0"><h4>Rest Day</h4><p>Sundays are full rest. Sleep, walk, eat well. Recovery is where the adaptation happens.</p></div></div>' +
       '</div>';
     return;
   }
 
   const done = loadCompletions().some(function(c) { return c.date === todayStr() && c.workoutId === wf.workoutId; });
 
+  // Mobility card — post-workout 5-min or restoration card
+  var mobilityHtml = '';
+  if (wf.type === 'restoration') {
+    var restore = TrainingEngine.getRestorationRoutine();
+    if (restore) {
+      mobilityHtml = '<div class="mob-card">' +
+        '<div class="mob-card-title">20-Min Deep Restoration</div>' +
+        restore.exercises.map(function(ex) {
+          var durStr = ex.duration >= 60 ? Math.round(ex.duration / 60) + ' min' : ex.duration + ' sec';
+          if (ex.side && ex.side !== 'bilateral') durStr += ' · ' + ex.side;
+          return '<div class="mob-exercise">' +
+            '<div class="mob-ex-dur">' + durStr + '</div>' +
+            '<div><div class="mob-ex-name">' + ex.name + '</div>' +
+            '<div class="mob-ex-cue">' + ex.cue + '</div></div>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+    }
+  } else if (wf.mobilityBias) {
+    var mob = TrainingEngine.getMobilityRoutine(wf);
+    if (mob) {
+      mobilityHtml = '<div class="mob-card">' +
+        '<div class="mob-card-title">Post-Workout · 5 Min Mobility</div>' +
+        mob.exercises.map(function(ex) {
+          var durStr = ex.duration >= 60 ? Math.round(ex.duration / 60) + ' min' : ex.duration + ' sec';
+          if (ex.side && ex.side !== 'bilateral') durStr += ' · ' + ex.side;
+          return '<div class="mob-exercise">' +
+            '<div class="mob-ex-dur">' + durStr + '</div>' +
+            '<div><div class="mob-ex-name">' + ex.name + '</div>' +
+            '<div class="mob-ex-cue">' + ex.cue + '</div></div>' +
+            '</div>';
+        }).join('') +
+        '</div>';
+    }
+  }
+
+  var blockBadge = wf.blockName ? '<span class="td-block-badge">' + wf.blockName + (wf.isDeload ? ' · Deload' : wf.isTaper ? ' · Taper' : '') + '</span>' : '';
+
   el.innerHTML =
     '<div class="card db-workout-card" style="margin-bottom:16px">' +
     '<div class="db-workout-header ' + wf.workoutBg + '">' +
     '<span class="db-workout-badge">' + wf.workoutShort + '</span>' +
+    blockBadge +
     (done ? '<span class="td-done-badge">✓ Done</span>' : '') +
     '</div>' +
     '<div class="db-workout-body">' +
@@ -111,14 +163,46 @@ function renderTodayWorkout() {
         '<div class="modal-workout-detail">' + item.d + '</div>' +
         '</div>';
     }).join('') +
+    mobilityHtml +
     '</div>' +
     '<div class="td-complete-row">' +
       (done
-        ? '<span class="td-done-text">✓ Done</span>'
+        ? '<button class="td-done-text" onclick="unmarkWorkoutComplete()">✓ Done</button>'
         : '<button class="td-complete-btn" onclick="markWorkoutComplete()">Mark Complete</button>'
       ) +
-      '<button class="td-log-btn" onclick="quickLogToday()">Log Session →</button>' +
+      (wf.type !== 'restoration' ? '<button class="td-log-btn" onclick="quickLogToday()">Log Session →</button>' : '') +
     '</div>' +
+    '</div>';
+}
+
+// ---- Meal Plan Nudge ----------------------------------------
+
+function renderMealNudge() {
+  var el = document.getElementById('td-meal-nudge');
+  if (!el) return;
+
+  if (typeof mpLoadWeekPlanForDate !== 'function') { el.innerHTML = ''; return; }
+
+  var thisWeekMissing = !mpLoadWeekPlanForDate(new Date());
+  var nextDate = new Date(); nextDate.setDate(nextDate.getDate() + 7);
+  var nextWeekMissing = !mpLoadWeekPlanForDate(nextDate);
+
+  if (!thisWeekMissing && !nextWeekMissing) { el.innerHTML = ''; return; }
+
+  var msg, weekOffset;
+  if (thisWeekMissing) {
+    msg = 'No meal plan for this week';
+    weekOffset = 0;
+  } else {
+    msg = 'No meal plan for next week';
+    weekOffset = 1;
+  }
+
+  el.innerHTML =
+    '<div class="td-nudge" onclick="switchToFuelTab(' + weekOffset + ')">' +
+    '<span class="td-nudge-icon">⚠</span>' +
+    '<span class="td-nudge-text">' + msg + '</span>' +
+    '<span class="td-nudge-cta">Plan now →</span>' +
     '</div>';
 }
 
@@ -136,16 +220,15 @@ function renderTodayMeals() {
     el.innerHTML =
       '<div class="card">' +
       '<div class="td-section-title">Today\'s Meals</div>' +
-      '<div class="tip" style="margin:0"><h4>No meal plan set for this week</h4><p>Meal plan begins June 7, 2026.</p></div>' +
+      '<div class="tip" style="margin:0"><p>Rest day — eat well, sleep well.</p></div>' +
       '</div>';
     return;
   }
 
   var meals = MealEngine.getMealsForDate(plan, today, wf);
 
-  // Enrich dinner names from the user's weekly plan selection when available
-  if (typeof mpEnrichMeals === 'function' && typeof mpLoadCurrentWeekPlan === 'function') {
-    var weekPlan = mpLoadCurrentWeekPlan();
+  if (typeof mpEnrichMeals === 'function' && typeof mpLoadWeekPlanForDate === 'function') {
+    var weekPlan = mpLoadWeekPlanForDate(today);
     if (weekPlan && weekPlan.recipeIds && weekPlan.recipeIds.length > 0) {
       meals = mpEnrichMeals(meals, weekPlan, today.getDay());
     }
@@ -155,12 +238,12 @@ function renderTodayMeals() {
     '<div class="card">' +
     '<div class="td-section-title">Today\'s Meals</div>' +
     (meals.length === 0
-      ? '<div class="tip" style="margin:0"><p>No meal plan set for this week.</p></div>'
+      ? '<div class="tip" style="margin:0"><p>No meal plan set. <a href="#" onclick="switchToFuelTab(0);return false">Set it in Fuel →</a></p></div>'
       : meals.map(function(m) {
           return '<div class="modal-meal">' +
             '<span class="modal-meal-type">' + m.type + '</span>' +
             '<div>' +
-            '<div class="modal-meal-name">' + m.name + '</div>' +
+            '<div class="modal-meal-name' + (m.recipeId ? ' mp-recipe-link' : '') + '"' + (m.recipeId ? ' onclick="openRecipeModal(\'' + m.recipeId + '\')"' : '') + '>' + m.name + '</div>' +
             '<div class="modal-meal-desc">' + m.desc + '</div>' +
             (m.link ? '<div class="modal-meal-link"><a href="' + m.link + '" target="_blank" rel="noopener">🔗 Recipe</a></div>' : '') +
             '</div></div>';
@@ -219,32 +302,6 @@ function logWeight() {
   showToast('Weight logged ✓');
 }
 
-// ---- Meal Prep Countdown ------------------------------------
-
-function renderMealPrepCountdown() {
-  const el = document.getElementById('td-prep');
-  if (!el) return;
-
-  const prepDay  = loadSettings().mealPrepDay;
-  const now      = new Date(); now.setHours(0, 0, 0, 0);
-  const dow      = now.getDay();
-  const daysLeft = dow === prepDay ? 0 : (prepDay - dow + 7) % 7;
-  const dayName  = DOW_NAMES[prepDay];
-
-  const label = daysLeft === 0 ? 'Today' : daysLeft === 1 ? '1 day' : daysLeft + ' days';
-  const sub   = daysLeft === 0
-    ? dayName + ' — meal prep day! ~2 hrs. See Fuel tab.'
-    : daysLeft === 1
-      ? 'Tomorrow (' + dayName + ') — pick up groceries today.'
-      : 'Until ' + dayName + ' meal prep.';
-
-  el.innerHTML =
-    '<div class="card">' +
-    '<div class="td-section-title">Next Meal Prep</div>' +
-    '<div class="dash-stat-val" style="font-size:36px;line-height:1;margin-bottom:4px">' + label + '</div>' +
-    '<div class="dash-stat-lbl" style="text-align:left;letter-spacing:.5px">' + sub + '</div>' +
-    '</div>';
-}
 
 // ---- Quick Log Shortcut ------------------------------------
 
@@ -254,42 +311,50 @@ function quickLogToday() {
   var wf    = TrainingEngine.getWorkoutForDate(plan, today);
   if (!wf) return;
 
-  var progressBtn = document.getElementById('tab-progress');
-  if (progressBtn) showPanel('progress', progressBtn);
+  var detailsId, formSetup;
 
   if (wf.workoutBg === 'bg-lift') {
-    var liftTab = document.getElementById('pg-tab-lift');
-    if (liftTab) showCycle(2, liftTab);
-    var sessionEl = document.getElementById('lf-session');
-    if (sessionEl) {
-      var sessionMap = {1:'A', 3:'B', 5:'C'};
-      var val = sessionMap[wf.dow];
-      if (val) {
-        sessionEl.value = val;
+    detailsId = 'td-log-lift';
+    formSetup = function() {
+      var sessionEl = document.getElementById('lf-session');
+      if (sessionEl && wf.type === 'lift') {
+        // Use logSession from the workout definition if available
+        var wkData = WORKOUT_LIBRARY[wf.workoutId];
+        if (wkData && wkData.logSession) sessionEl.value = wkData.logSession;
+        else { var sessionMap = {1:'A', 3:'B'}; if (sessionMap[wf.dow]) sessionEl.value = sessionMap[wf.dow]; }
         if (typeof buildExerciseRows === 'function') buildExerciseRows();
       }
-    }
+    };
   } else {
-    var ergTab = document.getElementById('pg-tab-erg');
-    if (ergTab) showCycle(3, ergTab);
-    var typeEl = document.getElementById('ef-type');
-    if (typeEl) {
-      if      (wf.workoutBg === 'bg-end')   typeEl.value = 'endurance';
-      else if (wf.workoutBg === 'bg-speed') typeEl.value = 'speed';
-      else if (wf.workoutBg === 'bg-rest')  typeEl.value = 'recovery';
-      else                                  typeEl.value = 'water';
-      if (typeof updateErgFields === 'function') updateErgFields();
-    }
+    detailsId = 'td-log-erg';
+    formSetup = function() {
+      var typeEl = document.getElementById('ef-type');
+      if (typeEl) {
+        // Map new block-era bg classes → erg log type values
+        var bgToType = {
+          'bg-z1':'z1', 'bg-z2':'z2', 'bg-at':'at',
+          'bg-vo2':'vo2', 'bg-spd':'spd',
+          'bg-end':'endurance', 'bg-speed':'speed', 'bg-rest':'recovery'
+        };
+        typeEl.value = bgToType[wf.workoutBg] || 'z1';
+        if (typeof updateErgFields === 'function') updateErgFields();
+      }
+    };
   }
-  window.scrollTo(0, 0);
+
+  var details = document.getElementById(detailsId);
+  if (details) {
+    details.open = true;
+    formSetup();
+    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 // ---- Init ---------------------------------------------------
 
 function initToday() {
   renderDateContext();
+  renderMealNudge();
   renderTodayWorkout();
   renderTodayMeals();
-  renderWeightSummary();
-  renderMealPrepCountdown();
 }

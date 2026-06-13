@@ -1,70 +1,87 @@
 // ============================================================
-// CALENDAR — month view, day modal, workout+meal logic
-// Phase 6: fully engine-driven — getDayInfo() removed,
-// hard date bounds removed; floor clamps to plan start.
+// CALENDAR — 2-week rolling plan view + day detail modal
 // Depends on: engine.js (TrainingEngine, MealEngine),
 //   TRAINING_PLANS, ACTIVE_PLAN_ID
 // ============================================================
 
-var currentYear = 2026, currentMonth = 5; // initialized to plan start (June)
+var _PW_DOW    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var _PW_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-function renderCalendar() {
-  var monthNames  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  var dowLabels   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var plan        = TRAINING_PLANS[ACTIVE_PLAN_ID];
+function renderPlanWeeks() {
+  var el = document.getElementById('plan-weeks');
+  if (!el) return;
 
-  document.getElementById('cal-title').textContent = monthNames[currentMonth] + ' ' + currentYear;
+  var plan     = TRAINING_PLANS[ACTIVE_PLAN_ID];
+  var todayD   = new Date(); todayD.setHours(0, 0, 0, 0);
 
-  var firstDay    = new Date(currentYear, currentMonth, 1).getDay();
-  var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  var weekStart = new Date(todayD);
+  weekStart.setDate(todayD.getDate() - todayD.getDay()); // back to Sunday
 
-  var html = dowLabels.map(function(d) { return '<div class="cal-dow">' + d + '</div>'; }).join('');
-  for (var i = 0; i < firstDay; i++) html += '<div class="cal-day empty"></div>';
+  var legend = _buildLegend();
 
-  for (var d = 1; d <= daysInMonth; d++) {
-    var date = new Date(currentYear, currentMonth, d, 12);
-    var wf   = TrainingEngine.getWorkoutForDate(plan, date);
+  var weeks = ['This Week', 'Next Week'].map(function(label, wi) {
+    var ws = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + wi * 7);
+    var we = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + 6);
 
-    if (!wf) {
-      html += '<div class="cal-day empty" style="background:rgba(255,255,255,0.4)">' +
-        '<div class="cal-num" style="color:var(--txl)">' + d + '</div></div>';
-      continue;
+    var rangeStr = _PW_MONTHS[ws.getMonth()] + ' ' + ws.getDate() +
+                   '–' + _PW_MONTHS[we.getMonth()] + ' ' + we.getDate();
+
+    var dows = _PW_DOW.map(function(d) {
+      return '<div class="pw-dow">' + d + '</div>';
+    }).join('');
+
+    var days = '';
+    for (var i = 0; i < 7; i++) {
+      var date    = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + i, 12);
+      var isToday = date.toDateString() === todayD.toDateString();
+      var wf      = TrainingEngine.getWorkoutForDate(plan, date);
+
+      if (!wf) {
+        days += '<div class="pw-day pw-noplan"><span class="pw-num pw-num-dim">' + date.getDate() + '</span></div>';
+        continue;
+      }
+
+      var meals = MealEngine.getMealsForDate(plan, date, wf);
+      if (typeof mpLoadWeekPlanForDate === 'function' && typeof mpEnrichMeals === 'function') {
+        var wp = mpLoadWeekPlanForDate(date);
+        if (wp) meals = mpEnrichMeals(meals, wp, date.getDay());
+      }
+      var mealRows = ['Breakfast','Lunch','Dinner'].map(function(type) {
+        var m = meals.find(function(x) { return x.type === type; });
+        if (!m) return '';
+        var abbr = type[0]; // B / L / D
+        return '<div class="pw-meal"><span class="pw-meal-abbr">' + abbr + '</span>' + m.name + '</div>';
+      }).join('');
+
+      days +=
+        '<div class="pw-day' + (isToday ? ' pw-today' : '') + '"' +
+        ' onclick="openModal(' + date.getFullYear() + ',' + date.getMonth() + ',' + date.getDate() + ')">' +
+        '<span class="pw-num">' + date.getDate() + '</span>' +
+        '<span class="pw-badge ' + wf.workoutBg + '">' + wf.workoutShort + '</span>' +
+        '<div class="pw-meals">' + mealRows + '</div>' +
+        '</div>';
     }
 
-    var meal        = MealEngine.buildMealObject(plan, wf.mealWeekIndex);
-    var meals       = MealEngine.getMealsForDate(plan, date, wf);
-    var dinnerItem  = meals.find(function(m) { return m.type === 'Dinner' || m.type === 'Prep'; });
-    var cuisineLabel = meal
-      ? '<span style="font-size:9px;font-weight:500;color:var(--oard);display:block;margin-top:1px">' + meal.cuisine + '</span>'
-      : '';
-    var dinnerLabel = dinnerItem
-      ? '<div class="cal-meal-name">' + dinnerItem.name + '</div>'
-      : '';
+    return '<div class="pw-section">' +
+      '<div class="pw-label">' + label + '<span class="pw-range">' + rangeStr + '</span></div>' +
+      '<div class="pw-grid">' + dows + days + '</div>' +
+      '</div>';
+  }).join('');
 
-    html += '<div class="cal-day" onclick="openModal(' + currentYear + ',' + currentMonth + ',' + d + ')">' +
-      '<div class="cal-num">' + d + '</div>' +
-      '<span class="cal-workout ' + wf.workoutBg + '">' + wf.workoutShort + '</span>' +
-      cuisineLabel +
-      dinnerLabel +
+  el.innerHTML = legend + weeks;
+}
+
+function _buildLegend() {
+  return '<div class="pw-legend">' +
+    [['bg-lift','Lift'],['bg-z1','Z1 Easy'],['bg-z2','Z2 Moderate'],
+     ['bg-at','Threshold'],['bg-vo2','VO2max'],['bg-spd','Speed'],
+     ['bg-restore','Restore']].map(function(x) {
+      return '<div class="pw-leg"><span class="pw-leg-dot ' + x[0] + '"></span>' + x[1] + '</div>';
+    }).join('') +
     '</div>';
-  }
-
-  document.getElementById('cal-grid').innerHTML = html;
 }
 
-function changeMonth(dir) {
-  currentMonth += dir;
-  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
-  // Floor: don't navigate before plan start
-  var start = new Date(TRAINING_PLANS[ACTIVE_PLAN_ID].startDate);
-  if (currentYear < start.getFullYear() ||
-     (currentYear === start.getFullYear() && currentMonth < start.getMonth())) {
-    currentYear  = start.getFullYear();
-    currentMonth = start.getMonth();
-  }
-  renderCalendar();
-}
+// ---- Day detail modal ---------------------------------------
 
 function openModal(y, m, d) {
   var date  = new Date(y, m, d, 12);
@@ -74,6 +91,10 @@ function openModal(y, m, d) {
 
   var meal  = MealEngine.buildMealObject(plan, wf.mealWeekIndex);
   var meals = MealEngine.getMealsForDate(plan, date, wf);
+  if (typeof mpLoadWeekPlanForDate === 'function' && typeof mpEnrichMeals === 'function') {
+    var wp = mpLoadWeekPlanForDate(date);
+    if (wp) meals = mpEnrichMeals(meals, wp, date.getDay());
+  }
 
   var dowNames   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -94,7 +115,7 @@ function openModal(y, m, d) {
     return '<div class="modal-meal">' +
       '<span class="modal-meal-type">' + ml.type + '</span>' +
       '<div>' +
-        '<div class="modal-meal-name">' + ml.name + '</div>' +
+        '<div class="modal-meal-name' + (ml.recipeId ? ' mp-recipe-link' : '') + '"' + (ml.recipeId ? ' onclick="openRecipeModal(\'' + ml.recipeId + '\')"' : '') + '>' + ml.name + '</div>' +
         '<div class="modal-meal-desc">' + ml.desc + '</div>' +
         (ml.link ? '<div class="modal-meal-link"><a href="' + ml.link + '" target="_blank" rel="noopener">🔗 Recipe</a></div>' : '') +
       '</div>' +

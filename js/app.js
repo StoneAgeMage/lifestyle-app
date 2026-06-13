@@ -9,14 +9,23 @@ function showPanel(id, btn) {
   document.getElementById('panel-' + id).classList.add('active');
   btn.classList.add('active');
   if (id === 'today')    initToday();
-  if (id === 'fuel')     renderMeals();
-  if (id === 'progress') renderStats();
-  if (id === 'settings') initSettings();
+  if (id === 'plan')     renderPlanWeeks();
+  if (id === 'fuel')     initMealPlanner();
+  if (id === 'progress') renderProgress();
+  if (id === 'settings') initVitals();
+}
+
+// Called from the meal plan nudge banner on the Execute tab.
+// Switches to the Fuel tab and pre-selects the given week offset.
+function switchToFuelTab(weekOffset) {
+  var btn = document.getElementById('tab-fuel');
+  if (!btn) return;
+  showPanel('fuel', btn);
+  if (typeof mpSwitchWeek === 'function') mpSwitchWeek(weekOffset || 0);
 }
 
 function showSettings() {
-  var btn = document.getElementById('tab-settings');
-  if (btn) showPanel('settings', btn);
+  showDataManagement();
 }
 
 function showCycle(n, btn) {
@@ -28,10 +37,8 @@ function showCycle(n, btn) {
 
 // Run all render functions once the page is ready
 storage.migrate();
-renderCalendar();
-renderWorkouts();
-renderMeals();
-renderSauces();
+renderPlanWeeks();
+initMealPlanner();
 initLogs();
-initSettings();
+initVitals();
 initToday();

@@ -19,112 +19,185 @@ function _fmtAmt(n) {
 
 const TrainingEngine = (function () {
 
+  // Global week index from plan startDate — still used for mealWeekIndex cycling
   function _getWeekIndex(plan, date) {
-    const d = new Date(date); d.setHours(0, 0, 0, 0);
-    const s = new Date(plan.startDate); s.setHours(0, 0, 0, 0);
-    const ms = d - s;
+    var d = new Date(date); d.setHours(0, 0, 0, 0);
+    var s = new Date(plan.startDate); s.setHours(0, 0, 0, 0);
+    var ms = d - s;
     if (ms < 0) return -1;
     return Math.floor(ms / (7 * 86400000));
   }
 
   function isDateInPlan(plan, date) {
-    const d     = new Date(date);          d.setHours(0, 0, 0, 0);
-    const start = new Date(plan.startDate); start.setHours(0, 0, 0, 0);
-    const end   = new Date(plan.endDate);   end.setHours(0, 0, 0, 0);
+    var d     = new Date(date);           d.setHours(0, 0, 0, 0);
+    var start = new Date(plan.startDate); start.setHours(0, 0, 0, 0);
+    var end   = new Date(plan.endDate);   end.setHours(0, 0, 0, 0);
     return d >= start && d <= end;
   }
 
+  // Returns the TRAINING_BLOCK whose months[] contains date's month.
+  // Falls back to Winter if none matches (shouldn't happen).
+  function getBlockForDate(date) {
+    var m = new Date(date).getMonth();
+    for (var i = 0; i < TRAINING_BLOCKS.length; i++) {
+      if (TRAINING_BLOCKS[i].months.indexOf(m) >= 0) return TRAINING_BLOCKS[i];
+    }
+    return TRAINING_BLOCKS[0]; // Winter fallback
+  }
+
+  // Weeks elapsed since the Monday on or before the first day of the block's
+  // first month. Handles year-boundary blocks (e.g. Winter: Nov–Feb).
+  function getWeekIndexInBlock(block, date) {
+    var d = new Date(date); d.setHours(0, 0, 0, 0);
+    var curMonth = d.getMonth();
+    var curYear  = d.getFullYear();
+    var firstMonth = block.months[0];
+
+    // If firstMonth is later in the calendar year than curMonth, the block
+    // started in the previous year (e.g. Winter block in January).
+    var blockStartYear = (firstMonth > curMonth) ? curYear - 1 : curYear;
+    var blockStart = new Date(blockStartYear, firstMonth, 1);
+
+    // Monday on or before blockStart
+    var bsDow = blockStart.getDay(); // 0=Sun
+    var bsBack = (bsDow === 0) ? 6 : (bsDow - 1);
+    var firstMonday = new Date(blockStart);
+    firstMonday.setDate(firstMonday.getDate() - bsBack);
+
+    // Monday of the current week
+    var curDow  = d.getDay();
+    var curBack = (curDow === 0) ? 6 : (curDow - 1);
+    var curMonday = new Date(d);
+    curMonday.setDate(curMonday.getDate() - curBack);
+
+    var diff = curMonday - firstMonday;
+    return Math.max(0, Math.floor(diff / (7 * 86400000)));
+  }
+
+  // True when date falls within raceGoal.taperWeeks of the end of targetMonth.
+  function isTaperWeek(block, date) {
+    if (!block.raceGoal || !block.raceGoal.taperWeeks) return false;
+    var d = new Date(date); d.setHours(0, 0, 0, 0);
+    var year = d.getFullYear();
+    var endOfRaceMonth = new Date(year, block.raceGoal.targetMonth + 1, 0);
+    var taperStart = new Date(endOfRaceMonth);
+    taperStart.setDate(taperStart.getDate() - (block.raceGoal.taperWeeks * 7));
+    taperStart.setHours(0, 0, 0, 0);
+    return d >= taperStart;
+  }
+
   function getWorkoutForDate(plan, date) {
-    const d  = new Date(date); d.setHours(12, 0, 0, 0);
-    const wi = _getWeekIndex(plan, d);
+    var d   = new Date(date); d.setHours(12, 0, 0, 0);
+    var wi  = _getWeekIndex(plan, d);
     if (wi < 0) return null;
 
-    const dow         = d.getDay();
-    const peteWk      = wi % plan.tuesdayCycle.ergCycleIds.length;
-    const isSpeedWeek = (wi % plan.thursdayRule.speedEveryNWeeks === 0);
+    var dow   = d.getDay();
+    var block = getBlockForDate(d);
+    var wib   = getWeekIndexInBlock(block, d);
 
-    let workoutId, workoutBg, workoutShort, workoutItems;
+    var isDeload = (wib % block.deloadCycle === block.deloadCycle - 1);
+    var isTaper  = isTaperWeek(block, d);
+    var useDeload = isDeload || isTaper;
 
-    if (plan.fixedByDow[dow] !== undefined) {
-      workoutId = plan.fixedByDow[dow];
-      const wk  = WORKOUT_LIBRARY[workoutId];
-      workoutItems = wk.items;
-      workoutBg    = wk.bgClass;
-      workoutShort = wk.calShort;
+    var tmpl = block.weekTemplate[dow];
+    if (!tmpl) return null;
 
-    } else if (dow === plan.tuesdayCycle.dow) {
-      workoutId     = plan.tuesdayCycle.ergCycleIds[peteWk];
-      const ergWk   = WORKOUT_LIBRARY[workoutId];
-      const waterWk = WORKOUT_LIBRARY[plan.tuesdayCycle.primaryWorkoutId];
-      workoutItems  = [
-        ...waterWk.items,
-        { t: 'Backup: ' + ergWk.name, d: ergWk.items[0].d + ' (if crew cancelled)' }
-      ];
-      workoutBg    = 'bg-end';
-      workoutShort = 'Endurance / Water';
+    // Rest day — no session
+    if (tmpl.type === 'rest') return null;
 
-    } else if (dow === plan.thursdayRule.dow) {
-      if (isSpeedWeek) {
-        const speedIdx = Math.floor(wi / plan.thursdayRule.speedEveryNWeeks) % plan.thursdayRule.speedCycleIds.length;
-        workoutId      = plan.thursdayRule.speedCycleIds[speedIdx];
-        const speedWk  = WORKOUT_LIBRARY[workoutId];
-        const waterWk  = WORKOUT_LIBRARY[plan.tuesdayCycle.primaryWorkoutId];
-        workoutItems   = [
-          ...waterWk.items,
-          { t: 'Backup: ⚡ Monthly Speed — ' + speedWk.name, d: speedWk.items[0].d }
-        ];
-        workoutBg    = 'bg-speed';
-        workoutShort = 'Speed / Water';
-      } else {
-        workoutId    = plan.thursdayRule.defaultWorkoutId;
-        const wk     = WORKOUT_LIBRARY[workoutId];
-        workoutItems = wk.items;
-        workoutBg    = wk.bgClass;
-        workoutShort = wk.calShort;
-      }
-
-    } else if (dow === 6) {
-      workoutId    = plan.saturdayWorkoutId;
-      const wk     = WORKOUT_LIBRARY[workoutId];
-      workoutItems = wk.items;
-      workoutBg    = wk.bgClass;
-      workoutShort = wk.calShort;
+    // Restoration day — fixed session, no pool cycling
+    if (tmpl.type === 'restoration') {
+      var restWk = WORKOUT_LIBRARY['wk_restoration'] || {};
+      return {
+        workoutId:    'wk_restoration',
+        workoutBg:    'bg-restore',
+        workoutShort: 'Restore',
+        workoutItems: restWk.items || [],
+        weekIndex:     wi,
+        blockWeek:     wib,
+        peteWeek:      wib,            // backward-compat alias
+        mealWeekIndex: wi % plan.mealCycleIds.length,
+        dow:           dow,
+        mobilityBias:  null,
+        blockId:       block.id,
+        blockName:     block.shortName,
+        isDeload:      isDeload,
+        isTaper:       isTaper,
+        type:          'restoration'
+      };
     }
 
-    if (!workoutId) return null;
+    // Lift or erg — pick from pool
+    var pool = (useDeload && tmpl.deloadPool) ? tmpl.deloadPool : tmpl.pool;
+    if (!pool || pool.length === 0) return null;
+
+    var workoutId = pool[wib % pool.length];
+    var wk = WORKOUT_LIBRARY[workoutId];
+    if (!wk) return null;
 
     return {
-      workoutId,
-      workoutBg,
-      workoutShort,
-      workoutItems,
-      weekIndex:     wi,
-      peteWeek:      peteWk,
+      workoutId:    workoutId,
+      workoutBg:    wk.bgClass,
+      workoutShort: wk.calShort,
+      workoutItems: wk.items,
+      weekIndex:    wi,
+      blockWeek:    wib,
+      peteWeek:     wib,             // backward-compat alias
       mealWeekIndex: wi % plan.mealCycleIds.length,
-      dow,
-      isSpeedWeek
+      dow:          dow,
+      mobilityBias: wk.mobilityBias || null,
+      blockId:      block.id,
+      blockName:    block.shortName,
+      isDeload:     isDeload,
+      isTaper:      isTaper,
+      type:         wk.type
     };
   }
 
   function getTodayContext(plan, date) {
-    const d  = new Date(date); d.setHours(12, 0, 0, 0);
-    const wf = getWorkoutForDate(plan, d);
+    var d  = new Date(date); d.setHours(12, 0, 0, 0);
+    var wf = getWorkoutForDate(plan, d);
     if (!wf) return null;
 
-    const dowNames  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const cuisineId = plan.mealCycleIds[wf.mealWeekIndex];
-    const cuisine   = CUISINE_CATALOG[cuisineId];
+    var dowNames  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var cuisineId = plan.mealCycleIds[wf.mealWeekIndex];
+    var cuisine   = CUISINE_CATALOG[cuisineId];
 
     return {
       workout:         wf,
-      cuisineId,
+      cuisineId:       cuisineId,
       cuisineName:     cuisine ? cuisine.name : '',
       dowName:         dowNames[wf.dow],
-      peteWeekDisplay: wf.peteWeek + 1
+      peteWeekDisplay: wf.blockWeek + 1,                        // backward-compat
+      blockDisplay:    wf.blockName + ' Wk ' + (wf.blockWeek + 1)
     };
   }
 
-  return { getWorkoutForDate, getTodayContext, isDateInPlan };
+  // Returns the 5-min post-workout mobility routine for a session's mobilityBias.
+  // Requires POST_WORKOUT_ROUTINES (data-mobility.js).
+  function getMobilityRoutine(session) {
+    if (!session || !session.mobilityBias) return null;
+    if (typeof POST_WORKOUT_ROUTINES === 'undefined') return null;
+    return POST_WORKOUT_ROUTINES[session.mobilityBias] || null;
+  }
+
+  // Returns the 20-min Saturday deep restoration routine.
+  // Requires WEEKEND_RESTORATION (data-mobility.js).
+  function getRestorationRoutine() {
+    if (typeof WEEKEND_RESTORATION === 'undefined') return null;
+    return WEEKEND_RESTORATION;
+  }
+
+  return {
+    getWorkoutForDate,
+    getTodayContext,
+    isDateInPlan,
+    getBlockForDate,
+    getWeekIndexInBlock,
+    isTaperWeek,
+    getMobilityRoutine,
+    getRestorationRoutine
+  };
 })();
 
 
@@ -255,11 +328,14 @@ const ShoppingListEngine = (function () {
     }
     ids.push('overnight_oats_base', 'trail_mix_batch');
 
-    // Aggregate ingredient amounts
+    // Aggregate ingredient amounts — apply portionScales to the 3 selected dinner recipes
+    var portionScales = weekPlan.portionScales || [1.25, 1.25, 1.25];
     var agg = {};
     ids.forEach(function (recipeId) {
       var recipe = RECIPE_CATALOG[recipeId];
       if (!recipe) return;
+      var recipeIdx = weekPlan.recipeIds.indexOf(recipeId);
+      var scale = (recipeIdx >= 0 && portionScales[recipeIdx] != null) ? portionScales[recipeIdx] : 1.0;
       recipe.ingredients.forEach(function (ing) {
         var ingredient = INGREDIENT_CATALOG[ing.ingredientId];
         if (!ingredient) return;
@@ -273,7 +349,7 @@ const ShoppingListEngine = (function () {
           };
         }
         var u = agg[ing.ingredientId].byUnit;
-        u[ing.unit] = (u[ing.unit] || 0) + ing.amount;
+        u[ing.unit] = (u[ing.unit] || 0) + (ing.amount * scale);
       });
     });
 
@@ -329,6 +405,92 @@ const ShoppingListEngine = (function () {
 })();
 
 
+// ---- CalorieEngine ------------------------------------------
+
+const CalorieEngine = (function() {
+
+  var MAINTENANCE_CAL = 2400;
+  var DEFICIT_CAL     = 2100;
+
+  // Pure computation — no DOM, no storage.
+  // currentWeight / goalWeight in the same unit (lb by default).
+  // Returns { calories, mode: 'loss'|'maintenance' }.
+  // If currentWeight is null (nothing logged yet), defaults to deficit.
+  function getDailyTarget(currentWeight, goalWeight) {
+    if (currentWeight !== null && currentWeight !== undefined && currentWeight <= goalWeight) {
+      return { calories: MAINTENANCE_CAL, mode: 'maintenance' };
+    }
+    return { calories: DEFICIT_CAL, mode: 'loss' };
+  }
+
+  // Convenience wrapper: accepts settings object + raw weight log array,
+  // returns a single calorie context object ready for any UI consumer.
+  // settings  — from loadSettings() or storage.readSettings()
+  // weightLogs — from storage.readLogs().filter(_logType === 'weight')
+  function getCalorieContext(settings, weightLogs) {
+    var sorted = (weightLogs || []).slice().sort(function(a, b) {
+      return (b.date || '').localeCompare(a.date || '');
+    });
+    var currentWeight = sorted.length > 0 ? parseFloat(sorted[0].weight) : null;
+    var goalWeight    = settings.goalWeight  || 165;
+    var startWeight   = settings.startWeight || null;
+    var target        = getDailyTarget(currentWeight, goalWeight);
+
+    return {
+      currentWeight: currentWeight,
+      goalWeight:    goalWeight,
+      startWeight:   startWeight,
+      lbsLost:       (startWeight !== null && currentWeight !== null)
+                       ? +(startWeight - currentWeight).toFixed(1) : null,
+      lbsToGoal:     currentWeight !== null
+                       ? +(currentWeight - goalWeight).toFixed(1) : null,
+      calories:      target.calories,
+      mode:          target.mode
+    };
+  }
+
+  return { getDailyTarget, getCalorieContext, MAINTENANCE_CAL, DEFICIT_CAL };
+})();
+
+
+// ---- HREngine -----------------------------------------------
+
+const HREngine = (function() {
+
+  var ZONES = [
+    { num: 1, name: 'Recovery',   minPct: 0.50, maxPct: 0.60 },
+    { num: 2, name: 'Endurance',  minPct: 0.60, maxPct: 0.70 },
+    { num: 3, name: 'Tempo',      minPct: 0.70, maxPct: 0.80 },
+    { num: 4, name: 'Threshold',  minPct: 0.80, maxPct: 0.90 },
+    { num: 5, name: 'Max Effort', minPct: 0.90, maxPct: 1.00 },
+  ];
+
+  // Tanaka formula: 208 − (0.7 × age). Uses knownMaxHR when valid.
+  function getMaxHR(age, knownMaxHR) {
+    if (knownMaxHR && knownMaxHR >= 100 && knownMaxHR <= 220) return Math.round(knownMaxHR);
+    if (age        && age >= 15          && age        <= 90)  return Math.round(208 - (0.7 * age));
+    return null;
+  }
+
+  function getZones(age, knownMaxHR) {
+    var maxHR = getMaxHR(age, knownMaxHR);
+    if (!maxHR) return null;
+    return ZONES.map(function(z) {
+      return {
+        num:    z.num,
+        name:   z.name,
+        minPct: z.minPct,
+        maxPct: z.maxPct,
+        minBPM: Math.round(maxHR * z.minPct),
+        maxBPM: Math.round(maxHR * z.maxPct),
+      };
+    });
+  }
+
+  return { getMaxHR: getMaxHR, getZones: getZones };
+})();
+
+
 // ---- Cross-catalog validation --------------------------------
 // Call from the console: validateCatalogs()
 
@@ -365,15 +527,13 @@ function validateCatalogs() {
     });
   });
 
-  Object.values(TRAINING_PLANS).forEach(plan => {
-    const ids = [
-      ...Object.values(plan.fixedByDow || {}),
-      ...(plan.tuesdayCycle ? [plan.tuesdayCycle.primaryWorkoutId, ...plan.tuesdayCycle.ergCycleIds] : []),
-      ...(plan.thursdayRule ? [plan.thursdayRule.defaultWorkoutId, ...plan.thursdayRule.speedCycleIds] : []),
-      plan.saturdayWorkoutId
-    ].filter(Boolean);
-    ids.forEach(id => {
-      if (!WORKOUT_LIBRARY[id]) errors.push('Plan "' + plan.id + '" refs unknown workout "' + id + '"');
+  TRAINING_BLOCKS.forEach(function(block) {
+    Object.values(block.weekTemplate).forEach(function(tmpl) {
+      [tmpl.pool, tmpl.deloadPool].filter(Boolean).forEach(function(pool) {
+        pool.forEach(function(id) {
+          if (!WORKOUT_LIBRARY[id]) errors.push('Block "' + block.id + '" refs unknown workout "' + id + '"');
+        });
+      });
     });
   });
 
