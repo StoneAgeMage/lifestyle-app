@@ -13,7 +13,7 @@ const TRAINING_PLANS = {
     startDate: '2026-01-05',   // First Monday of 2026 — anchor for meal week index
     endDate:   '2026-12-31',
 
-    // 6-cuisine meal rotation — cycles by global week index from startDate
+    // mealCycleIds retained for week-index math; cuisine system removed in Phase 4
     mealCycleIds: ['chinese', 'greek', 'mexican', 'thai', 'indian', 'italian', 'spanish', 'caribbean']
   }
 

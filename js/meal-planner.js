@@ -9,7 +9,6 @@
 
 // ---- State --------------------------------------------------
 
-var _draftCuisineId  = null;
 var _draftRecipeIds  = [];
 var _mpWeekOffset    = 0;   // 0 = this week, 1 = next week
 
@@ -110,7 +109,6 @@ function _mpWeekToggle() {
 
 function mpSwitchWeek(offset) {
   _mpWeekOffset   = offset;
-  _draftCuisineId = null;
   _draftRecipeIds = [];
   renderMealPlannerHome();
 }
@@ -119,14 +117,13 @@ function mpSwitchWeek(offset) {
 
 function _renderPrepTimeline(plan) {
   if (!plan) return '';
-  var cuisine = CUISINE_CATALOG[plan.cuisineId];
   var recipes = (plan.recipeIds || [])
     .map(function(id) { return RECIPE_CATALOG[id]; })
     .filter(function(r) { return r && r.mealTypes && r.mealTypes.indexOf('dinner') >= 0; })
     .slice(0, 3);
   if (recipes.length === 0) return '';
 
-  var sauceName = cuisine ? cuisine.sauceName : 'dressing';
+  var sauceName = 'sauce';
 
   function _t(mins) {
     var totalMins = 9 * 60 + mins;
@@ -187,7 +184,7 @@ function _renderPrepTimeline(plan) {
     desc: 'Done — ~' + t + ' min total. Week is loaded.' });
 
   return '<div class="mp-timeline">' +
-    '<div class="mp-tl-header">Sunday Prep · ' + (cuisine ? cuisine.name : '') + ' Week · ~' + t + ' min</div>' +
+    '<div class="mp-tl-header">Sunday Prep · ~' + t + ' min</div>' +
     steps.map(function(s) {
       return '<div class="mp-tl-step">' +
         '<div class="mp-tl-time">' + s.time + '</div>' +
@@ -265,15 +262,6 @@ function renderMealPlannerHome() {
   var isNextWeek = _mpWeekOffset === 1;
 
   if (!plan) {
-    var tPlan = TRAINING_PLANS[ACTIVE_PLAN_ID];
-    var viewDate = new Date();
-    viewDate.setDate(viewDate.getDate() + _mpWeekOffset * 7);
-    viewDate.setHours(12, 0, 0, 0);
-    var s  = new Date(tPlan.startDate); s.setHours(0, 0, 0, 0);
-    var wi = Math.max(0, Math.floor((viewDate - s) / (7 * 86400000)));
-    var sugId      = tPlan.mealCycleIds[wi % tPlan.mealCycleIds.length];
-    var sugCuisine = CUISINE_CATALOG[sugId];
-
     el.innerHTML =
       _mpWeekToggle() +
       '<div class="mp-section">' +
@@ -282,15 +270,12 @@ function renderMealPlannerHome() {
         '</div>' +
         '<div class="mp-cta">' +
           '<p class="mp-cta-text">No meal plan set.</p>' +
-          (sugCuisine ? '<p class="mp-cta-sub">Rotation suggests: <strong>' + sugCuisine.name + ' Week</strong></p>' : '') +
           '<button class="log-btn" style="margin-top:12px;width:100%" onclick="renderCuisineSelector()">Plan This Week →</button>' +
         '</div>' +
       '</div>';
     return;
   }
 
-  var cuisine       = CUISINE_CATALOG[plan.cuisineId];
-  var colorClass    = cuisine ? cuisine.colorClass : 'h1';
   var dinnerRecipes = (plan.recipeIds || []).map(function (id, i) { var r = RECIPE_CATALOG[id]; return r ? { recipe: r, idx: i } : null; }).filter(Boolean);
 
   var settings = loadSettings();
@@ -311,10 +296,9 @@ function renderMealPlannerHome() {
     _mpWeekToggle() +
     '<div class="mp-section">' +
       '<div class="mp-plan-card">' +
-        '<div class="mp-plan-hdr ' + colorClass + '">' +
+        '<div class="mp-plan-hdr">' +
           '<div>' +
             '<div class="mp-plan-week">' + (isNextWeek ? 'NEXT WEEK · ' : 'THIS WEEK · ') + weekLabel + '</div>' +
-            '<div class="mp-plan-cuisine">' + (cuisine ? cuisine.name : '') + ' Week</div>' +
           '</div>' +
           '<div class="mp-plan-actions">' +
             '<button class="mp-action-btn" onclick="renderCuisineSelector()">Edit</button>' +
@@ -346,92 +330,28 @@ function renderMealPlannerHome() {
     '</div>';
 }
 
-// ---- Cuisine selector ---------------------------------------
+// ---- Cuisine selector (stub) --------------------------------
+// TODO: Phase 5 — replace with new rank/overlap-driven recipe selection UI
 
 function renderCuisineSelector() {
   var el = document.getElementById('meal-planner-view');
   if (!el) return;
-
-  _draftRecipeIds = [];
-
-  var tPlan        = TRAINING_PLANS[ACTIVE_PLAN_ID];
-  var currentPlan  = _mpLoadViewingPlan();
-  var currentCuisineId = currentPlan ? currentPlan.cuisineId : null;
-  var isNextWeek   = _mpWeekOffset === 1;
-
+  var isNextWeek = _mpWeekOffset === 1;
   el.innerHTML =
     _mpWeekToggle() +
     '<div class="mp-section">' +
       '<div class="mp-nav">' +
         '<button class="mp-back" onclick="renderMealPlannerHome()">← Back</button>' +
-        '<span class="mp-nav-title">' + (isNextWeek ? 'Next Week' : 'This Week') + ' · Cuisine</span>' +
+        '<span class="mp-nav-title">' + (isNextWeek ? 'Next Week' : 'This Week') + ' · Plan</span>' +
       '</div>' +
-      '<div class="mp-cuisine-grid">' +
-        tPlan.mealCycleIds.map(function (cuisineId, i) {
-          var cuisine  = CUISINE_CATALOG[cuisineId];
-          if (!cuisine) return '';
-          var isCurrent = cuisineId === currentCuisineId;
-          return '<div class="mp-cuisine-tile ' + cuisine.colorClass + (isCurrent ? ' active' : '') + '" onclick="mpSelectCuisine(\'' + cuisineId + '\')">' +
-            '<div class="mp-cuisine-name">' + cuisine.name + '</div>' +
-            '<div class="mp-cuisine-sub">Week ' + (i + 1) + (isCurrent ? ' · current' : '') + '</div>' +
-          '</div>';
-        }).join('') +
+      '<div class="mp-cta">' +
+        '<p class="mp-cta-text">Recipe selection coming in Phase 5.</p>' +
       '</div>' +
     '</div>';
 }
 
-// ---- Recipe selector ----------------------------------------
-
-function renderRecipeSelector(cuisineId) {
-  var el = document.getElementById('meal-planner-view');
-  if (!el) return;
-
-  var cuisine = CUISINE_CATALOG[cuisineId];
-  if (!cuisine) { renderMealPlannerHome(); return; }
-
-  _draftCuisineId = cuisineId;
-
-  var dinnerRecipes = cuisine.recipeIds
-    .map(function (id) { return RECIPE_CATALOG[id]; })
-    .filter(function (r) { return r && r.mealTypes.indexOf('dinner') >= 0; });
-
-  var selectedCount = _draftRecipeIds.length;
-  var atLimit       = selectedCount >= 3;
-  var canConfirm    = selectedCount === 3;
-
-  el.innerHTML =
-    _mpWeekToggle() +
-    '<div class="mp-section">' +
-      '<div class="mp-nav">' +
-        '<button class="mp-back" onclick="renderCuisineSelector()">← Cuisines</button>' +
-        '<span class="mp-nav-title">' + cuisine.name + ' · Dinners</span>' +
-      '</div>' +
-      '<div class="mp-recipe-instr">Select exactly 3 recipes (yields 12 servings: 6 Dinners + 6 Lunches, Mon–Sat)</div>' +
-      '<div class="mp-recipes">' +
-        dinnerRecipes.map(function (r) {
-          var sel      = _draftRecipeIds.indexOf(r.id) >= 0;
-          var disabled = !sel && atLimit;
-          return '<div class="mp-recipe' + (sel ? ' selected' : '') + (disabled ? ' mp-recipe-disabled' : '') + '"' +
-            (disabled ? '' : ' onclick="mpToggleRecipe(\'' + r.id + '\')"') + '>' +
-            '<div class="mp-recipe-check">' + (sel ? '✓' : '') + '</div>' +
-            '<div class="mp-recipe-info">' +
-              '<div class="mp-recipe-name-row">' +
-                '<span class="mp-recipe-name">' + r.name + '</span>' +
-                '<span class="mp-recipe-type-badge ' + (r.isVeg ? 'mp-badge-veg' : 'mp-badge-prot') + '">' + (r.isVeg ? 'VEG' : 'PROTEIN') + '</span>' +
-              '</div>' +
-              '<div class="mp-recipe-meta">' + (r.protStr || '~' + r.proteinG + 'g protein') + (r.calories ? ' · ' + r.calories + ' cal' : '') + ' · Serves ' + r.servings + ' · ' + ((r.prepMins || 0) + (r.cookMins || 0)) + ' min</div>' +
-              '<div class="mp-recipe-desc">' + (r.desc || '') + '</div>' +
-            '</div>' +
-          '</div>';
-        }).join('') +
-      '</div>' +
-      '<div class="mp-recipe-count">' + selectedCount + ' / 3 selected</div>' +
-      (canConfirm
-        ? '<button class="log-btn" style="width:100%" onclick="mpConfirmPlan()">Confirm Plan →</button>'
-        : '<button class="log-btn" style="width:100%;opacity:.4;cursor:not-allowed" disabled>Confirm Plan →</button>'
-      ) +
-    '</div>';
-}
+// TODO: Phase 5 — renderRecipeSelector replaced by new selection UI
+function renderRecipeSelector() { renderMealPlannerHome(); }
 
 // ---- Shopping list ------------------------------------------
 
@@ -498,16 +418,8 @@ function renderShoppingList() {
 
 // ---- Action handlers ----------------------------------------
 
-function mpSelectCuisine(cuisineId) {
-  _draftCuisineId = cuisineId;
-  var existing = _mpLoadViewingPlan();
-  if (existing && existing.cuisineId === cuisineId && existing.recipeIds && existing.recipeIds.length === 3) {
-    _draftRecipeIds = existing.recipeIds.slice();
-  } else {
-    _draftRecipeIds = [];
-  }
-  renderRecipeSelector(cuisineId);
-}
+// TODO: Phase 5 — mpSelectCuisine removed with cuisine system
+function mpSelectCuisine() { renderMealPlannerHome(); }
 
 function mpToggleRecipe(id) {
   var idx = _draftRecipeIds.indexOf(id);
@@ -516,24 +428,23 @@ function mpToggleRecipe(id) {
   } else if (_draftRecipeIds.length < 3) {
     _draftRecipeIds.push(id);
   }
-  renderRecipeSelector(_draftCuisineId);
+  renderRecipeSelector();
 }
 
 function mpConfirmPlan() {
-  if (!_draftCuisineId || _draftRecipeIds.length !== 3) return;
+  // TODO: Phase 5 — plan confirmation rebuilt with new selection engine
+  if (_draftRecipeIds.length !== 3) return;
   var weekStart   = _mpViewingWeekStart();
   var existing    = _mpLoadViewingPlan() || {};
   var sameRecipes = existing.recipeIds && existing.recipeIds.join(',') === _draftRecipeIds.join(',');
   _mpSavePlan({
     id:              _mpPlanId(weekStart),
     weekStart:       weekStart,
-    cuisineId:       _draftCuisineId,
     recipeIds:       _draftRecipeIds.slice(),
     portionScales:   sameRecipes && existing.portionScales ? existing.portionScales.slice() : [1.25, 1.25, 1.25],
     checkedItems:    existing.checkedItems    || [],
     pantryOverrides: existing.pantryOverrides || []
   });
-  _draftCuisineId = null;
   _draftRecipeIds = [];
   renderMealPlannerHome();
   if (typeof renderTodayMeals  === 'function') renderTodayMeals();
@@ -600,27 +511,19 @@ function openRecipeModal(recipeId) {
     overlay.addEventListener('click', function(e) { if (e.target === overlay) closeRecipeModal(); });
     document.body.appendChild(overlay);
   }
-  var ingredientHtml = (recipe.ingredients || []).map(function(ing) {
-    var ingData = INGREDIENT_CATALOG[ing.ingredientId];
-    var ingName = ingData ? ingData.name : ing.ingredientId;
-    var amt = ing.amount + ' ' + ing.unit;
-    if (ing.note) amt += ' (' + ing.note + ')';
-    return '<li class="rm-ing-item">' + amt + ' ' + ingName + (ing.optional ? ' <em>(optional)</em>' : '') + '</li>';
+  var ingredientHtml = (recipe._ingredients || []).map(function(ing) {
+    var ingData = INGREDIENT_CATALOG[ing.id];
+    var ingName = ingData ? ingData.name : ing.id;
+    var amt     = ing.qty || (ing.grams + 'g');
+    return '<li class="rm-ing-item">' + amt + ' ' + ingName + '</li>';
   }).join('');
-  var stepsHtml = '';
-  if (recipe.brief_instructions && recipe.brief_instructions.length) {
-    stepsHtml = '<div class="rm-section-title">How to Cook</div><ol class="rm-steps">' +
-      recipe.brief_instructions.map(function(step, i) {
-        return '<li class="rm-step"><span class="rm-step-num">' + (i + 1) + '</span>' + step + '</li>';
-      }).join('') + '</ol>';
-  }
+  var tm        = recipe._totalMacros || {};
+  var macroStr  = '';
+  if (tm.calories)  macroStr  = tm.calories + ' cal (full batch)';
+  if (tm.proteinG)  macroStr += (macroStr ? ' · ' : '') + tm.proteinG + 'g protein';
   var sourceBtn = recipe.source_url
     ? '<a href="' + recipe.source_url + '" target="_blank" rel="noopener" class="rm-source-btn">View Full Recipe Online →</a>'
     : '';
-  var macroStr = '';
-  if (recipe.proteinG) macroStr = recipe.proteinG + 'g protein';
-  if (recipe.calories) macroStr += (macroStr ? ' · ' : '') + recipe.calories + ' cal';
-  if (recipe.servings) macroStr += (macroStr ? ' · ' : '') + 'Serves ' + recipe.servings;
   overlay.innerHTML =
     '<div class="rm-modal">' +
       '<button class="rm-close" onclick="closeRecipeModal()">✕</button>' +
@@ -631,7 +534,6 @@ function openRecipeModal(recipeId) {
       '<div class="rm-body">' +
         '<div class="rm-section-title">Ingredients</div>' +
         '<ul class="rm-ingredients">' + ingredientHtml + '</ul>' +
-        stepsHtml +
         sourceBtn +
       '</div>' +
     '</div>';

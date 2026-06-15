@@ -1,1595 +1,903 @@
 // ============================================================
-// DATA-RECIPES — curated protein-dense recipe catalog
-// 8-cuisine rotation: Chinese · Greek · Mexican · Thai
-//   · Indian · Italian · Spanish · Caribbean
-// All dinner recipes scaled to 4 servings.
-// calories / proteinG are per serving.
-// Daily macro target: ~115g protein, ~2100 cal (0.7g/lb × 165 lb goal)
-//   Baseline (oats + snacks + shake): ~35g / 800 cal
-//   Lunch + Dinner (2 recipe servings/day avg): ~80g / 1300 cal
-//   Dinner: protein nights ~35–42g; veg nights ~13–22g
-// ============================================================
+// DATA-RECIPES — locked full-batch recipe catalog
+//
+// _ingredients  locked at Phase 1 (gram-standardized from source URL)
+// _totalMacros  locked at Phase 2 (USDA FoodData Central)
+// lastUsedWeek  runtime only — updated by engine on plan confirm
+//
+// Serving division formula (computed in engine.js):
+//   N = Math.round(calories / 650)
+//   N = Math.min(Math.max(N, 1), 5)
+//   if (calories / N < 400) N = Math.max(N - 1, 1)
+//
+// Rank / cooldown: A = 2wk, B = 4wk, C = 10wk
+//
+//============================================================
 
 const RECIPE_CATALOG = {
 
-  // ============================================================
-  // CHINESE WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
+  // ----------------------------------------------------------------
+  // R1 — Sheet Pan Sesame Chicken
+  // ----------------------------------------------------------------
   sesame_chicken: {
-    id: 'sesame_chicken',
-    name: 'Sheet Pan Sesame Chicken',
-    cuisineId: 'chinese',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 41, calories: 495, carbsG: 26, fatG: 26,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://www.ambitiouskitchen.com/sheet-pan-sesame-chicken/',
-    link: 'https://www.ambitiouskitchen.com/sheet-pan-sesame-chicken/',
-    desc: 'Sesame-soy glaze, asparagus, bell pepper, cashews. Macros not including rice.',
-    protStr: '~41g',
-    ingredients: [
-      { ingredientId:'chicken_thigh', amount:1.5,  unit:'lb'   },
-      { ingredientId:'asparagus',     amount:1,    unit:'bunch'},
-      { ingredientId:'bell_pepper',   amount:1,    unit:'whole'},
-      { ingredientId:'red_onion',     amount:4,    unit:'whole'},
-      { ingredientId:'cashews',       amount:0.4,  unit:'cup'  },
-      { ingredientId:'soy_sauce',     amount:3,    unit:'tbsp' },
-      { ingredientId:'sesame_oil',    amount:2,    unit:'tbsp' },
-      { ingredientId:'rice_vinegar',  amount:2,    unit:'tbsp' },
-      { ingredientId:'honey',         amount:3,    unit:'tbsp' },
-      { ingredientId:'garlic',        amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',  amount:1,    unit:'tbsp' },
-      { ingredientId:'brown_rice',    amount:2,    unit:'cup', note:'for serving' }
+    id:           'sesame_chicken',
+    name:         'Sheet Pan Sesame Chicken',
+    rank:         'A',
+    source_url:   'https://www.ambitiouskitchen.com/sheet-pan-sesame-chicken/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless_skinless', grams: 680, qty: '1½ lbs'           },
+      { id: 'asparagus_raw',                   grams: 500, qty: '1 large bunch'     },
+      { id: 'red_bell_pepper',                 grams: 120, qty: '1 medium'          },
+      { id: 'red_onion',                       grams: 160, qty: '1 medium'          },
+      { id: 'cashews_raw',                     grams: 65,  qty: '½ cup'             },
+      { id: 'soy_sauce_low_sodium',            grams: 60,  qty: '¼ cup'             },
+      { id: 'honey',                           grams: 63,  qty: '3 tbsp'            },
+      { id: 'rice_vinegar',                    grams: 30,  qty: '2 tbsp'            },
+      { id: 'sesame_oil_toasted',              grams: 27,  qty: '2 tbsp'            },
+      { id: 'olive_oil_extra_virgin',          grams: 14,  qty: '1 tbsp'            },
+      { id: 'sambal_oelek',                    grams: 30,  qty: '2 tbsp'            },
+      { id: 'ginger_fresh',                    grams: 8,   qty: '1 tbsp grated'     },
+      { id: 'garlic',                          grams: 6,   qty: '2 cloves'          },
+      { id: 'scallions',                       grams: 20,  qty: '2 whole'           },
+      { id: 'sesame_seeds_toasted',            grams: 9,   qty: '1 tbsp'            },
+      { id: 'cilantro',                        grams: 4,   qty: 'small handful'     },
+      { id: 'fresh_basil',                     grams: 3,   qty: 'small handful'     },
+      { id: 'fresh_mint',                      grams: 3,   qty: 'small handful'     },
     ],
-    brief_instructions: [
-      'Whisk soy sauce, sesame oil, rice vinegar, maple syrup, garlic and ginger into a glaze.',
-      'Toss chicken thighs in half the glaze. Arrange on a sheet pan with asparagus and bell pepper.',
-      'Scatter cashews over the pan. Roast 400°F for 25–30 min until chicken reaches 165°F.',
-      'Drizzle remaining glaze over everything. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 2314, proteinG: 155.3, fatG: 126.3, carbsG: 136.3, sodiumMg: 3268 },
   },
 
-  soy_glazed_salmon: {
-    id: 'soy_glazed_salmon',
-    name: 'Sheet Pan Soy-Glazed Salmon',
-    cuisineId: 'chinese',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 45, calories: 650, carbsG: null, fatG: null,
-    prepMins: 8, cookMins: 20,
-    source_url: 'https://www.ambitiouskitchen.com/sesame-ginger-sweet-teriyaki-salmon-with-garlic-quinoa-stir-fry/',
-    link: 'https://www.ambitiouskitchen.com/sesame-ginger-sweet-teriyaki-salmon-with-garlic-quinoa-stir-fry/',
-    desc: 'Honey-soy glaze, asparagus, green onion. Fast 20-min weeknight sheet pan.',
-    protStr: '~45g',
-    ingredients: [
-      { ingredientId:'salmon_fillet', amount:2,    unit:'lb'   },
-      { ingredientId:'asparagus',     amount:1,    unit:'bunch'},
-      { ingredientId:'bell_pepper',   amount:1,    unit:'whole'},
-      { ingredientId:'soy_sauce',     amount:4,    unit:'tbsp' },
-      { ingredientId:'sesame_oil',    amount:2,    unit:'tbsp' },
-      { ingredientId:'honey',         amount:3,    unit:'tbsp' },
-      { ingredientId:'rice_vinegar',  amount:1,    unit:'tbsp' },
-      { ingredientId:'garlic',        amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',  amount:1,    unit:'tbsp' },
-      { ingredientId:'green_onion',   amount:4,    unit:'whole'},
-      { ingredientId:'brown_rice',    amount:2,    unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R2 — Sesame Ginger Teriyaki Salmon
+  // ----------------------------------------------------------------
+  sesame_ginger_teriyaki_salmon: {
+    id:           'sesame_ginger_teriyaki_salmon',
+    name:         'Sesame Ginger Sweet Teriyaki Salmon with Garlic Quinoa',
+    rank:         'B',
+    source_url:   'https://www.ambitiouskitchen.com/sesame-ginger-sweet-teriyaki-salmon-with-garlic-quinoa-stir-fry/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'salmon_atlantic_farmed',  grams: 454, qty: '1 lb'            },
+      { id: 'teriyaki_sauce',          grams: 250, qty: '1 cup'           },
+      { id: 'quinoa_dry',              grams: 128, qty: '¾ cup'           },
+      { id: 'sugar_snap_peas',         grams: 218, qty: '1½ cups'         },
+      { id: 'red_bell_pepper',         grams: 120, qty: '1 medium'        },
+      { id: 'yellow_bell_pepper',      grams: 120, qty: '1 medium'        },
+      { id: 'olive_oil_extra_virgin',  grams: 68,  qty: '¼ cup + 1 tbsp' },
+      { id: 'dark_brown_sugar',        grams: 38,  qty: '3 tbsp'          },
+      { id: 'honey',                   grams: 42,  qty: '2 tbsp'          },
+      { id: 'garlic',                  grams: 24,  qty: '8 cloves'        },
+      { id: 'ginger_fresh',            grams: 6,   qty: '2 tsp grated'    },
+      { id: 'garlic_salt',             grams: 3,   qty: '½ tsp'           },
+      { id: 'sesame_seeds',            grams: 9,   qty: '1 tbsp'          },
+      { id: 'cilantro',                grams: 10,  qty: '¼ cup'           },
+      { id: 'red_pepper_flakes',       grams: 1,   qty: '¼ tsp'           },
     ],
-    brief_instructions: [
-      'Whisk soy sauce, honey, sesame oil, rice vinegar, garlic and ginger into a glaze.',
-      'Arrange salmon fillets, asparagus and bell pepper on a sheet pan.',
-      'Brush glaze generously over salmon. Roast 400°F for 14–16 min until salmon flakes easily.',
-      'Garnish with sliced green onions. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 2030, proteinG: 125.2, fatG: 96.3, carbsG: 168.9, sodiumMg: 2269 },
   },
 
-  kung_pao_chicken: {
-    id: 'kung_pao_chicken',
-    name: 'Kung Pao Chicken',
-    cuisineId: 'chinese',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 45, calories: 650, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://www.recipetineats.com/kung-pao-chicken/',
-    link: 'https://www.recipetineats.com/kung-pao-chicken/',
-    desc: 'Wok-tossed chicken with cashews, bell pepper and a bold sweet-savory-spicy sauce. Classic Chinese takeout at home.',
-    protStr: '~45g',
-    ingredients: [
-      { ingredientId:'chicken_thigh', amount:2,    unit:'lb'   },
-      { ingredientId:'cashews',       amount:0.75, unit:'cup'  },
-      { ingredientId:'bell_pepper',   amount:2,    unit:'whole'},
-      { ingredientId:'green_onion',   amount:4,    unit:'whole'},
-      { ingredientId:'garlic',        amount:5,    unit:'clove'},
-      { ingredientId:'fresh_ginger',  amount:1,    unit:'tbsp' },
-      { ingredientId:'soy_sauce',     amount:4,    unit:'tbsp' },
-      { ingredientId:'rice_vinegar',  amount:2,    unit:'tbsp' },
-      { ingredientId:'sesame_oil',    amount:3,    unit:'tbsp' },
-      { ingredientId:'sugar',         amount:1,    unit:'tbsp' },
-      { ingredientId:'sriracha',      amount:1,    unit:'tbsp' },
-      { ingredientId:'jasmine_rice',  amount:2,    unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R3 — 20-Minute Tofu Stir-Fry
+  // ----------------------------------------------------------------
+  tofu_stir_fry: {
+    id:           'tofu_stir_fry',
+    name:         '20-Minute Tofu Stir-Fry',
+    rank:         'C',
+    source_url:   'https://minimalistbaker.com/20-minute-tofu-stir-fry/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'brown_rice_cooked',    grams: 585, qty: '3 cups cooked'          },
+      { id: 'firm_tofu_extra',      grams: 250, qty: '1 cup, crumbled or cubed'},
+      { id: 'peanut_butter',        grams: 32,  qty: '2 tbsp'                 },
+      { id: 'coconut_aminos',       grams: 60,  qty: '4 tbsp'                 },
+      { id: 'sesame_oil',           grams: 18,  qty: '4 tsp'                  },
+      { id: 'maple_syrup',          grams: 20,  qty: '1 tbsp'                 },
+      { id: 'lime_juice',           grams: 15,  qty: '1 tbsp'                 },
+      { id: 'chili_garlic_sauce',   grams: 15,  qty: '3 tsp'                  },
+      { id: 'shiitake_mushrooms',   grams: 70,  qty: '1 cup chopped'          },
+      { id: 'red_cabbage',          grams: 90,  qty: '1 cup shredded'         },
+      { id: 'red_bell_pepper',      grams: 80,  qty: '1 cup sliced'           },
+      { id: 'garlic',               grams: 6,   qty: '2 cloves'               },
+      { id: 'green_onion',          grams: 25,  qty: '¼ cup sliced'           },
+      { id: 'ginger_fresh',         grams: 8,   qty: '1 tbsp minced'          },
+      { id: 'cilantro',             grams: 10,  qty: 'small handful'          },
     ],
-    brief_instructions: [
-      'Cut chicken into 1-inch pieces. Mix sauce: soy sauce, rice vinegar, sesame oil, sugar and sriracha.',
-      'Stir-fry chicken in hot pan with sesame oil 5–6 min until golden and cooked through. Remove.',
-      'Fry garlic, ginger and diced bell pepper in same pan 2 min. Return chicken and pour sauce over.',
-      'Toss with cashews and sliced green onions. Serve immediately over jasmine rice.'
-    ]
+    _totalMacros: { calories: 1488, proteinG: 58.7, fatG: 55.8, carbsG: 197.9, sodiumMg: 3793 },
   },
 
-  // ---- Dinner — Veg ----
-
-  tofu_cashew_curry: {
-    id: 'tofu_cashew_curry',
-    name: 'Tofu Cashew Coconut Curry',
-    cuisineId: 'chinese',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 35, calories: 600, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 30,
-    source_url: 'https://minimalistbaker.com/30-minute-coconut-curry/',
-    link: 'https://minimalistbaker.com/30-minute-coconut-curry/',
-    desc: 'Extra-firm tofu and edamame in a creamy coconut curry with sweet potato, cauliflower and cashews.',
-    protStr: '~35g',
-    ingredients: [
-      { ingredientId:'firm_tofu',        amount:28,  unit:'oz'   },
-      { ingredientId:'sweet_potato',     amount:2,   unit:'whole'},
-      { ingredientId:'cauliflower',      amount:1,   unit:'whole'},
-      { ingredientId:'cashews',          amount:0.5, unit:'cup'  },
-      { ingredientId:'edamame_frozen',   amount:1,   unit:'cup'  },
-      { ingredientId:'coconut_milk_can', amount:1,   unit:'whole'},
-      { ingredientId:'soy_sauce',        amount:3,   unit:'tbsp' },
-      { ingredientId:'sesame_oil',       amount:2,   unit:'tbsp' },
-      { ingredientId:'garlic',           amount:4,   unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,   unit:'tbsp' },
-      { ingredientId:'brown_rice',       amount:1.5, unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R4 — Greek Sheet Pan Chicken
+  // ----------------------------------------------------------------
+  greek_sheet_pan_chicken: {
+    id:           'greek_sheet_pan_chicken',
+    name:         'Greek Sheet Pan Chicken',
+    rank:         'B',
+    source_url:   'https://www.themediterraneandish.com/greek-sheet-pan-chicken/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless_skinless', grams: 880, qty: '6–8 thighs (~2 lbs)' },
+      { id: 'olive_oil_extra_virgin',          grams: 162, qty: '¾ cup'               },
+      { id: 'lemon_juice',                     grams: 60,  qty: '¼ cup'               },
+      { id: 'feta_cheese',                     grams: 113, qty: '4 oz'                },
+      { id: 'red_onion',                       grams: 200, qty: '1 large'             },
+      { id: 'zucchini',                        grams: 200, qty: '1 medium'            },
+      { id: 'orange_bell_pepper',              grams: 170, qty: '1 large'             },
+      { id: 'tomato',                          grams: 150, qty: '1 large'             },
+      { id: 'kalamata_olives_pitted',          grams: 60,  qty: '¼ cup'              },
+      { id: 'castelvetrano_olives_pitted',     grams: 60,  qty: '¼ cup'              },
+      { id: 'garlic',                          grams: 5,   qty: '1 large clove'       },
+      { id: 'dried_oregano',                   grams: 2,   qty: '1–2 tsp'            },
+      { id: 'fresh_parsley',                   grams: 15,  qty: '¼ cup chopped'       },
     ],
-    brief_instructions: [
-      'Press tofu 15 min, cube and pan-fry in sesame oil until golden on all sides. Set aside.',
-      'Cube sweet potato and cauliflower. Sauté garlic and ginger in the same pan.',
-      'Add coconut milk, soy sauce, sweet potato and cauliflower. Simmer 12 min.',
-      'Stir in tofu, edamame and cashews; simmer 5 more min. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 3285, proteinG: 191.8, fatG: 245.2, carbsG: 60.6, sodiumMg: 3930 },
   },
 
-  egg_fried_rice: {
-    id: 'egg_fried_rice',
-    name: 'Egg Fried Rice with Edamame',
-    cuisineId: 'chinese',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 35, calories: 600, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 15,
-    source_url: 'https://www.recipetineats.com/egg-fried-rice/',
-    link: 'https://www.recipetineats.com/egg-fried-rice/',
-    desc: 'High-protein egg and tofu fried rice with edamame, bell pepper and sesame-soy sauce.',
-    protStr: '~35g',
-    ingredients: [
-      { ingredientId:'eggs',           amount:10,   unit:'whole'},
-      { ingredientId:'firm_tofu',      amount:14,   unit:'oz'   },
-      { ingredientId:'brown_rice',     amount:2,    unit:'cup', note:'day-old cooked is best' },
-      { ingredientId:'edamame_frozen', amount:2,    unit:'cup'  },
-      { ingredientId:'bell_pepper',    amount:1,    unit:'whole'},
-      { ingredientId:'green_onion',    amount:4,    unit:'whole'},
-      { ingredientId:'garlic',         amount:3,    unit:'clove'},
-      { ingredientId:'soy_sauce',      amount:3,    unit:'tbsp' },
-      { ingredientId:'sesame_oil',     amount:3,    unit:'tbsp' },
-      { ingredientId:'rice_vinegar',   amount:1,    unit:'tbsp' },
-      { ingredientId:'sriracha',       amount:1,    unit:'tsp', optional:true }
-    ],
-    brief_instructions: [
-      'Use day-old cooked rice. Press tofu 10 min, cube and pan-fry in 1 tbsp sesame oil until golden. Set aside.',
-      'Scramble eggs in the same hot wok with remaining sesame oil; push to the side once just set.',
-      'Add garlic, bell pepper and rice; stir-fry 3–4 min until rice is lightly crisped.',
-      'Toss in tofu, edamame, soy sauce, rice vinegar and sriracha. Top with green onions.'
-    ]
-  },
-
-  bok_choy_tofu_stir_fry: {
-    id: 'bok_choy_tofu_stir_fry',
-    name: 'Bok Choy & Tofu Stir-Fry',
-    cuisineId: 'chinese',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 16, calories: 380, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 20,
-    source_url: 'https://minimalistbaker.com/20-minute-tofu-stir-fry/',
-    link: 'https://minimalistbaker.com/20-minute-tofu-stir-fry/',
-    desc: 'Crispy pan-fried tofu with bok choy and bell pepper in a savory ginger-soy sauce. Ascent shake.',
-    protStr: '~16g+shake',
-    ingredients: [
-      { ingredientId:'firm_tofu',     amount:14,  unit:'oz'   },
-      { ingredientId:'bok_choy',      amount:4,   unit:'whole'},
-      { ingredientId:'bell_pepper',   amount:1,   unit:'whole'},
-      { ingredientId:'garlic',        amount:4,   unit:'clove'},
-      { ingredientId:'fresh_ginger',  amount:1,   unit:'tbsp' },
-      { ingredientId:'soy_sauce',     amount:3,   unit:'tbsp' },
-      { ingredientId:'oyster_sauce',  amount:1,   unit:'tbsp' },
-      { ingredientId:'sesame_oil',    amount:2,   unit:'tbsp' },
-      { ingredientId:'rice_vinegar',  amount:1,   unit:'tbsp' },
-      { ingredientId:'green_onion',   amount:3,   unit:'whole'},
-      { ingredientId:'jasmine_rice',  amount:2,   unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Press tofu 15 min, cube and pan-fry in sesame oil until golden on all sides. Set aside.',
-      'Whisk sauce: soy sauce, oyster sauce, rice vinegar and a pinch of sugar.',
-      'Stir-fry halved bok choy and bell pepper with garlic and ginger 3–4 min until just tender.',
-      'Return tofu, pour sauce over, toss 1 min. Serve over jasmine rice topped with green onions.'
-    ]
-  },
-
-
-  // ============================================================
-  // GREEK WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
-  moroccan_chicken: {
-    id: 'moroccan_chicken',
-    name: 'Greek Lemon Herb Chicken',
-    cuisineId: 'greek',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 41, calories: 510, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 35,
-    source_url: 'https://www.themediterraneandish.com/greek-sheet-pan-chicken/',
-    link: 'https://www.themediterraneandish.com/greek-sheet-pan-chicken/',
-    desc: 'Lemon-herb marinated chicken thighs, roasted sweet potato and cauliflower with a feta-yogurt drizzle.',
-    protStr: '~41g',
-    ingredients: [
-      { ingredientId:'chicken_thigh', amount:2,    unit:'lb'   },
-      { ingredientId:'sweet_potato',  amount:2,    unit:'whole'},
-      { ingredientId:'cauliflower',   amount:1,    unit:'whole'},
-      { ingredientId:'olive_oil',     amount:3,    unit:'tbsp' },
-      { ingredientId:'lemon',         amount:2,    unit:'whole'},
-      { ingredientId:'garlic',        amount:4,    unit:'clove'},
-      { ingredientId:'cumin',         amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',      amount:0.5,  unit:'tsp'  },
-      { ingredientId:'dried_oregano', amount:1,    unit:'tsp'  },
-      { ingredientId:'cayenne',       amount:0.25, unit:'tsp'  },
-      { ingredientId:'feta_cheese',   amount:0.25, unit:'cup', note:'optional topping' },
-      { ingredientId:'greek_yogurt',  amount:0.25, unit:'cup', note:'optional drizzle' }
-    ],
-    brief_instructions: [
-      'Mix olive oil, lemon juice, cumin, turmeric, oregano and garlic. Coat chicken thighs; marinate 30 min.',
-      'Toss sweet potato and cauliflower chunks with olive oil and season with salt.',
-      'Spread vegetables on sheet pan; nestle chicken on top. Roast 400°F for 25–30 min.',
-      'Drizzle with feta-yogurt sauce and fresh lemon juice before serving.'
-    ]
-  },
-
-  herb_baked_salmon: {
-    id: 'herb_baked_salmon',
-    name: 'Greek Herb-Crusted Salmon',
-    cuisineId: 'greek',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 470, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://www.themediterraneandish.com/easy-greek-salmon/',
-    link: 'https://www.themediterraneandish.com/easy-greek-salmon/',
-    desc: 'Parsley-dill herb crust on salmon, roasted sweet potato and cherry tomatoes. Classic Greek taverna flavors.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'salmon_fillet', amount:1.5,  unit:'lb'   },
-      { ingredientId:'sweet_potato',  amount:2,    unit:'whole'},
-      { ingredientId:'cherry_tomato', amount:1,    unit:'cup'  },
-      { ingredientId:'olive_oil',     amount:3,    unit:'tbsp' },
-      { ingredientId:'lemon',         amount:2,    unit:'whole'},
-      { ingredientId:'garlic',        amount:4,    unit:'clove'},
-      { ingredientId:'parsley',       amount:0.25, unit:'cup'  },
-      { ingredientId:'dill',          amount:2,    unit:'tbsp' },
-      { ingredientId:'dried_oregano', amount:0.5,  unit:'tsp'  },
-      { ingredientId:'salt',          amount:0.5,  unit:'tsp'  },
-      { ingredientId:'black_pepper',  amount:0.25, unit:'tsp'  }
-    ],
-    brief_instructions: [
-      'Mix minced parsley, dill, oregano, garlic, olive oil, lemon zest and salt into a herb paste.',
-      'Press herb paste evenly over salmon fillets on a lined sheet pan.',
-      'Arrange sweet potato wedges and cherry tomatoes around salmon; drizzle with olive oil.',
-      'Roast 400°F for 18–22 min until salmon flakes. Squeeze fresh lemon over before serving.'
-    ]
-  },
-
-  greek_turkey_meatballs: {
-    id: 'greek_turkey_meatballs',
-    name: 'Greek Turkey Meatballs',
-    cuisineId: 'greek',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 490, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 25,
-    source_url: 'https://www.ambitiouskitchen.com/greek-turkey-meatballs/',
-    link: 'https://www.ambitiouskitchen.com/greek-turkey-meatballs/',
-    desc: 'Herb-spiced turkey meatballs simmered in a quick tomato-spinach sauce, finished with feta and lemon.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'ground_turkey', amount:1.5,  unit:'lb'   },
-      { ingredientId:'eggs',          amount:1,    unit:'whole'},
-      { ingredientId:'garlic',        amount:5,    unit:'clove'},
-      { ingredientId:'dried_oregano', amount:2,    unit:'tsp'  },
-      { ingredientId:'lemon',         amount:2,    unit:'whole'},
-      { ingredientId:'olive_oil',     amount:2,    unit:'tbsp' },
-      { ingredientId:'canned_tomatoes',amount:2,   unit:'whole'},
-      { ingredientId:'fresh_spinach', amount:3,    unit:'cup'  },
-      { ingredientId:'feta_cheese',   amount:0.25, unit:'cup'  },
-      { ingredientId:'brown_rice',    amount:1.5,  unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Combine turkey, egg, 2 minced garlic cloves, oregano, lemon zest, salt. Roll into 16 meatballs.',
-      'Brown meatballs in olive oil over medium-high 3–4 min per side until golden. Remove.',
-      'Add remaining garlic, canned tomatoes and fresh spinach to the pan; simmer 5 min.',
-      'Return meatballs, cover and simmer 12 min. Top with feta and a squeeze of lemon. Serve over brown rice.'
-    ]
-  },
-
-  // ---- Dinner — Veg ----
-
-  tomato_lentil_soup: {
-    id: 'tomato_lentil_soup',
-    name: 'Greek Lentil Soup',
-    cuisineId: 'greek',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 12, calories: 350, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://www.themediterraneandish.com/red-lentil-soup-recipe/',
-    link: 'https://www.themediterraneandish.com/red-lentil-soup-recipe/',
-    desc: 'Red lentils, coconut milk, cumin, turmeric and lemon — a warming Greek-style fakes. Pita on the side. Ascent shake.',
-    protStr: '~12g+shake',
-    ingredients: [
-      { ingredientId:'red_lentils',      amount:1.5, unit:'cup'  },
-      { ingredientId:'canned_tomatoes',  amount:2,   unit:'whole'},
-      { ingredientId:'coconut_milk_can', amount:1,   unit:'whole'},
-      { ingredientId:'onion',            amount:1,   unit:'whole'},
-      { ingredientId:'garlic',           amount:4,   unit:'clove'},
-      { ingredientId:'cumin',            amount:2,   unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:1,   unit:'tsp'  },
-      { ingredientId:'olive_oil',        amount:2,   unit:'tbsp' },
-      { ingredientId:'lemon',            amount:1,   unit:'whole'},
-      { ingredientId:'pita_bread',       amount:4,   unit:'whole', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Sauté diced onion and garlic in olive oil 5 min. Add cumin and turmeric; cook 1 min.',
-      'Add rinsed lentils, canned tomatoes and 4 cups water. Bring to boil.',
-      'Stir in coconut milk; reduce heat and simmer 20–25 min until lentils are completely soft.',
-      'Squeeze in lemon juice, season with salt. Serve with warm pita.'
-    ]
-  },
-
-  shakshuka_chickpeas: {
-    id: 'shakshuka_chickpeas',
-    name: 'Shakshuka with Chickpeas',
-    cuisineId: 'greek',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 18, calories: 390, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://www.themediterraneandish.com/shakshuka-recipe/',
-    link: 'https://www.themediterraneandish.com/shakshuka-recipe/',
-    desc: 'Eggs poached in spiced tomato sauce with chickpeas and bell pepper. Pita on the side. Ascent shake.',
-    protStr: '~18g+shake',
-    ingredients: [
-      { ingredientId:'eggs',             amount:6,    unit:'whole'},
-      { ingredientId:'canned_chickpeas', amount:1,    unit:'whole'},
-      { ingredientId:'canned_tomatoes',  amount:2,    unit:'whole'},
-      { ingredientId:'bell_pepper',      amount:2,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'smoked_paprika',   amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'feta_cheese',      amount:0.25, unit:'cup', note:'optional topping' },
-      { ingredientId:'pita_bread',       amount:4,    unit:'whole', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Sauté onion, bell pepper and garlic in olive oil 5 min. Add cumin, paprika, turmeric, cayenne.',
-      'Add canned tomatoes and chickpeas; simmer 10 min until sauce thickens.',
-      'Make 6 wells in the sauce and crack one egg into each. Cover and cook 6–8 min until whites are set.',
-      'Top with crumbled feta and fresh herbs. Serve straight from the pan with warm pita.'
-    ]
-  },
-
-  spanakopita_bowl: {
-    id: 'spanakopita_bowl',
-    name: 'Spanakopita Bowl',
-    cuisineId: 'greek',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 17, calories: 390, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://www.themediterraneandish.com/spanakopita-recipe-greek-spinach-pie/',
-    link: 'https://www.themediterraneandish.com/spanakopita-recipe-greek-spinach-pie/',
-    desc: 'Spinach and chickpeas simmered with lemon and oregano, topped with poached eggs and crumbled feta. Ascent shake.',
-    protStr: '~17g+shake',
-    ingredients: [
-      { ingredientId:'fresh_spinach',    amount:5,    unit:'cup'  },
-      { ingredientId:'canned_chickpeas', amount:2,    unit:'whole'},
-      { ingredientId:'eggs',             amount:4,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'lemon',            amount:1,    unit:'whole'},
-      { ingredientId:'dried_oregano',    amount:1,    unit:'tsp'  },
-      { ingredientId:'feta_cheese',      amount:0.33, unit:'cup'  },
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Sauté garlic in olive oil 1 min. Add fresh spinach and cook, stirring, until fully wilted.',
-      'Stir in chickpeas, lemon juice, oregano and salt. Simmer 5 min.',
-      'Make 4 wells in the mixture; crack one egg into each. Cover and cook 5–7 min until whites set.',
-      'Top with crumbled feta and a squeeze of lemon. Serve over brown rice.'
-    ]
-  },
-
-
-  // ============================================================
-  // MEXICAN WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
+  // ----------------------------------------------------------------
+  // R6 — Chipotle DIY Chicken Burrito Bowls
+  // ----------------------------------------------------------------
   chipotle_chicken_bowls: {
-    id: 'chipotle_chicken_bowls',
-    name: 'Chipotle Ground Chicken Bowls',
-    cuisineId: 'mexican',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 36, calories: 490, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://www.ambitiouskitchen.com/better-chipotle-diy-chicken-burrito-bowls/',
-    link: 'https://www.ambitiouskitchen.com/better-chipotle-diy-chicken-burrito-bowls/',
-    desc: 'Smoky ground chicken, bell pepper, onion. Fast 20-min stovetop rice bowls or tacos.',
-    protStr: '~36g',
-    ingredients: [
-      { ingredientId:'ground_chicken', amount:1.5,  unit:'lb'   },
-      { ingredientId:'bell_pepper',    amount:2,    unit:'whole'},
-      { ingredientId:'onion',          amount:1,    unit:'whole'},
-      { ingredientId:'garlic',         amount:3,    unit:'clove'},
-      { ingredientId:'olive_oil',      amount:2,    unit:'tbsp' },
-      { ingredientId:'cumin',          amount:2,    unit:'tsp'  },
-      { ingredientId:'smoked_paprika', amount:1,    unit:'tsp'  },
-      { ingredientId:'coriander',      amount:1,    unit:'tsp'  },
-      { ingredientId:'garlic_powder',  amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',        amount:0.25, unit:'tsp'  },
-      { ingredientId:'salt',           amount:1,    unit:'tsp'  },
-      { ingredientId:'lime',           amount:2,    unit:'whole'},
-      { ingredientId:'cilantro',       amount:0.5,  unit:'cup'  },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+    id:           'chipotle_chicken_bowls',
+    name:         'Chipotle DIY Chicken Burrito Bowls',
+    rank:         'A',
+    source_url:   'https://www.ambitiouskitchen.com/better-chipotle-diy-chicken-burrito-bowls/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless_skinless', grams: 454, qty: '1 lb'          },
+      { id: 'brown_rice_dry',                  grams: 185, qty: '1 cup dry'     },
+      { id: 'black_beans_canned_drained',      grams: 240, qty: '1 can (15 oz)' },
+      { id: 'salsa_chunky',                    grams: 240, qty: '1 cup'         },
+      { id: 'frozen_corn',                     grams: 150, qty: '1 cup'         },
+      { id: 'red_onion',                       grams: 100, qty: '1 small'       },
+      { id: 'cheddar_cheese_shredded',         grams: 56,  qty: '½ cup'         },
+      { id: 'coconut_oil',                     grams: 9,   qty: '2 tsp'         },
+      { id: 'lime_juice',                      grams: 60,  qty: '2 small limes' },
+      { id: 'cilantro',                        grams: 10,  qty: '¼ cup chopped' },
+      { id: 'chipotle_chili_powder',           grams: 2,   qty: '½ tsp'         },
     ],
-    brief_instructions: [
-      'Cook ground chicken in olive oil over medium-high, breaking up finely, for 5–6 min.',
-      'Add diced bell pepper and onion; cook 3 min. Add garlic and all spices; cook 1 min.',
-      'Splash in 2 tbsp water or lime juice to deglaze. Adjust seasoning with salt.',
-      'Build bowls over brown rice with fresh cilantro, lime juice and avocado.'
-    ]
+    _totalMacros: { calories: 2269, proteinG: 143.5, fatG: 74.5, carbsG: 264.6, sodiumMg: 2311 },
   },
 
-  sheet_pan_fajitas: {
-    id: 'sheet_pan_fajitas',
-    name: 'Sheet Pan Chicken Fajitas',
-    cuisineId: 'mexican',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 35, calories: 480, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://www.ambitiouskitchen.com/fajita-chicken-and-rice/',
-    link: 'https://www.ambitiouskitchen.com/fajita-chicken-and-rice/',
-    desc: 'Sheet pan chicken fajitas with charred bell pepper and onion. Minimal cleanup, ready in 35 min.',
-    protStr: '~35g',
-    ingredients: [
-      { ingredientId:'chicken_thigh', amount:1.5,  unit:'lb'   },
-      { ingredientId:'bell_pepper',   amount:3,    unit:'whole'},
-      { ingredientId:'onion',         amount:1,    unit:'whole'},
-      { ingredientId:'olive_oil',     amount:2,    unit:'tbsp' },
-      { ingredientId:'cumin',         amount:2,    unit:'tsp'  },
-      { ingredientId:'smoked_paprika',amount:1,    unit:'tsp'  },
-      { ingredientId:'dried_oregano', amount:0.5,  unit:'tsp'  },
-      { ingredientId:'garlic_powder', amount:1,    unit:'tsp'  },
-      { ingredientId:'cayenne',       amount:0.25, unit:'tsp'  },
-      { ingredientId:'lime',          amount:2,    unit:'whole'},
-      { ingredientId:'cilantro',      amount:0.25, unit:'cup'  },
-      { ingredientId:'corn_tortilla', amount:8,    unit:'whole'}
+  // ----------------------------------------------------------------
+  // R7 — Fajita Chicken and Rice
+  // ----------------------------------------------------------------
+  fajita_chicken_rice: {
+    id:           'fajita_chicken_rice',
+    name:         'Fajita Chicken and Rice',
+    rank:         'A',
+    source_url:   'https://www.ambitiouskitchen.com/fajita-chicken-and-rice/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless_skinless', grams: 680, qty: '1½ lbs'         },
+      { id: 'jasmine_rice_dry',                grams: 185, qty: '1 cup dry'       },
+      { id: 'black_beans_canned_drained',      grams: 240, qty: '1 can (15 oz)'   },
+      { id: 'chicken_broth_low_sodium',        grams: 414, qty: '1¾ cups'         },
+      { id: 'frozen_corn',                     grams: 110, qty: '¾ cup'           },
+      { id: 'mexican_cheese_blend',            grams: 85,  qty: '¾ cup shredded'  },
+      { id: 'red_bell_pepper',                 grams: 120, qty: '1 medium'        },
+      { id: 'orange_bell_pepper',              grams: 120, qty: '1 medium'        },
+      { id: 'green_bell_pepper',               grams: 120, qty: '1 medium'        },
+      { id: 'yellow_onion',                    grams: 200, qty: '1 large'         },
+      { id: 'olive_oil_extra_virgin',          grams: 40,  qty: '3 tbsp'          },
+      { id: 'garlic',                          grams: 9,   qty: '3 cloves'        },
+      { id: 'fresh_turmeric',                  grams: 16,  qty: '1–2 tbsp grated' },
+      { id: 'cilantro',                        grams: 13,  qty: '⅓ cup chopped'   },
+      { id: 'scallions',                       grams: 20,  qty: '2 whole'         },
+      { id: 'ground_cumin',                    grams: 4,   qty: '1½ tsp'          },
+      { id: 'ground_coriander',                grams: 4,   qty: '1½ tsp'          },
+      { id: 'chili_powder',                    grams: 4,   qty: '1½ tsp'          },
+      { id: 'paprika',                         grams: 3,   qty: '1 tsp'           },
+      { id: 'dried_oregano',                   grams: 3,   qty: '1 tsp'           },
+      { id: 'garlic_powder',                   grams: 2,   qty: '½ tsp'           },
+      { id: 'cayenne_pepper',                  grams: 1,   qty: '¼ tsp'           },
+      { id: 'lime',                            grams: 25,  qty: '1 lime'          },
     ],
-    brief_instructions: [
-      'Slice chicken into thin strips. Slice bell peppers and onion into thin strips.',
-      'Toss everything with olive oil, cumin, smoked paprika, garlic powder, oregano, cayenne and lime juice.',
-      'Spread on a large sheet pan in a single layer. Roast 425°F for 20–22 min, stirring once halfway.',
-      'Serve in warm corn tortillas with cilantro, avocado and salsa.'
-    ]
+    _totalMacros: { calories: 3067, proteinG: 192.6, fatG: 125.9, carbsG: 282.5, sodiumMg: 3551 },
   },
 
-  // ---- Dinner — Veg ----
-
-  sweet_potato_lentil_stew: {
-    id: 'sweet_potato_lentil_stew',
-    name: 'Coconut Sweet Potato & Lentil Stew',
-    cuisineId: 'mexican',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 12, calories: 380, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://www.ambitiouskitchen.com/coconut-curried-sweet-potato-and-lentil-stew/',
-    link: 'https://www.ambitiouskitchen.com/coconut-curried-sweet-potato-and-lentil-stew/',
-    desc: 'Sweet potato, red lentils, coconut milk, cumin and ginger. Ascent shake.',
-    protStr: '~12g+shake',
-    ingredients: [
-      { ingredientId:'sweet_potato',     amount:2,    unit:'whole'},
-      { ingredientId:'red_lentils',      amount:1,    unit:'cup'  },
-      { ingredientId:'coconut_milk_can', amount:1,    unit:'whole'},
-      { ingredientId:'canned_tomatoes',  amount:1,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'coriander',        amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' }
+  // ----------------------------------------------------------------
+  // R8 — Honey Garlic Salmon Bowls  (batch 3610 kcal → 5 servings, capped)
+  // ----------------------------------------------------------------
+  honey_garlic_salmon_bowls: {
+    id:           'honey_garlic_salmon_bowls',
+    name:         'Honey Garlic Salmon Bowls',
+    rank:         'B',
+    source_url:   'https://www.halfbakedharvest.com/honey-garlic-salmon-bowls/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'salmon_atlantic_farmed',  grams: 680, qty: '4 × 6 oz fillets'  },
+      { id: 'brown_rice_dry',          grams: 185, qty: '1 cup dry'          },
+      { id: 'broccoli_florets',        grams: 270, qty: '3 cups'             },
+      { id: 'mayo',                    grams: 115, qty: '½ cup'              },
+      { id: 'olive_oil_extra_virgin',  grams: 54,  qty: '4 tbsp'             },
+      { id: 'tamari',                  grams: 80,  qty: '⅓ cup'              },
+      { id: 'honey',                   grams: 77,  qty: '3 tbsp + 2 tsp'     },
+      { id: 'chili_paste',             grams: 60,  qty: '4 tbsp'             },
+      { id: 'gochujang',               grams: 30,  qty: '2 tbsp'             },
+      { id: 'garlic',                  grams: 18,  qty: '6 cloves'           },
+      { id: 'sesame_oil_toasted',      grams: 14,  qty: '1 tbsp'             },
+      { id: 'green_onions',            grams: 15,  qty: '2 tbsp chopped'     },
+      { id: 'ground_ginger',           grams: 3,   qty: '1½ tsp'             },
+      { id: 'chipotle_powder',         grams: 3,   qty: '1 tsp'              },
+      { id: 'sesame_seeds_toasted',    grams: 9,   qty: '1 tbsp'             },
     ],
-    brief_instructions: [
-      'Sauté diced onion and garlic in olive oil 5 min. Add ginger, cumin, coriander, turmeric, cayenne; cook 1 min.',
-      'Add cubed sweet potato, lentils, canned tomatoes and coconut milk. Add 2 cups water.',
-      'Bring to boil then simmer 25 min, stirring occasionally, until lentils and potato are tender.',
-      'Season with salt and serve with lime wedges and warm tortillas or over brown rice.'
-    ]
+    _totalMacros: { calories: 3610, proteinG: 163.3, fatG: 236.2, carbsG: 201.1, sodiumMg: 3016 },
   },
 
-  black_bean_sweet_potato: {
-    id: 'black_bean_sweet_potato',
-    name: 'Black Bean & Sweet Potato Bowl',
-    cuisineId: 'mexican',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 14, calories: 430, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://www.ambitiouskitchen.com/southwest-sweet-potato-taco-bowls/',
-    link: 'https://www.ambitiouskitchen.com/southwest-sweet-potato-taco-bowls/',
-    desc: 'Spiced black beans, roasted sweet potato, lime-cilantro. Corn tortillas or rice. Ascent shake.',
-    protStr: '~14g+shake',
-    ingredients: [
-      { ingredientId:'black_beans_can', amount:2,    unit:'whole'},
-      { ingredientId:'sweet_potato',    amount:2,    unit:'whole'},
-      { ingredientId:'onion',           amount:1,    unit:'whole'},
-      { ingredientId:'garlic',          amount:3,    unit:'clove'},
-      { ingredientId:'olive_oil',       amount:2,    unit:'tbsp' },
-      { ingredientId:'cumin',           amount:2,    unit:'tsp'  },
-      { ingredientId:'coriander',       amount:1,    unit:'tsp'  },
-      { ingredientId:'smoked_paprika',  amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',         amount:0.25, unit:'tsp'  },
-      { ingredientId:'lime',            amount:2,    unit:'whole'},
-      { ingredientId:'cilantro',        amount:0.5,  unit:'cup'  },
-      { ingredientId:'corn_tortilla',   amount:8,    unit:'whole', note:'or serve over brown rice' }
-    ],
-    brief_instructions: [
-      'Toss cubed sweet potato with olive oil, cumin and smoked paprika. Roast 400°F for 25 min.',
-      'Simmer black beans with garlic, onion, coriander, cayenne and a splash of water for 10 min.',
-      'Warm corn tortillas in a dry pan or wrap in damp paper towel and microwave 30 sec.',
-      'Build bowls with rice or tortillas, black beans, roasted sweet potato, cilantro and lime.'
-    ]
-  },
-
-  mexican_black_bean_soup: {
-    id: 'mexican_black_bean_soup',
-    name: 'Mexican Black Bean Soup',
-    cuisineId: 'mexican',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 14, calories: 370, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://www.ambitiouskitchen.com/quick-easy-black-bean-soup/',
-    link: 'https://www.ambitiouskitchen.com/quick-easy-black-bean-soup/',
-    desc: 'Smoky, velvety black bean soup with cumin, smoked paprika and lime. 35-min pantry dinner. Ascent shake.',
-    protStr: '~14g+shake',
-    ingredients: [
-      { ingredientId:'black_beans_can', amount:3,    unit:'whole'},
-      { ingredientId:'canned_tomatoes', amount:1,    unit:'whole'},
-      { ingredientId:'onion',           amount:1,    unit:'whole'},
-      { ingredientId:'garlic',          amount:4,    unit:'clove'},
-      { ingredientId:'cumin',           amount:2,    unit:'tsp'  },
-      { ingredientId:'smoked_paprika',  amount:1,    unit:'tsp'  },
-      { ingredientId:'coriander',       amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',         amount:0.25, unit:'tsp'  },
-      { ingredientId:'olive_oil',       amount:2,    unit:'tbsp' },
-      { ingredientId:'lime',            amount:2,    unit:'whole'},
-      { ingredientId:'cilantro',        amount:0.25, unit:'cup'  },
-      { ingredientId:'avocado',         amount:2,    unit:'whole', note:'diced, for topping' }
-    ],
-    brief_instructions: [
-      'Sauté diced onion and garlic in olive oil 5 min until soft and golden.',
-      'Add cumin, smoked paprika, coriander and cayenne; cook 1 min until fragrant.',
-      'Add black beans, canned tomatoes and 2 cups water. Simmer 15–20 min, partially mashing beans.',
-      'Squeeze in fresh lime juice and stir in cilantro. Ladle into bowls; top with diced avocado.'
-    ]
-  },
-
-
-  // ============================================================
-  // THAI WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
-  thai_basil_chicken: {
-    id: 'thai_basil_chicken',
-    name: 'Thai Basil Chicken',
-    cuisineId: 'thai',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 510, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 15,
-    source_url: 'https://www.recipetineats.com/thai-basil-chicken-stir-fry/',
-    link: 'https://www.recipetineats.com/thai-basil-chicken-stir-fry/',
-    desc: 'Ground chicken, oyster sauce, fish sauce, Thai basil, chili. Fast 15-min stir-fry over jasmine rice.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'ground_chicken', amount:1.5, unit:'lb'   },
-      { ingredientId:'thai_basil',     amount:1,   unit:'bunch'},
-      { ingredientId:'thai_chili',     amount:6,   unit:'whole'},
-      { ingredientId:'garlic',         amount:6,   unit:'clove'},
-      { ingredientId:'fish_sauce',     amount:2,   unit:'tbsp' },
-      { ingredientId:'oyster_sauce',   amount:1,   unit:'tbsp' },
-      { ingredientId:'white_vinegar',  amount:1,   unit:'tsp'  },
-      { ingredientId:'sugar',          amount:1,   unit:'tbsp' },
-      { ingredientId:'sesame_oil',     amount:2,   unit:'tbsp' },
-      { ingredientId:'jasmine_rice',   amount:2,   unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Whisk sauce: fish sauce, oyster sauce, white vinegar and sugar. Set aside.',
-      'Fry chopped garlic and Thai chilies in sesame oil 30 sec until fragrant.',
-      'Add ground chicken, break up finely and cook 4–5 min over high heat.',
-      'Pour sauce over chicken, stir-fry 2 min. Remove from heat, fold in Thai basil. Serve over jasmine rice.'
-    ]
-  },
-
-  thai_honey_garlic_salmon: {
-    id: 'thai_honey_garlic_salmon',
-    name: 'Thai Honey Garlic Salmon',
-    cuisineId: 'thai',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 470, carbsG: null, fatG: null,
-    prepMins: 8, cookMins: 20,
-    source_url: 'https://www.halfbakedharvest.com/honey-garlic-salmon-bowls/',
-    link: 'https://www.halfbakedharvest.com/honey-garlic-salmon-bowls/',
-    desc: 'Honey-soy-garlic glaze with a Thai chili kick. Sheet pan salmon with broccoli over jasmine rice.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'salmon_fillet', amount:1.5,  unit:'lb'   },
-      { ingredientId:'broccoli',      amount:1,    unit:'whole'},
-      { ingredientId:'garlic',        amount:6,    unit:'clove'},
-      { ingredientId:'fresh_ginger',  amount:1,    unit:'tbsp' },
-      { ingredientId:'soy_sauce',     amount:3,    unit:'tbsp' },
-      { ingredientId:'honey',         amount:2,    unit:'tbsp' },
-      { ingredientId:'sesame_oil',    amount:1,    unit:'tbsp' },
-      { ingredientId:'rice_vinegar',  amount:1,    unit:'tbsp' },
-      { ingredientId:'thai_chili',    amount:2,    unit:'whole', optional:true },
-      { ingredientId:'jasmine_rice',  amount:2,    unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Whisk soy sauce, honey, sesame oil, rice vinegar, minced garlic and ginger into a glaze.',
-      'Arrange salmon fillets and broccoli florets on a sheet pan.',
-      'Brush glaze generously over salmon; drizzle remainder on broccoli.',
-      'Roast 400°F for 14–16 min until salmon flakes. Serve over jasmine rice.'
-    ]
-  },
-
+  // ----------------------------------------------------------------
+  // R9 — Thai Chicken Larb (Laab Gai)
+  // ----------------------------------------------------------------
   thai_larb_chicken: {
-    id: 'thai_larb_chicken',
-    name: 'Thai Larb Chicken',
-    cuisineId: 'thai',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 36, calories: 450, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 15,
-    source_url: 'https://www.recipetineats.com/thai-chicken-lettuce-cups-larb-gai-laab-gai/',
-    link: 'https://www.recipetineats.com/thai-chicken-lettuce-cups-larb-gai-laab-gai/',
-    desc: 'Ground chicken Thai-style salad with lime, fish sauce and fresh herbs. Serve warm over jasmine rice.',
-    protStr: '~36g',
-    ingredients: [
-      { ingredientId:'ground_chicken', amount:1.5, unit:'lb'   },
-      { ingredientId:'green_onion',    amount:5,   unit:'whole'},
-      { ingredientId:'cilantro',       amount:0.5, unit:'cup'  },
-      { ingredientId:'lime',           amount:3,   unit:'whole'},
-      { ingredientId:'fish_sauce',     amount:3,   unit:'tbsp' },
-      { ingredientId:'sugar',          amount:1,   unit:'tsp'  },
-      { ingredientId:'garlic',         amount:3,   unit:'clove'},
-      { ingredientId:'fresh_ginger',   amount:1,   unit:'tbsp' },
-      { ingredientId:'jasmine_rice',   amount:2,   unit:'cup', note:'for serving' }
+    id:           'thai_larb_chicken',
+    name:         'Thai Chicken Larb (Laab Gai)',
+    rank:         'A',
+    source_url:   'https://www.recipetineats.com/thai-chicken-lettuce-cups-larb-gai-laab-gai/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'ground_chicken',   grams: 500, qty: '1 lb'                       },
+      { id: 'peanut_oil',       grams: 27,  qty: '2 tbsp'                     },
+      { id: 'lime_juice',       grams: 37,  qty: '2½ tbsp'                    },
+      { id: 'fish_sauce',       grams: 30,  qty: '2 tbsp'                     },
+      { id: 'red_onion',        grams: 100, qty: '½ whole'                    },
+      { id: 'ginger_fresh',     grams: 8,   qty: '1 tbsp grated'              },
+      { id: 'garlic',           grams: 8,   qty: '2 large cloves'             },
+      { id: 'lemongrass',       grams: 20,  qty: '1 stalk'                    },
+      { id: 'thai_chillies',    grams: 10,  qty: '2 whole, deseeded'          },
+      { id: 'brown_sugar',      grams: 8,   qty: '2 tsp'                      },
+      { id: 'cilantro',         grams: 10,  qty: '⅓ cup'                      },
+      { id: 'mint_leaves',      grams: 10,  qty: '⅓ cup'                      },
+      { id: 'cornstarch',       grams: 5,   qty: '2 tsp'                      },
+      { id: 'lettuce_leaves',   grams: 96,  qty: '6–8 small leaves'           },
+      { id: 'peanuts_raw',      grams: 45,  qty: '3 tbsp, crushed'            },
     ],
-    brief_instructions: [
-      'Cook ground chicken in a dry pan over high heat, breaking up finely, until no pink remains.',
-      'Remove from heat; toss with fish sauce, lime juice, sugar and minced garlic. Mix well.',
-      'Fold in sliced green onions and fresh cilantro. Taste and adjust lime and fish sauce balance.',
-      'Serve over steamed jasmine rice with extra lime wedges and fresh cilantro on the side.'
-    ]
+    _totalMacros: { calories: 1068, proteinG: 84.6, fatG: 62.8, carbsG: 40.0, sodiumMg: 2880 },
   },
 
-  // ---- Dinner — Veg ----
-
-  thai_peanut_curry: {
-    id: 'thai_peanut_curry',
-    name: 'Thai Peanut Cauliflower Chickpea Curry',
-    cuisineId: 'thai',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 15, calories: 490, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://www.ambitiouskitchen.com/thai-peanut-coconut-cauliflower-chickpea-curry/',
-    link: 'https://www.ambitiouskitchen.com/thai-peanut-coconut-cauliflower-chickpea-curry/',
-    desc: 'Coconut milk, red curry paste, peanut butter, cauliflower, chickpeas. Ascent shake.',
-    protStr: '~15g+shake',
-    ingredients: [
-      { ingredientId:'cauliflower',      amount:1,   unit:'whole'},
-      { ingredientId:'canned_chickpeas', amount:2,   unit:'whole'},
-      { ingredientId:'coconut_milk_can', amount:2,   unit:'whole'},
-      { ingredientId:'red_curry_paste',  amount:3,   unit:'tbsp' },
-      { ingredientId:'peanut_butter',    amount:3,   unit:'tbsp' },
-      { ingredientId:'soy_sauce',        amount:2,   unit:'tbsp' },
-      { ingredientId:'lime',             amount:2,   unit:'whole'},
-      { ingredientId:'garlic',           amount:3,   unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,   unit:'tbsp' },
-      { ingredientId:'brown_rice',       amount:1.5, unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R10 — Green Chicken Curry
+  // ----------------------------------------------------------------
+  green_chicken_curry: {
+    id:           'green_chicken_curry',
+    name:         'Green Chicken Curry',
+    rank:         'A',
+    source_url:   'https://www.ambitiouskitchen.com/green-chicken-curry/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_breast_boneless_skinless', grams: 454, qty: '1 lb'           },
+      { id: 'brown_rice_dry',                   grams: 185, qty: '1 cup dry'       },
+      { id: 'coconut_milk_full_fat',            grams: 425, qty: '1 can (15 oz)'   },
+      { id: 'sweet_potato',                     grams: 200, qty: '1 small–medium'  },
+      { id: 'red_bell_pepper',                  grams: 170, qty: '1 large'         },
+      { id: 'coconut_oil',                      grams: 28,  qty: '2 tbsp'          },
+      { id: 'chicken_broth_low_sodium',         grams: 120, qty: '½ cup'           },
+      { id: 'frozen_peas',                      grams: 110, qty: '¾ cup'           },
+      { id: 'lemongrass',                       grams: 40,  qty: '2 stalks'        },
+      { id: 'scallions',                        grams: 40,  qty: '4 whole'         },
+      { id: 'green_curry_paste',                grams: 30,  qty: '2 tbsp'          },
+      { id: 'lime_juice',                       grams: 30,  qty: '1 lime'          },
+      { id: 'soy_sauce_low_sodium',             grams: 15,  qty: '1 tbsp'          },
+      { id: 'fish_sauce',                       grams: 15,  qty: '1 tbsp'          },
+      { id: 'garlic',                           grams: 9,   qty: '3 cloves'        },
+      { id: 'ginger_fresh',                     grams: 8,   qty: '1 tbsp grated'   },
+      { id: 'fresh_turmeric',                   grams: 8,   qty: '1 tbsp grated'   },
+      { id: 'cilantro',                         grams: 5,   qty: 'small handful'   },
+      { id: 'fresh_basil',                      grams: 5,   qty: 'small handful'   },
+      { id: 'fresh_mint',                       grams: 3,   qty: 'small handful'   },
+      { id: 'thai_basil',                       grams: 2,   qty: 'small handful'   },
     ],
-    brief_instructions: [
-      'Sauté garlic and ginger in oil 1 min. Add red curry paste and cook 2 min until fragrant.',
-      'Pour in coconut milk and stir in peanut butter until smooth. Bring to a gentle simmer.',
-      'Add cauliflower florets and chickpeas. Simmer 15–18 min until cauliflower is tender.',
-      'Squeeze in lime juice, season with soy sauce. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 2663, proteinG: 140.2, fatG: 134.7, carbsG: 240.8, sodiumMg: 4549 },
   },
 
-  tofu_pad_thai: {
-    id: 'tofu_pad_thai',
-    name: 'Tofu Pad Thai',
-    cuisineId: 'thai',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 16, calories: 460, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 20,
-    source_url: 'https://minimalistbaker.com/easy-tofu-pad-thai/',
-    link: 'https://minimalistbaker.com/easy-tofu-pad-thai/',
-    desc: 'Rice noodles, crispy tofu, eggs, peanut sauce, shredded cabbage, cashews. Ascent shake.',
-    protStr: '~16g+shake',
-    ingredients: [
-      { ingredientId:'firm_tofu',        amount:14,   unit:'oz'   },
-      { ingredientId:'rice_noodles',     amount:8,    unit:'oz'   },
-      { ingredientId:'eggs',             amount:2,    unit:'whole'},
-      { ingredientId:'cabbage_shredded', amount:2,    unit:'cup'  },
-      { ingredientId:'green_onion',      amount:4,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'cashews',          amount:0.25, unit:'cup'  },
-      { ingredientId:'lime',             amount:2,    unit:'whole'},
-      { ingredientId:'fish_sauce',       amount:2,    unit:'tbsp' },
-      { ingredientId:'soy_sauce',        amount:2,    unit:'tbsp' },
-      { ingredientId:'oyster_sauce',     amount:1,    unit:'tbsp' },
-      { ingredientId:'sugar',            amount:1,    unit:'tbsp' },
-      { ingredientId:'sesame_oil',       amount:2,    unit:'tbsp' }
-    ],
-    brief_instructions: [
-      'Soak rice noodles in hot water 8 min until pliable; drain and set aside.',
-      'Pan-fry cubed tofu in sesame oil until golden. Push to the side; scramble 2 eggs in the same pan.',
-      'Add noodles, fish sauce, soy sauce, oyster sauce and sugar. Toss over high heat 2 min.',
-      'Serve topped with shredded cabbage, cashews, green onions and fresh lime juice.'
-    ]
-  },
-
-  thai_coconut_green_curry: {
-    id: 'thai_coconut_green_curry',
-    name: 'Thai Coconut Curry with Tofu',
-    cuisineId: 'thai',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 14, calories: 490, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://www.ambitiouskitchen.com/green-chicken-curry/',
-    link: 'https://www.ambitiouskitchen.com/green-chicken-curry/',
-    desc: 'Creamy coconut curry with crispy tofu and cauliflower. Red curry paste, peanut butter and lime. Ascent shake.',
-    protStr: '~14g+shake',
-    ingredients: [
-      { ingredientId:'firm_tofu',        amount:14,  unit:'oz'   },
-      { ingredientId:'cauliflower',      amount:1,   unit:'whole'},
-      { ingredientId:'coconut_milk_can', amount:2,   unit:'whole'},
-      { ingredientId:'red_curry_paste',  amount:3,   unit:'tbsp' },
-      { ingredientId:'peanut_butter',    amount:2,   unit:'tbsp' },
-      { ingredientId:'soy_sauce',        amount:2,   unit:'tbsp' },
-      { ingredientId:'lime',             amount:2,   unit:'whole'},
-      { ingredientId:'garlic',           amount:3,   unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,   unit:'tbsp' },
-      { ingredientId:'jasmine_rice',     amount:2,   unit:'cup', note:'for serving' },
-      { ingredientId:'cilantro',         amount:0.25,unit:'cup', note:'garnish' }
-    ],
-    brief_instructions: [
-      'Press and cube tofu; pan-fry in sesame oil until golden. Set aside.',
-      'Fry red curry paste in a splash of coconut milk 2 min. Add garlic and ginger; cook 1 min.',
-      'Add remaining coconut milk, peanut butter and soy sauce. Bring to simmer; add cauliflower.',
-      'Cook 15 min until tender. Stir in tofu and lime juice. Serve over jasmine rice with cilantro.'
-    ]
-  },
-
-
-  // ============================================================
-  // INDIAN WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
+  // ----------------------------------------------------------------
+  // R11 — Slow Cooker Chicken Tikka Masala
+  // ----------------------------------------------------------------
   chicken_tikka_masala: {
-    id: 'chicken_tikka_masala',
-    name: 'Chicken Tikka Masala',
-    cuisineId: 'indian',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 40, calories: 520, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 35,
-    source_url: 'https://www.ambitiouskitchen.com/healthy-slow-cooker-chicken-tikka-masala/',
-    link: 'https://www.ambitiouskitchen.com/healthy-slow-cooker-chicken-tikka-masala/',
-    desc: 'Tender chicken in a rich tomato-coconut sauce spiced with garam masala, cumin and ginger. Serve over brown rice.',
-    protStr: '~40g',
-    ingredients: [
-      { ingredientId:'chicken_thigh',    amount:2,    unit:'lb'   },
-      { ingredientId:'canned_tomatoes',  amount:2,    unit:'whole'},
-      { ingredientId:'coconut_milk_can', amount:1,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'garam_masala',     amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'salt',             amount:1,    unit:'tsp'  },
-      { ingredientId:'cilantro',         amount:0.25, unit:'cup', note:'garnish' },
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
+    id:           'chicken_tikka_masala',
+    name:         'Slow Cooker Chicken Tikka Masala',
+    rank:         'A',
+    source_url:   'https://www.ambitiouskitchen.com/healthy-slow-cooker-chicken-tikka-masala/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_breast_boneless_skinless', grams: 680, qty: '1½ lbs'       },
+      { id: 'brown_rice_dry',                   grams: 185, qty: '1 cup dry'     },
+      { id: 'crushed_tomatoes_canned',          grams: 794, qty: '1 can (28 oz)' },
+      { id: 'light_coconut_milk',               grams: 240, qty: '1 cup'         },
+      { id: 'yellow_onion',                     grams: 200, qty: '1 large'       },
+      { id: 'jalapeno',                         grams: 45,  qty: '1 whole'       },
+      { id: 'lemon_juice',                      grams: 30,  qty: '2 tbsp'        },
+      { id: 'garlic',                           grams: 9,   qty: '3 cloves'      },
+      { id: 'ginger_fresh',                     grams: 8,   qty: '1 tbsp grated' },
+      { id: 'olive_oil_extra_virgin',           grams: 7,   qty: '½ tbsp'        },
+      { id: 'garam_masala',                     grams: 8,   qty: '1 tbsp'        },
+      { id: 'paprika',                          grams: 3,   qty: '1 tsp'         },
+      { id: 'ground_turmeric',                  grams: 1.5, qty: '½ tsp'         },
+      { id: 'curry_powder',                     grams: 2,   qty: '½ tsp'         },
+      { id: 'cayenne_pepper',                   grams: 1.5, qty: '½ tsp'         },
+      { id: 'frozen_peas',                      grams: 145, qty: '1 cup'         },
+      { id: 'cilantro',                         grams: 10,  qty: 'small handful' },
     ],
-    brief_instructions: [
-      'Coat chicken with yogurt, garam masala, turmeric, cumin, cayenne and salt. Marinate 15 min.',
-      'Sear marinated chicken in olive oil over high heat 4–5 min until lightly charred. Remove.',
-      'Sauté onion, garlic, ginger; add garam masala and canned tomatoes. Simmer 10 min.',
-      'Stir in coconut milk; return chicken and simmer 15 min. Garnish with cilantro. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 2109, proteinG: 187.2, fatG: 48.4, carbsG: 238.5, sodiumMg: 1998 },
   },
 
+  // ----------------------------------------------------------------
+  // R12 — Tandoori Salmon
+  // ----------------------------------------------------------------
   tandoori_salmon: {
-    id: 'tandoori_salmon',
-    name: 'Sheet Pan Tandoori Salmon',
-    cuisineId: 'indian',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 470, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://www.indianhealthyrecipes.com/tandoori-salmon/',
-    link: 'https://www.indianhealthyrecipes.com/tandoori-salmon/',
-    desc: 'Yogurt-garam masala marinade on salmon, roasted cauliflower and sweet potato, fresh lemon.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'salmon_fillet',  amount:1.5,  unit:'lb'   },
-      { ingredientId:'cauliflower',    amount:1,    unit:'whole'},
-      { ingredientId:'sweet_potato',   amount:1,    unit:'whole'},
-      { ingredientId:'greek_yogurt',   amount:0.25, unit:'cup'  },
-      { ingredientId:'garam_masala',   amount:2,    unit:'tsp'  },
-      { ingredientId:'turmeric',       amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cumin',          amount:1,    unit:'tsp'  },
-      { ingredientId:'coriander',      amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',        amount:0.25, unit:'tsp'  },
-      { ingredientId:'garlic',         amount:3,    unit:'clove'},
-      { ingredientId:'fresh_ginger',   amount:1,    unit:'tbsp' },
-      { ingredientId:'lemon',          amount:2,    unit:'whole'},
-      { ingredientId:'olive_oil',      amount:2,    unit:'tbsp' },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+    id:           'tandoori_salmon',
+    name:         'Tandoori Salmon',
+    rank:         'B',
+    source_url:   'https://www.indianhealthyrecipes.com/tandoori-salmon/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'salmon_atlantic_farmed',    grams: 550, qty: '1.2 lbs'   },
+      { id: 'brown_rice_dry',            grams: 185, qty: '1 cup dry'  },
+      { id: 'olive_oil',                 grams: 14,  qty: '1 tbsp'     },
+      { id: 'lemon_juice',               grams: 15,  qty: '1 tbsp'     },
+      { id: 'kashmiri_chilli_powder',    grams: 8,   qty: '1 tbsp'     },
+      { id: 'kasuri_methi',              grams: 5,   qty: '1 tbsp'     },
+      { id: 'garam_masala',              grams: 3,   qty: '1 tsp'      },
+      { id: 'coriander_powder',          grams: 3,   qty: '1 tsp'      },
+      { id: 'cumin_powder',              grams: 2,   qty: '½–1 tsp'    },
+      { id: 'garlic_powder',             grams: 2,   qty: '½ tsp'      },
+      { id: 'ground_ginger',             grams: 1,   qty: '¼ tsp'      },
+      { id: 'ground_turmeric',           grams: 0.5, qty: '⅛ tsp'      },
+      { id: 'chaat_masala',              grams: 2,   qty: '¾ tsp'      },
+      { id: 'fennel_powder',             grams: 1.5, qty: '½ tsp'      },
     ],
-    brief_instructions: [
-      'Whisk greek yogurt, garam masala, turmeric, cumin, coriander, cayenne, garlic, ginger and lemon juice.',
-      'Coat salmon fillets in yogurt marinade. Marinate 20 min minimum.',
-      'Arrange marinated salmon with cauliflower and sweet potato chunks on a sheet pan with olive oil.',
-      'Roast 425°F for 18–20 min until salmon flakes. Squeeze fresh lemon over everything.'
-    ]
+    _totalMacros: { calories: 1977, proteinG: 127.7, fatG: 93.3, carbsG: 153.0, sodiumMg: 1008 },
   },
 
-  saag_paneer: {
-    id: 'saag_paneer',
-    name: 'Saag Paneer',
-    cuisineId: 'indian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 22, calories: 400, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://cookieandkate.com/palak-paneer/',
-    link: 'https://cookieandkate.com/palak-paneer/',
-    desc: 'Golden paneer in a rich spiced spinach and coconut milk curry. High-protein vegetarian night.',
-    protStr: '~22g',
-    ingredients: [
-      { ingredientId:'paneer',           amount:14,   unit:'oz'   },
-      { ingredientId:'frozen_spinach',   amount:2,    unit:'cup', note:'thawed and squeezed dry' },
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'garam_masala',     amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'coriander',        amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'coconut_milk_can', amount:1,    unit:'whole'},
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Cube paneer; pan-fry in olive oil until golden on all sides, 4–5 min. Remove and set aside.',
-      'Sauté onion, garlic and ginger in the same pan 5 min. Add garam masala, cumin, turmeric, coriander, cayenne.',
-      'Add thawed spinach and coconut milk; simmer 10 min until sauce is creamy and fragrant.',
-      'Return paneer; simmer 5 min. Season with salt. Serve over brown rice.'
-    ]
-  },
-
-  // ---- Dinner — Veg ----
-
-  chana_masala: {
-    id: 'chana_masala',
-    name: 'Chana Masala',
-    cuisineId: 'indian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 17, calories: 390, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://cookieandkate.com/quick-vegan-chana-masala/',
-    link: 'https://cookieandkate.com/quick-vegan-chana-masala/',
-    desc: 'Spiced chickpea curry in tomato-onion gravy. Fast stovetop, pantry staples. Ascent shake.',
-    protStr: '~17g+shake',
-    ingredients: [
-      { ingredientId:'canned_chickpeas', amount:2,    unit:'whole'},
-      { ingredientId:'canned_tomatoes',  amount:2,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'garam_masala',     amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'coriander',        amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'salt',             amount:1,    unit:'tsp'  },
-      { ingredientId:'lemon',            amount:1,    unit:'whole'},
-      { ingredientId:'cilantro',         amount:0.25, unit:'cup'  },
-      { ingredientId:'pita_bread',       amount:4,    unit:'whole', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Sauté onion, garlic and ginger in olive oil 5 min. Add garam masala, cumin, coriander, turmeric, cayenne; cook 1 min.',
-      'Add canned tomatoes; simmer 8 min until sauce thickens and oil separates.',
-      'Add chickpeas; simmer 12 min. Mash a few chickpeas against the pot for creaminess.',
-      'Squeeze in lemon juice, stir in cilantro. Serve with warm pita or over brown rice.'
-    ]
-  },
-
+  // ----------------------------------------------------------------
+  // R13 — Dal Tadka
+  // ----------------------------------------------------------------
   dal_tadka: {
-    id: 'dal_tadka',
-    name: 'Dal Tadka',
-    cuisineId: 'indian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 16, calories: 360, carbsG: null, fatG: null,
-    prepMins: 5, cookMins: 30,
-    source_url: 'https://www.ambitiouskitchen.com/dal-recipe/',
-    link: 'https://www.ambitiouskitchen.com/dal-recipe/',
-    desc: 'Red lentils simmered with garam masala, finished with a cumin-garlic temper. Serve over brown rice. Ascent shake.',
-    protStr: '~16g+shake',
-    ingredients: [
-      { ingredientId:'red_lentils',      amount:1.5,  unit:'cup'  },
-      { ingredientId:'canned_tomatoes',  amount:1,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'garam_masala',     amount:1,    unit:'tsp'  },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'salt',             amount:1,    unit:'tsp'  },
-      { ingredientId:'cilantro',         amount:0.25, unit:'cup'  },
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
+    id:           'dal_tadka',
+    name:         'Dal Tadka',
+    rank:         'B',
+    source_url:   'https://www.ambitiouskitchen.com/dal-recipe/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'quinoa_dry',                grams: 170, qty: '1 cup dry'       },
+      { id: 'crushed_tomatoes_canned',   grams: 425, qty: '1 can (15 oz)'   },
+      { id: 'reduced_fat_coconut_milk',  grams: 385, qty: '1 can (13.5 oz)' },
+      { id: 'vegetable_broth',           grams: 480, qty: '2 cups'          },
+      { id: 'red_lentils_dry',           grams: 192, qty: '1 cup'           },
+      { id: 'yellow_onion',              grams: 200, qty: '1 large'         },
+      { id: 'olive_oil_extra_virgin',    grams: 40,  qty: '3 tbsp'          },
+      { id: 'baby_spinach',              grams: 60,  qty: '2 cups'          },
+      { id: 'ginger_fresh',              grams: 20,  qty: '2-inch knob'     },
+      { id: 'garlic',                    grams: 15,  qty: '5 cloves'        },
+      { id: 'lemon_juice',               grams: 15,  qty: '1 tbsp'          },
+      { id: 'tomato_paste',              grams: 5,   qty: '1 tsp'           },
+      { id: 'ground_cumin',              grams: 4,   qty: '1½ tsp'          },
+      { id: 'ground_coriander',          grams: 2.5, qty: '1 tsp'           },
+      { id: 'ground_turmeric',           grams: 1.5, qty: '½ tsp'           },
+      { id: 'cayenne_pepper',            grams: 1,   qty: '½ tsp'           },
     ],
-    brief_instructions: [
-      'Simmer rinsed red lentils in 4 cups water with turmeric and salt 20 min until completely soft.',
-      'In a separate pan, fry onion, garlic and ginger in olive oil 5 min until golden.',
-      'Add garam masala and cumin; toast 1 min. Add canned tomatoes; simmer 5 min.',
-      'Combine tempering with lentils, stir and simmer 5 more min. Garnish with cilantro. Serve over rice.'
-    ]
+    _totalMacros: { calories: 2368, proteinG: 93.3, fatG: 83.6, carbsG: 316.4, sodiumMg: 2911 },
   },
 
-  egg_curry: {
-    id: 'egg_curry',
-    name: 'Indian Egg Curry',
-    cuisineId: 'indian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 18, calories: 370, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://www.indianhealthyrecipes.com/punjabi-egg-curry-anda-curry-dhaba-style/',
-    link: 'https://www.indianhealthyrecipes.com/punjabi-egg-curry-anda-curry-dhaba-style/',
-    desc: 'Hard-boiled eggs in a rich Indian tomato-coconut curry with warm garam masala and fresh ginger.',
-    protStr: '~18g',
-    ingredients: [
-      { ingredientId:'eggs',             amount:8,    unit:'whole'},
-      { ingredientId:'canned_tomatoes',  amount:2,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'garam_masala',     amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'turmeric',         amount:0.5,  unit:'tsp'  },
-      { ingredientId:'cayenne',          amount:0.25, unit:'tsp'  },
-      { ingredientId:'coconut_milk_can', amount:0.5,  unit:'whole'},
-      { ingredientId:'cilantro',         amount:0.25, unit:'cup'  },
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
-    ],
-    brief_instructions: [
-      'Hard-boil 8 eggs 10 min; peel and score each with a shallow knife so sauce penetrates.',
-      'Sauté onion, garlic and ginger in olive oil until golden. Add garam masala, cumin, turmeric; cook 1 min.',
-      'Add canned tomatoes; simmer 10 min until thick. Stir in coconut milk; simmer 5 min.',
-      'Add scored eggs; simmer 5 more min. Garnish with cilantro. Serve over brown rice.'
-    ]
-  },
-
-
-  // ============================================================
-  // ITALIAN WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
-  chicken_pesto_pasta: {
-    id: 'chicken_pesto_pasta',
-    name: 'Chicken Pesto Pasta',
-    cuisineId: 'italian',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 520, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://www.ambitiouskitchen.com/chicken-meatball-pesto-orzo/',
-    link: 'https://www.ambitiouskitchen.com/chicken-meatball-pesto-orzo/',
-    desc: 'Pan-seared chicken tossed with whole wheat pasta, basil pesto, cherry tomatoes and parmesan.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'chicken_thigh',     amount:1.5,  unit:'lb'   },
-      { ingredientId:'whole_wheat_pasta', amount:12,   unit:'oz'   },
-      { ingredientId:'cherry_tomato',     amount:1,    unit:'cup'  },
-      { ingredientId:'pesto',             amount:0.25, unit:'cup'  },
-      { ingredientId:'parmesan',          amount:0.25, unit:'cup'  },
-      { ingredientId:'garlic',            amount:3,    unit:'clove'},
-      { ingredientId:'olive_oil',         amount:2,    unit:'tbsp' },
-      { ingredientId:'lemon',             amount:1,    unit:'whole'},
-      { ingredientId:'salt',              amount:0.5,  unit:'tsp'  },
-      { ingredientId:'black_pepper',      amount:0.25, unit:'tsp'  },
-      { ingredientId:'fresh_basil',       amount:0.25, unit:'cup', note:'garnish' }
-    ],
-    brief_instructions: [
-      'Cook pasta in well-salted water until al dente; reserve ½ cup pasta water before draining.',
-      'Season chicken with salt and pepper; pan-sear in olive oil 4–5 min per side. Slice into strips.',
-      'Toss drained pasta with pesto, sliced chicken, halved cherry tomatoes and a splash of pasta water.',
-      'Top with parmesan and fresh basil. Finish with a squeeze of lemon.'
-    ]
-  },
-
+  // ----------------------------------------------------------------
+  // R14 — Turkey Bolognese
+  // ----------------------------------------------------------------
   turkey_bolognese: {
-    id: 'turkey_bolognese',
-    name: 'Turkey Bolognese Pasta',
-    cuisineId: 'italian',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 41, calories: 540, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://www.skinnytaste.com/turkey-bolognese/',
-    link: 'https://www.skinnytaste.com/turkey-bolognese/',
-    desc: 'Lean ground turkey in a rich Italian tomato sauce, tossed with whole wheat pasta and parmesan.',
-    protStr: '~41g',
-    ingredients: [
-      { ingredientId:'ground_turkey',     amount:1.5,  unit:'lb'   },
-      { ingredientId:'whole_wheat_pasta', amount:12,   unit:'oz'   },
-      { ingredientId:'canned_tomatoes',   amount:2,    unit:'whole'},
-      { ingredientId:'onion',             amount:1,    unit:'whole'},
-      { ingredientId:'garlic',            amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',         amount:2,    unit:'tbsp' },
-      { ingredientId:'italian_seasoning', amount:2,    unit:'tsp'  },
-      { ingredientId:'red_wine_vinegar',  amount:1,    unit:'tbsp' },
-      { ingredientId:'red_pepper_flakes', amount:0.25, unit:'tsp'  },
-      { ingredientId:'salt',              amount:1,    unit:'tsp'  },
-      { ingredientId:'parmesan',          amount:0.25, unit:'cup', note:'for serving' },
-      { ingredientId:'fresh_basil',       amount:0.25, unit:'cup', note:'garnish' }
+    id:           'turkey_bolognese',
+    name:         'Turkey Bolognese',
+    rank:         'A',
+    source_url:   'https://www.skinnytaste.com/turkey-bolognese/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'ground_turkey_93_lean',     grams: 454, qty: '1 lb'         },
+      { id: 'mezze_rigatoni_dry',        grams: 283, qty: '10 oz'        },
+      { id: 'chicken_bone_broth',        grams: 590, qty: '2½ cups'      },
+      { id: 'crushed_tomatoes_canned',   grams: 360, qty: '1½ cups'      },
+      { id: 'yellow_onion',              grams: 100, qty: '½ whole'      },
+      { id: 'carrot_raw',                grams: 90,  qty: '1 medium'     },
+      { id: 'celery_raw',                grams: 60,  qty: '1 rib'        },
+      { id: 'parmesan_cheese_grated',    grams: 25,  qty: '¼ cup'        },
+      { id: 'tomato_paste',              grams: 30,  qty: '2 tbsp'       },
+      { id: 'olive_oil_extra_virgin',    grams: 7,   qty: '½ tbsp'       },
+      { id: 'garlic',                    grams: 3,   qty: '1 clove'      },
+      { id: 'calabrian_chili_paste',     grams: 5,   qty: '1 tsp'        },
+      { id: 'fresh_basil',               grams: 5,   qty: 'small handful'},
+      { id: 'ricotta_cheese',            grams: 120, qty: '½ cup'        },
     ],
-    brief_instructions: [
-      'Cook pasta in salted water until al dente; drain, reserving ½ cup pasta water.',
-      'Brown ground turkey in olive oil over medium-high, breaking up finely, 5–6 min.',
-      'Add onion, garlic, Italian seasoning; cook 3 min. Add canned tomatoes and red wine vinegar; simmer 15 min.',
-      'Toss with pasta, adding pasta water to loosen. Top with parmesan and fresh basil.'
-    ]
+    _totalMacros: { calories: 2254, proteinG: 160.1, fatG: 57.7, carbsG: 266.1, sodiumMg: 4331 },
   },
 
-  italian_baked_salmon: {
-    id: 'italian_baked_salmon',
-    name: 'Italian Herb Baked Salmon',
-    cuisineId: 'italian',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 490, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 22,
-    source_url: 'https://www.recipetineats.com/lemon-garlic-salmon-tray-bake-easy-healthy/',
-    link: 'https://www.recipetineats.com/lemon-garlic-salmon-tray-bake-easy-healthy/',
-    desc: 'Salmon roasted with burst cherry tomatoes, zucchini and Italian herbs. Finished with fresh basil and parmesan.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'salmon_fillet',     amount:1.5,  unit:'lb'   },
-      { ingredientId:'cherry_tomato',     amount:2,    unit:'cup'  },
-      { ingredientId:'zucchini',          amount:2,    unit:'whole'},
-      { ingredientId:'garlic',            amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',         amount:3,    unit:'tbsp' },
-      { ingredientId:'lemon',             amount:1,    unit:'whole'},
-      { ingredientId:'italian_seasoning', amount:2,    unit:'tsp'  },
-      { ingredientId:'red_pepper_flakes', amount:0.25, unit:'tsp'  },
-      { ingredientId:'parmesan',          amount:0.25, unit:'cup'  },
-      { ingredientId:'fresh_basil',       amount:0.25, unit:'cup'  }
+  // ----------------------------------------------------------------
+  // R15 — Lemon Garlic Salmon Tray Bake
+  // ----------------------------------------------------------------
+  lemon_garlic_salmon_tray_bake: {
+    id:           'lemon_garlic_salmon_tray_bake',
+    name:         'Lemon Garlic Salmon Tray Bake',
+    rank:         'B',
+    source_url:   'https://www.recipetineats.com/lemon-garlic-salmon-tray-bake-easy-healthy/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'salmon_atlantic_farmed', grams: 720,  qty: '4 × 6 oz fillets'    },
+      { id: 'asparagus_raw',          grams: 1080, qty: '3 bunches'            },
+      { id: 'grape_tomatoes',         grams: 200,  qty: '7 oz'                 },
+      { id: 'olive_oil_extra_virgin', grams: 36,   qty: '2 tbsp + 2 tsp'       },
+      { id: 'lemon_juice',            grams: 15,   qty: '1 tbsp'               },
+      { id: 'garlic',                 grams: 10,   qty: '2 cloves'             },
+      { id: 'dijon_mustard',          grams: 5,    qty: '1 tsp'                },
+      { id: 'parmesan_grated',        grams: 12,   qty: 'small handful grated' },
+      { id: 'lemon_zest',             grams: 2,    qty: '1 tsp'                },
+      { id: 'fresh_parsley',          grams: 10,   qty: 'small handful'        },
     ],
-    brief_instructions: [
-      'Toss halved cherry tomatoes and sliced zucchini with olive oil, garlic and Italian seasoning.',
-      'Spread vegetables on a sheet pan; nestle salmon fillets in the center.',
-      'Squeeze lemon over everything; top salmon with red pepper flakes and season with salt.',
-      'Roast 400°F for 18–22 min until salmon flakes. Finish with fresh basil and parmesan.'
-    ]
+    _totalMacros: { calories: 2209, proteinG: 167.8, fatG: 135.3, carbsG: 72.2, sodiumMg: 1817 },
   },
 
-  // ---- Dinner — Veg ----
-
-  white_bean_pasta: {
-    id: 'white_bean_pasta',
-    name: 'White Bean & Tomato Pasta',
-    cuisineId: 'italian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 20, calories: 440, carbsG: null, fatG: null,
-    prepMins: 5, cookMins: 20,
-    source_url: 'https://www.budgetbytes.com/tuscan-white-bean-pasta/',
-    link: 'https://www.budgetbytes.com/tuscan-white-bean-pasta/',
-    desc: 'White beans, burst cherry tomatoes, garlic, lemon and parmesan. Fast 20-min pantry pasta. Ascent shake.',
-    protStr: '~20g+shake',
-    ingredients: [
-      { ingredientId:'white_beans_can',   amount:2,    unit:'whole'},
-      { ingredientId:'whole_wheat_pasta', amount:10,   unit:'oz'   },
-      { ingredientId:'cherry_tomato',     amount:2,    unit:'cup'  },
-      { ingredientId:'garlic',            amount:6,    unit:'clove'},
-      { ingredientId:'olive_oil',         amount:3,    unit:'tbsp' },
-      { ingredientId:'lemon',             amount:1,    unit:'whole'},
-      { ingredientId:'parmesan',          amount:0.25, unit:'cup'  },
-      { ingredientId:'fresh_basil',       amount:0.25, unit:'cup'  },
-      { ingredientId:'red_pepper_flakes', amount:0.5,  unit:'tsp'  },
-      { ingredientId:'salt',              amount:1,    unit:'tsp'  }
+  // ----------------------------------------------------------------
+  // R16 — Tomato Chickpea Pasta with Goat Cheese
+  // ----------------------------------------------------------------
+  tomato_chickpea_pasta: {
+    id:           'tomato_chickpea_pasta',
+    name:         'Tomato Chickpea Pasta with Goat Cheese',
+    rank:         'C',
+    source_url:   'https://cookieandkate.com/tomato-chickpea-pasta-recipe/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'pasta_short_cut_dry',    grams: 224,  qty: '8 oz'                     },
+      { id: 'goat_cheese',            grams: 142,  qty: '5 oz'                     },
+      { id: 'chickpeas_cooked',       grams: 250,  qty: '1 can (15 oz), drained'   },
+      { id: 'cherry_tomatoes',        grams: 680,  qty: '4 cups (2 pints)'         },
+      { id: 'olive_oil_extra_virgin', grams: 73,   qty: '⅓ cup'                    },
+      { id: 'garlic',                 grams: 20,   qty: '4 cloves'                 },
+      { id: 'kalamata_olives',        grams: 65,   qty: '½ cup, chopped'           },
+      { id: 'fresh_basil',            grams: 10,   qty: '⅓ cup sliced'             },
+      { id: 'red_pepper_flakes',      grams: 0.5,  qty: 'pinch'                    },
     ],
-    brief_instructions: [
-      'Cook pasta in salted water until al dente; reserve 1 cup pasta water before draining.',
-      'Sauté sliced garlic in olive oil 2 min. Add white beans; cook 3 min until lightly crisped.',
-      'Add cherry tomatoes and red pepper flakes; cook until tomatoes burst, about 4 min.',
-      'Toss with pasta, lemon juice and pasta water to create a glossy sauce. Top with parmesan and basil.'
-    ]
+    _totalMacros: { calories: 2617, proteinG: 88.9, fatG: 125.0, carbsG: 283.5, sodiumMg: 2006 },
   },
 
-  lentil_bolognese: {
-    id: 'lentil_bolognese',
-    name: 'Lentil Bolognese Pasta',
-    cuisineId: 'italian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 19, calories: 400, carbsG: null, fatG: null,
-    prepMins: 5, cookMins: 30,
-    source_url: 'https://minimalistbaker.com/vegan-bolognese-with-mushrooms-red-lentils/',
-    link: 'https://minimalistbaker.com/vegan-bolognese-with-mushrooms-red-lentils/',
-    desc: 'Red lentils simmered in a rich Italian tomato sauce. Hearty plant-based bolognese. Ascent shake.',
-    protStr: '~19g+shake',
-    ingredients: [
-      { ingredientId:'red_lentils',       amount:1,    unit:'cup'  },
-      { ingredientId:'whole_wheat_pasta', amount:10,   unit:'oz'   },
-      { ingredientId:'canned_tomatoes',   amount:2,    unit:'whole'},
-      { ingredientId:'onion',             amount:1,    unit:'whole'},
-      { ingredientId:'garlic',            amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',         amount:2,    unit:'tbsp' },
-      { ingredientId:'italian_seasoning', amount:2,    unit:'tsp'  },
-      { ingredientId:'red_pepper_flakes', amount:0.25, unit:'tsp'  },
-      { ingredientId:'salt',              amount:1,    unit:'tsp'  },
-      { ingredientId:'parmesan',          amount:0.25, unit:'cup', note:'for serving' },
-      { ingredientId:'fresh_basil',       amount:0.25, unit:'cup', note:'garnish' }
+  // ----------------------------------------------------------------
+  // R17 — Spanish Salmon a la Gallega
+  // ----------------------------------------------------------------
+  spanish_salmon_gallega: {
+    id:           'spanish_salmon_gallega',
+    name:         'Spanish Salmon a la Gallega',
+    rank:         'B',
+    source_url:   'https://spainonafork.com/spanish-salmon-a-la-gallega-recipe/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'salmon_atlantic_farmed', grams: 400,  qty: '14 oz'              },
+      { id: 'potato_raw',             grams: 300,  qty: '2 medium'           },
+      { id: 'olive_oil_extra_virgin', grams: 27,   qty: '2 tbsp'             },
+      { id: 'garlic',                 grams: 20,   qty: '4 cloves'           },
+      { id: 'white_wine',             grams: 80,   qty: '⅓ cup'              },
+      { id: 'smoked_paprika',         grams: 2.5,  qty: '1 tsp'              },
+      { id: 'fresh_parsley',          grams: 10,   qty: '1 handful chopped'  },
     ],
-    brief_instructions: [
-      'Cook pasta in salted water until al dente; drain, reserving ½ cup pasta water.',
-      'Sauté onion and garlic in olive oil 5 min. Add Italian seasoning and red pepper flakes; cook 1 min.',
-      'Add red lentils, canned tomatoes and 1½ cups water; simmer 20 min until lentils are very soft.',
-      'Toss with pasta, adding pasta water to loosen. Top with parmesan and fresh basil.'
-    ]
+    _totalMacros: { calories: 1377, proteinG: 88.7, fatG: 78.1, carbsG: 61.2, sodiumMg: 523 },
   },
 
-  spinach_chickpea_pasta: {
-    id: 'spinach_chickpea_pasta',
-    name: 'Spinach & Chickpea Pasta',
-    cuisineId: 'italian',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 18, calories: 420, carbsG: null, fatG: null,
-    prepMins: 5, cookMins: 20,
-    source_url: 'https://cookieandkate.com/tomato-chickpea-pasta-recipe/',
-    link: 'https://cookieandkate.com/tomato-chickpea-pasta-recipe/',
-    desc: 'Quick pasta with garlic chickpeas, wilted spinach, lemon and parmesan. 20-min weeknight dinner. Ascent shake.',
-    protStr: '~18g+shake',
-    ingredients: [
-      { ingredientId:'whole_wheat_pasta', amount:10,   unit:'oz'   },
-      { ingredientId:'canned_chickpeas',  amount:2,    unit:'whole'},
-      { ingredientId:'fresh_spinach',     amount:4,    unit:'cup'  },
-      { ingredientId:'garlic',            amount:5,    unit:'clove'},
-      { ingredientId:'olive_oil',         amount:3,    unit:'tbsp' },
-      { ingredientId:'lemon',             amount:1,    unit:'whole'},
-      { ingredientId:'parmesan',          amount:0.25, unit:'cup'  },
-      { ingredientId:'red_pepper_flakes', amount:0.5,  unit:'tsp'  },
-      { ingredientId:'salt',              amount:1,    unit:'tsp'  }
+  // ----------------------------------------------------------------
+  // R20 — Classic Lentil Burgers  (double-patty per serving; 5 buns)
+  // ----------------------------------------------------------------
+  lentil_burgers: {
+    id:           'lentil_burgers',
+    name:         'Classic Lentil Burgers',
+    rank:         'B',
+    source_url:   'https://www.makingthymeforhealth.com/classic-lentil-burgers/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'dkb_21wg_hamburger_buns', grams: 320,  qty: '5 buns',       note: '@ 64g each — DKB 21 Whole Grain' },
+      { id: 'green_lentils_cooked',    grams: 600,  qty: '2½ cups'      },
+      { id: 'walnuts_raw',             grams: 60,   qty: '½ cup'        },
+      { id: 'sunflower_seeds_raw',     grams: 70,   qty: '½ cup'        },
+      { id: 'breadcrumbs_dry_plain',   grams: 100,  qty: '1 cup'        },
+      { id: 'olive_oil_extra_virgin',  grams: 40,   qty: '3 tbsp'       },
+      { id: 'chickpea_flour',          grams: 65,   qty: '½ cup'        },
+      { id: 'eggs_whole_raw',          grams: 100,  qty: '2 large'      },
+      { id: 'onion_yellow',            grams: 160,  qty: '1 cup diced'  },
+      { id: 'carrots_raw',             grams: 130,  qty: '1 cup diced'  },
+      { id: 'tomato_paste_no_salt',    grams: 30,   qty: '2 tbsp'       },
+      { id: 'worcestershire_sauce',    grams: 30,   qty: '2 tbsp'       },
+      { id: 'garlic',                  grams: 15,   qty: '3 cloves'     },
+      { id: 'dried_thyme',             grams: 1,    qty: '1 tbsp'       },
+      { id: 'dried_oregano',           grams: 1,    qty: '1 tbsp'       },
     ],
-    brief_instructions: [
-      'Cook pasta in well-salted water until al dente; reserve 1 cup pasta water before draining.',
-      'Sauté sliced garlic in olive oil over medium heat 2 min. Add chickpeas; cook 3 min.',
-      'Add fresh spinach and toss until wilted. Add red pepper flakes and cooked pasta.',
-      'Toss with lemon juice and pasta water to make a silky sauce. Top with parmesan.'
-    ]
+    _totalMacros: { calories: 3844, proteinG: 161.4, fatG: 150.3, carbsG: 467.6, sodiumMg: 4940 },
   },
 
-
-  // ============================================================
-  // SPANISH WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
-  pollo_al_ajillo: {
-    id: 'pollo_al_ajillo',
-    name: 'Pollo al Ajillo',
-    cuisineId: 'spanish',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 40, calories: 510, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://spainonafork.com/spanish-garlic-chicken-one-of-spains-most-iconic-recipes/',
-    link: 'https://spainonafork.com/spanish-garlic-chicken-one-of-spains-most-iconic-recipes/',
-    desc: 'Chicken thighs seared then braised in a garlic-sherry tomato sauce. Classic Spanish garlic chicken.',
-    protStr: '~40g',
-    ingredients: [
-      { ingredientId:'chicken_thigh',  amount:2,    unit:'lb'   },
-      { ingredientId:'garlic',         amount:10,   unit:'clove'},
-      { ingredientId:'olive_oil',      amount:3,    unit:'tbsp' },
-      { ingredientId:'smoked_paprika', amount:1,    unit:'tsp'  },
-      { ingredientId:'dried_oregano',  amount:0.5,  unit:'tsp'  },
-      { ingredientId:'sherry_vinegar', amount:2,    unit:'tbsp' },
-      { ingredientId:'canned_tomatoes',amount:1,    unit:'whole'},
-      { ingredientId:'parsley',        amount:0.25, unit:'cup'  },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R21 — Chicken Lentil Soup
+  // ----------------------------------------------------------------
+  chicken_lentil_soup: {
+    id:           'chicken_lentil_soup',
+    name:         'Chicken Lentil Soup',
+    rank:         'A',
+    source_url:   'https://thealmondeater.com/chicken-lentil-soup/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_breast_boneless',  grams: 681,  qty: '1.5 lbs'                        },
+      { id: 'green_lentils_dry',        grams: 300,  qty: '1½ cups'                        },
+      { id: 'tomatoes_diced_canned',    grams: 397,  qty: '1 can (14 oz) fire-roasted'     },
+      { id: 'spinach_raw',              grams: 142,  qty: '5 oz'                           },
+      { id: 'carrots_raw',              grams: 183,  qty: '3 medium'                       },
+      { id: 'onion_yellow',             grams: 110,  qty: '1 whole'                        },
+      { id: 'celery_raw',               grams: 80,   qty: '2 ribs'                         },
+      { id: 'garlic',                   grams: 20,   qty: '4 cloves'                       },
+      { id: 'olive_oil_extra_virgin',   grams: 14,   qty: '1 tbsp'                         },
+      { id: 'chicken_broth_low_sodium', grams: 1440, qty: '6 cups'                         },
+      { id: 'smoked_paprika',           grams: 3,    qty: '1 tsp'                          },
+      { id: 'ground_cumin',             grams: 1.5,  qty: '½ tsp'                          },
     ],
-    brief_instructions: [
-      'Season chicken thighs with smoked paprika, oregano, salt and black pepper.',
-      'Sear in olive oil over medium-high 5 min per side until golden. Remove and set aside.',
-      'Thinly slice 8 garlic cloves; cook in same pan 2 min. Add sherry vinegar and canned tomatoes.',
-      'Return chicken; simmer covered 20 min until sauce thickens. Garnish with parsley. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 2436, proteinG: 292.7, fatG: 32.7, carbsG: 250.8, sodiumMg: 7063 },
   },
 
-  spanish_baked_salmon: {
-    id: 'spanish_baked_salmon',
-    name: 'Spanish Paprika Salmon',
-    cuisineId: 'spanish',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 470, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://spainonafork.com/spanish-salmon-a-la-gallega-recipe/',
-    link: 'https://spainonafork.com/spanish-salmon-a-la-gallega-recipe/',
-    desc: 'Salmon roasted with smoked paprika, sweet peppers and cherry tomatoes. Bright, bold Spanish flavors.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'salmon_fillet',  amount:1.5,  unit:'lb'   },
-      { ingredientId:'bell_pepper',    amount:2,    unit:'whole'},
-      { ingredientId:'cherry_tomato',  amount:1,    unit:'cup'  },
-      { ingredientId:'garlic',         amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',      amount:3,    unit:'tbsp' },
-      { ingredientId:'smoked_paprika', amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',          amount:0.5,  unit:'tsp'  },
-      { ingredientId:'dried_oregano',  amount:0.5,  unit:'tsp'  },
-      { ingredientId:'lemon',          amount:1,    unit:'whole'},
-      { ingredientId:'parsley',        amount:0.25, unit:'cup'  },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R22 — Dak Galbi (Spicy Korean Stir-fried Chicken)
+  // ----------------------------------------------------------------
+  dak_galbi: {
+    id:           'dak_galbi',
+    name:         'Dak Galbi (Spicy Korean Stir-fried Chicken)',
+    rank:         'B',
+    source_url:   'https://www.koreanbapsang.com/dak-galbi/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless', grams: 454, qty: '1 lb'                         },
+      { id: 'rice_cakes_tteok',       grams: 227, qty: '8 oz',  note: 'Han Asia label: 237 kcal/100g, 5g P, 1g F, 52g C, 20mg Na' },
+      { id: 'sweet_potato_raw',       grams: 170, qty: '1 small (~6 oz)'              },
+      { id: 'green_cabbage_raw',      grams: 227, qty: '8 oz'                         },
+      { id: 'sesame_oil',             grams: 13,  qty: '1 tbsp'                       },
+      { id: 'gochujang',              grams: 30,  qty: '2 tbsp'                       },
+      { id: 'soy_sauce',              grams: 30,  qty: '2 tbsp'                       },
+      { id: 'gochugaru',              grams: 14,  qty: '2 tbsp'                       },
+      { id: 'rice_wine_sake',         grams: 30,  qty: '2 tbsp'                       },
+      { id: 'sugar',                  grams: 12,  qty: '1 tbsp'                       },
+      { id: 'garlic',                 grams: 15,  qty: '1 tbsp minced'                },
+      { id: 'corn_syrup_light',       grams: 7,   qty: '½ tbsp'                       },
+      { id: 'scallions',              grams: 30,  qty: '2 whole'                      },
+      { id: 'ginger_fresh',           grams: 5,   qty: '1 tsp grated'                 },
+      { id: 'perilla_leaves',         grams: 12,  qty: '6–8 leaves (kkaennip)'        },
+      { id: 'korean_curry_powder',    grams: 3,   qty: '1 tsp'                        },
+      { id: 'mozzarella_shredded',    grams: 57,  qty: '½ cup, optional'              },
+      { id: 'sesame_seeds',           grams: 3,   qty: '1 tsp'                        },
     ],
-    brief_instructions: [
-      'Whisk olive oil, smoked paprika, cumin, minced garlic and lemon juice into a marinade.',
-      'Coat salmon fillets in marinade. Slice bell peppers into thin strips.',
-      'Arrange salmon with peppers and cherry tomatoes on a sheet pan.',
-      'Roast 400°F for 18–20 min until salmon flakes. Finish with fresh parsley and extra lemon.'
-    ]
+    _totalMacros: { calories: 1804, proteinG: 109.6, fatG: 55.3, carbsG: 212.3, sodiumMg: 2817 },
   },
 
-  albondigas_bowl: {
-    id: 'albondigas_bowl',
-    name: 'Albóndigas Bowl',
-    cuisineId: 'spanish',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 500, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 25,
-    source_url: 'https://www.themediterraneandish.com/albondigas-spanish-meatballs/',
-    link: 'https://www.themediterraneandish.com/albondigas-spanish-meatballs/',
-    desc: 'Ground turkey meatballs in a smoky smoked-paprika tomato sauce. Spanish albóndigas rice bowl.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'ground_turkey',  amount:1.5,  unit:'lb'   },
-      { ingredientId:'eggs',           amount:1,    unit:'whole'},
-      { ingredientId:'garlic',         amount:5,    unit:'clove'},
-      { ingredientId:'smoked_paprika', amount:2,    unit:'tsp'  },
-      { ingredientId:'dried_oregano',  amount:1,    unit:'tsp'  },
-      { ingredientId:'olive_oil',      amount:2,    unit:'tbsp' },
-      { ingredientId:'canned_tomatoes',amount:2,    unit:'whole'},
-      { ingredientId:'onion',          amount:1,    unit:'whole'},
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' },
-      { ingredientId:'parsley',        amount:0.25, unit:'cup'  }
+  // ----------------------------------------------------------------
+  // R23 — Thai Chilli Basil Chicken  (+ 0.5 cup dry brown rice serving base)
+  // ----------------------------------------------------------------
+  thai_basil_chicken: {
+    id:           'thai_basil_chicken',
+    name:         'Thai Chilli Basil Chicken',
+    rank:         'A',
+    source_url:   'https://www.recipetineats.com/thai-basil-chicken-stir-fry/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless', grams: 225, qty: '7 oz'                },
+      { id: 'brown_rice_dry',         grams: 93,  qty: '½ cup dry'           },
+      { id: 'peanut_oil',             grams: 21,  qty: '1½ tbsp'             },
+      { id: 'oyster_sauce',           grams: 10,  qty: '2 tsp'               },
+      { id: 'soy_sauce_light',        grams: 5,   qty: '1 tsp'               },
+      { id: 'soy_sauce_dark',         grams: 5,   qty: '1 tsp'               },
+      { id: 'thai_basil_fresh',       grams: 25,  qty: '1 cup loosely packed'},
+      { id: 'garlic',                 grams: 12,  qty: '2 large cloves'      },
+      { id: 'sugar',                  grams: 4,   qty: '1 tsp'               },
+      { id: 'green_onion',            grams: 15,  qty: '1 whole'             },
+      { id: 'bird_eye_chilli_fresh',  grams: 10,  qty: '1 chilli'            },
     ],
-    brief_instructions: [
-      'Mix turkey, 1 egg, 2 minced garlic cloves, 1 tsp smoked paprika, oregano, salt. Roll into 16 meatballs.',
-      'Brown meatballs in olive oil over medium-high 3 min per side until golden. Remove.',
-      'Sauté diced onion and remaining garlic; add 1 tsp smoked paprika, then canned tomatoes. Simmer 8 min.',
-      'Return meatballs; cover and simmer 15 min. Garnish with parsley. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 920, proteinG: 51.8, fatG: 40.8, carbsG: 83.7, sodiumMg: 978 },
   },
 
-  // ---- Dinner — Veg ----
-
-  garbanzos_con_espinacas: {
-    id: 'garbanzos_con_espinacas',
-    name: 'Garbanzos con Espinacas',
-    cuisineId: 'spanish',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 16, calories: 380, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://spainonafork.com/spanish-spinach-and-chickpeas/',
-    link: 'https://spainonafork.com/spanish-spinach-and-chickpeas/',
-    desc: 'Spanish chickpeas and spinach in a smoky paprika tomato sauce. A Seville classic. Ascent shake.',
-    protStr: '~16g+shake',
-    ingredients: [
-      { ingredientId:'canned_chickpeas', amount:2,    unit:'whole'},
-      { ingredientId:'fresh_spinach',    amount:4,    unit:'cup'  },
-      { ingredientId:'garlic',           amount:5,    unit:'clove'},
-      { ingredientId:'olive_oil',        amount:3,    unit:'tbsp' },
-      { ingredientId:'smoked_paprika',   amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',            amount:1,    unit:'tsp'  },
-      { ingredientId:'canned_tomatoes',  amount:1,    unit:'whole'},
-      { ingredientId:'sherry_vinegar',   amount:1,    unit:'tbsp' },
-      { ingredientId:'lemon',            amount:1,    unit:'whole'},
-      { ingredientId:'pita_bread',       amount:4,    unit:'whole', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R24 — Korean Inspired Ground Turkey Bowls  (+ 1 cup dry brown rice serving base)
+  // ----------------------------------------------------------------
+  korean_turkey_bowls: {
+    id:           'korean_turkey_bowls',
+    name:         'Korean Inspired Ground Turkey Bowls',
+    rank:         'A',
+    source_url:   'https://beginwithbalance.com/korean-inspired-ground-turkey-bowls/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'ground_turkey_lean',   grams: 454, qty: '1 lb'              },
+      { id: 'brown_rice_dry',       grams: 185, qty: '1 cup dry'         },
+      { id: 'honey',                grams: 63,  qty: '3 tbsp'            },
+      { id: 'soy_sauce_low_sodium', grams: 60,  qty: '¼ cup'             },
+      { id: 'carrots_raw',          grams: 110, qty: '1 cup shredded'    },
+      { id: 'red_onion',            grams: 100, qty: '1 cup sliced'      },
+      { id: 'green_onions',         grams: 80,  qty: '1 bunch'           },
+      { id: 'cucumber_raw',         grams: 120, qty: '1 cup sliced'      },
+      { id: 'sesame_oil',           grams: 9,   qty: '2 tsp'             },
+      { id: 'garlic',               grams: 10,  qty: '2 tsp minced'      },
+      { id: 'ginger_fresh',         grams: 10,  qty: '2 tsp minced'      },
+      { id: 'rice_wine_vinegar',    grams: 95,  qty: '⅓ cup + 1 tbsp'   },
+      { id: 'sriracha',             grams: 10,  qty: '1–2 tsp'           },
+      { id: 'sugar',                grams: 12,  qty: '1 tbsp'            },
+      { id: 'cilantro',             grams: 10,  qty: 'small handful'     },
+      { id: 'sesame_seeds',         grams: 5,   qty: '1 tsp'             },
+      { id: 'red_pepper_flakes',    grams: 1,   qty: 'pinch'             },
     ],
-    brief_instructions: [
-      'Toast cumin and smoked paprika in olive oil 30 sec. Add sliced garlic; cook 1 min until golden.',
-      'Add drained chickpeas; cook 3 min, tossing occasionally, until slightly crisped.',
-      'Add canned tomatoes and sherry vinegar; simmer 10 min until sauce reduces and coats chickpeas.',
-      'Fold in fresh spinach until wilted. Finish with lemon juice. Serve with warm pita.'
-    ]
+    _totalMacros: { calories: 1826, proteinG: 108.9, fatG: 54.0, carbsG: 233.1, sodiumMg: 3567 },
   },
 
-  pisto_manchego: {
-    id: 'pisto_manchego',
-    name: 'Pisto Manchego with Eggs',
-    cuisineId: 'spanish',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 14, calories: 350, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://spainonafork.com/spanish-ratatouille-pisto-manchego-recipe/',
-    link: 'https://spainonafork.com/spanish-ratatouille-pisto-manchego-recipe/',
-    desc: 'Spanish vegetable stew with zucchini, peppers and eggs baked on top. Smoky paprika and oregano. Ascent shake.',
-    protStr: '~14g+shake',
-    ingredients: [
-      { ingredientId:'zucchini',       amount:2,    unit:'whole'},
-      { ingredientId:'bell_pepper',    amount:2,    unit:'whole'},
-      { ingredientId:'onion',          amount:1,    unit:'whole'},
-      { ingredientId:'canned_tomatoes',amount:2,    unit:'whole'},
-      { ingredientId:'garlic',         amount:4,    unit:'clove'},
-      { ingredientId:'olive_oil',      amount:3,    unit:'tbsp' },
-      { ingredientId:'smoked_paprika', amount:1,    unit:'tsp'  },
-      { ingredientId:'dried_oregano',  amount:1,    unit:'tsp'  },
-      { ingredientId:'eggs',           amount:4,    unit:'whole'},
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R25 — Korean Braised Tofu (Dubu Jorim)  [standalone — no rice base]
+  // ----------------------------------------------------------------
+  korean_braised_tofu: {
+    id:           'korean_braised_tofu',
+    name:         'Korean Braised Tofu (Dubu Jorim)',
+    rank:         'A',
+    source_url:   'https://cjeatsrecipes.com/korean-braised-tofu/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'firm_tofu',       grams: 397, qty: '1 package (14 oz)' },
+      { id: 'peanut_oil',      grams: 27,  qty: '2 tbsp'            },
+      { id: 'sesame_oil',      grams: 13,  qty: '1 tbsp'            },
+      { id: 'soy_sauce_light', grams: 60,  qty: '¼ cup'             },
+      { id: 'sesame_seeds',    grams: 5,   qty: '½ tbsp'            },
+      { id: 'gochugaru',       grams: 7,   qty: '1 tbsp'            },
+      { id: 'sugar',           grams: 6,   qty: '½ tbsp'            },
+      { id: 'garlic',          grams: 10,  qty: '2 cloves'          },
+      { id: 'scallion',        grams: 15,  qty: '1 whole'           },
     ],
-    brief_instructions: [
-      'Dice zucchini, bell pepper and onion. Sauté in olive oil over medium heat 8 min until softened.',
-      'Add garlic, smoked paprika and oregano; cook 1 min. Add canned tomatoes; simmer 15 min.',
-      'Make 4 wells in the vegetable stew; crack one egg into each. Cover and cook 6–8 min.',
-      'Serve over brown rice or with crusty bread. Ascent shake tonight.'
-    ]
+    _totalMacros: { calories: 1057, proteinG: 78.0, fatG: 76.6, carbsG: 30.8, sodiumMg: 3420 },
   },
 
-  spanish_lentil_stew: {
-    id: 'spanish_lentil_stew',
-    name: 'Spanish Lentil Stew',
-    cuisineId: 'spanish',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 22, calories: 410, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://spainonafork.com/classic-spanish-lentil-stew-recipe/',
-    link: 'https://spainonafork.com/classic-spanish-lentil-stew-recipe/',
-    desc: 'Red lentils simmered with smoky Spanish chorizo, smoked paprika and a sherry vinegar finish.',
-    protStr: '~22g',
-    ingredients: [
-      { ingredientId:'red_lentils',     amount:1.5,  unit:'cup'  },
-      { ingredientId:'spanish_chorizo', amount:4,    unit:'oz'   },
-      { ingredientId:'garlic',          amount:4,    unit:'clove'},
-      { ingredientId:'onion',           amount:1,    unit:'whole'},
-      { ingredientId:'canned_tomatoes', amount:1,    unit:'whole'},
-      { ingredientId:'smoked_paprika',  amount:2,    unit:'tsp'  },
-      { ingredientId:'cumin',           amount:1,    unit:'tsp'  },
-      { ingredientId:'olive_oil',       amount:2,    unit:'tbsp' },
-      { ingredientId:'sherry_vinegar',  amount:1,    unit:'tbsp' },
-      { ingredientId:'parsley',         amount:0.25, unit:'cup'  }
+  // ----------------------------------------------------------------
+  // R26 — Slow Cooker Salsa Verde Chicken Chickpea Chili
+  // ----------------------------------------------------------------
+  salsa_verde_chicken_chili: {
+    id:           'salsa_verde_chicken_chili',
+    name:         'Slow Cooker Salsa Verde Chicken Chickpea Chili',
+    rank:         'B',
+    source_url:   'https://www.ambitiouskitchen.com/slow-cooker-salsa-verde-chicken-chickpea-chili/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless',   grams: 908, qty: '2 lbs'                   },
+      { id: 'salsa_verde',              grams: 680, qty: '24 oz (2 jars)'          },
+      { id: 'chickpeas_cooked',         grams: 250, qty: '1 can (15 oz), drained'  },
+      { id: 'quinoa_dry',               grams: 85,  qty: '½ cup'                   },
+      { id: 'frozen_corn',              grams: 154, qty: '1 cup'                   },
+      { id: 'onion_yellow',             grams: 110, qty: '1 whole'                 },
+      { id: 'garlic',                   grams: 10,  qty: '2 cloves'                },
+      { id: 'jalapeno_fresh',           grams: 25,  qty: '½ jalapeño'              },
+      { id: 'lime_juice',               grams: 25,  qty: '1 small lime'            },
+      { id: 'chicken_broth_low_sodium', grams: 590, qty: '2½ cups'                 },
+      { id: 'ground_cumin',             grams: 4,   qty: '2 tsp'                   },
+      { id: 'dried_oregano',            grams: 2,   qty: '2 tsp'                   },
     ],
-    brief_instructions: [
-      'Slice chorizo; cook in olive oil 3 min until fat renders. Add diced onion and garlic; cook 4 min.',
-      'Add smoked paprika and cumin; cook 1 min. Add red lentils and canned tomatoes.',
-      'Add 3 cups water; bring to boil then simmer 20–25 min until lentils are completely soft.',
-      'Splash in sherry vinegar; season with salt. Garnish with parsley. Serve as is or over rice.'
-    ]
+    _totalMacros: { calories: 2653, proteinG: 240.4, fatG: 91.9, carbsG: 214.9, sodiumMg: 8701 },
   },
 
-
-  // ============================================================
-  // CARIBBEAN WEEK
-  // ============================================================
-
-  // ---- Dinner — Protein ----
-
-  jerk_chicken: {
-    id: 'jerk_chicken',
-    name: 'Jerk Chicken',
-    cuisineId: 'caribbean',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 40, calories: 510, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 30,
-    source_url: 'https://caribbeanpot.com/the-ultimate-oven-jerk-chicken/',
-    link: 'https://caribbeanpot.com/the-ultimate-oven-jerk-chicken/',
-    desc: 'Boldly spiced jerk chicken with allspice, thyme and scotch bonnet heat. Caribbean barbecue classic.',
-    protStr: '~40g',
-    ingredients: [
-      { ingredientId:'chicken_thigh',  amount:2,    unit:'lb'   },
-      { ingredientId:'jerk_seasoning', amount:3,    unit:'tbsp' },
-      { ingredientId:'garlic',         amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',   amount:1,    unit:'tbsp' },
-      { ingredientId:'lime',           amount:2,    unit:'whole'},
-      { ingredientId:'allspice',       amount:1,    unit:'tsp'  },
-      { ingredientId:'thyme',          amount:4,    unit:'whole', note:'sprigs' },
-      { ingredientId:'olive_oil',      amount:2,    unit:'tbsp' },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R27 — 30-Minute Spiced Mediterranean Chicken Bowls
+  // ----------------------------------------------------------------
+  mediterranean_chicken_bowls: {
+    id:           'mediterranean_chicken_bowls',
+    name:         '30-Minute Spiced Mediterranean Chicken Bowls',
+    rank:         'B',
+    source_url:   'https://www.ambitiouskitchen.com/spiced-mediterranean-chicken-bowls/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'ground_chicken',          grams: 454,  qty: '1 lb'                  },
+      { id: 'brown_rice_dry',          grams: 185,  qty: '1 cup dry'             },
+      { id: 'whole_wheat_pita',        grams: 256,  qty: '4 pitas'               },
+      { id: 'feta_cheese',             grams: 114,  qty: '4 oz, crumbled'        },
+      { id: 'olive_oil_extra_virgin',  grams: 34,   qty: '2 tbsp'                },
+      { id: 'chickpeas_cooked',        grams: 164,  qty: '1 cup, drained'        },
+      { id: 'cucumber_persian',        grams: 360,  qty: '4 Persian cucumbers'   },
+      { id: 'red_bell_pepper_roasted', grams: 85,   qty: '3 oz jarred'           },
+      { id: 'onion_yellow',            grams: 55,   qty: '½ medium'              },
+      { id: 'garlic',                  grams: 8,    qty: '2 cloves'              },
+      { id: 'lemon_juice',             grams: 8,    qty: '½ tbsp'                },
+      { id: 'garlic_powder',           grams: 2.5,  qty: '1 tsp'                 },
+      { id: 'ground_cumin',            grams: 2.5,  qty: '1 tsp'                 },
+      { id: 'dried_oregano',           grams: 1,    qty: '1 tsp'                 },
+      { id: 'paprika',                 grams: 2.5,  qty: '1 tsp'                 },
+      { id: 'ground_turmeric',         grams: 2.5,  qty: '1 tsp'                 },
+      { id: 'dried_thyme',             grams: 0.5,  qty: '½ tsp'                 },
+      { id: 'fresh_mint',              grams: 5,    qty: 'small handful'         },
+      { id: 'fresh_parsley',           grams: 5,    qty: 'small handful'         },
     ],
-    brief_instructions: [
-      'Mix jerk seasoning, minced garlic, ginger, lime juice, ground allspice, thyme and olive oil into a paste.',
-      'Score chicken thighs and coat generously in jerk paste. Marinate at least 30 min, or overnight.',
-      'Roast at 425°F for 25–30 min until chicken is charred at edges and reads 165°F internal temp.',
-      'Rest 5 min. Serve over brown rice with lime wedges.'
-    ]
+    _totalMacros: { calories: 2987, proteinG: 152.2, fatG: 108.7, carbsG: 358.6, sodiumMg: 4469 },
   },
 
-  jerk_salmon: {
-    id: 'jerk_salmon',
-    name: 'Jerk Salmon',
-    cuisineId: 'caribbean',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 470, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 18,
-    source_url: 'https://caribbeanpot.com/incredible-jerk-salmon/',
-    link: 'https://caribbeanpot.com/incredible-jerk-salmon/',
-    desc: 'Sheet pan jerk-spiced salmon — bold allspice and lime heat, ready in under 30 minutes.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'salmon_fillet',  amount:1.5,  unit:'lb'   },
-      { ingredientId:'jerk_seasoning', amount:2,    unit:'tbsp' },
-      { ingredientId:'garlic',         amount:3,    unit:'clove'},
-      { ingredientId:'lime',           amount:2,    unit:'whole'},
-      { ingredientId:'allspice',       amount:0.5,  unit:'tsp'  },
-      { ingredientId:'thyme',          amount:3,    unit:'whole', note:'sprigs' },
-      { ingredientId:'olive_oil',      amount:2,    unit:'tbsp' },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R28 — Southwest Chicken Skillet
+  // ----------------------------------------------------------------
+  southwest_chicken_skillet: {
+    id:           'southwest_chicken_skillet',
+    name:         'Southwest Chicken Skillet',
+    rank:         'A',
+    source_url:   'https://www.budgetbytes.com/southwest-chicken-skillet/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'white_rice_dry',           grams: 185, qty: '1 cup dry'             },
+      { id: 'chicken_breast_cooked',    grams: 280, qty: '1½–2 cups shredded'   },
+      { id: 'black_beans_canned',       grams: 240, qty: '1 can (15 oz), drained'},
+      { id: 'cheddar_cheese_shredded',  grams: 113, qty: '1 cup shredded'        },
+      { id: 'salsa_tomato',             grams: 240, qty: '1 cup'                 },
+      { id: 'green_onions',             grams: 45,  qty: '2–3 whole'             },
+      { id: 'chili_powder',             grams: 8,   qty: '1 tbsp'                },
+      { id: 'chicken_broth_low_sodium', grams: 414, qty: '1¾ cups'              },
     ],
-    brief_instructions: [
-      'Whisk jerk seasoning, minced garlic, ground allspice, lime juice and olive oil.',
-      'Coat salmon fillets in jerk mixture; let marinate 15–30 min.',
-      'Arrange on a lined sheet pan; roast 400°F for 14–18 min until salmon flakes easily.',
-      'Serve over brown rice with extra lime wedges and fresh thyme sprigs.'
-    ]
+    _totalMacros: { calories: 2087, proteinG: 167.4, fatG: 52.2, carbsG: 229.4, sodiumMg: 3528 },
   },
 
-  caribbean_brown_stew_chicken: {
-    id: 'caribbean_brown_stew_chicken',
-    name: 'Caribbean Brown Stew Chicken',
-    cuisineId: 'caribbean',
-    mealTypes: ['dinner'],
-    isVeg: false, servings: 4, proteinG: 38, calories: 500, carbsG: null, fatG: null,
-    prepMins: 15, cookMins: 40,
-    source_url: 'https://caribbeanpot.com/the-ultimate-jamaican-brown-stew-chicken/',
-    link: 'https://caribbeanpot.com/the-ultimate-jamaican-brown-stew-chicken/',
-    desc: 'Classic Caribbean brown stew chicken — deeply caramelized, braised with allspice, thyme and soy sauce.',
-    protStr: '~38g',
-    ingredients: [
-      { ingredientId:'chicken_thigh',  amount:2,    unit:'lb'   },
-      { ingredientId:'garlic',         amount:4,    unit:'clove'},
-      { ingredientId:'onion',          amount:1,    unit:'whole'},
-      { ingredientId:'bell_pepper',    amount:1,    unit:'whole'},
-      { ingredientId:'canned_tomatoes',amount:1,    unit:'whole'},
-      { ingredientId:'allspice',       amount:1,    unit:'tsp'  },
-      { ingredientId:'thyme',          amount:4,    unit:'whole', note:'sprigs' },
-      { ingredientId:'soy_sauce',      amount:2,    unit:'tbsp' },
-      { ingredientId:'olive_oil',      amount:2,    unit:'tbsp' },
-      { ingredientId:'brown_rice',     amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R29 — Marry Me Chicken Pasta
+  // ----------------------------------------------------------------
+  marry_me_chicken_pasta: {
+    id:           'marry_me_chicken_pasta',
+    name:         'Marry Me Chicken Pasta',
+    rank:         'A',
+    source_url:   'https://www.budgetbytes.com/marry-me-chicken-pasta/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'pasta_penne_dry',          grams: 227, qty: '8 oz'                   },
+      { id: 'chicken_breast_raw',       grams: 453, qty: '1 lb, cubed'            },
+      { id: 'heavy_cream',              grams: 113, qty: '½ cup'                  },
+      { id: 'olive_oil_extra_virgin',   grams: 27,  qty: '2 tbsp'                 },
+      { id: 'sundried_tomatoes',        grams: 90,  qty: '½ cup, packed in oil'   },
+      { id: 'parmesan_grated',          grams: 40,  qty: '½ cup grated'           },
+      { id: 'onion_yellow',             grams: 155, qty: '½ small'                },
+      { id: 'tomato_paste_no_salt',     grams: 30,  qty: '2 tbsp'                 },
+      { id: 'garlic',                   grams: 20,  qty: '4 cloves'               },
+      { id: 'spinach_frozen',           grams: 80,  qty: '⅓ cup frozen'           },
+      { id: 'chicken_broth_low_sodium', grams: 590, qty: '2½ cups'               },
+      { id: 'italian_seasoning',        grams: 3.5, qty: '1½ tsp'                 },
+      { id: 'fresh_basil',              grams: 5,   qty: 'small handful, optional'},
     ],
-    brief_instructions: [
-      'Season chicken with allspice, minced garlic, soy sauce, thyme, salt. Marinate 15 min.',
-      'Brown chicken in oil over medium-high 5–6 min per side until deeply caramelized. Remove.',
-      'Sauté onion and bell pepper 3 min. Add canned tomatoes and 1 cup water; stir.',
-      'Return chicken; simmer covered 30 min until sauce is thick and chicken is tender. Serve over rice.'
-    ]
+    _totalMacros: { calories: 2601, proteinG: 186.9, fatG: 92.3, carbsG: 260.5, sodiumMg: 5003 },
   },
 
-  // ---- Dinner — Veg ----
-
-  caribbean_kidney_bean_curry: {
-    id: 'caribbean_kidney_bean_curry',
-    name: 'Caribbean Kidney Bean Curry',
-    cuisineId: 'caribbean',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 16, calories: 410, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 25,
-    source_url: 'https://healthiersteps.com/kidney-bean-curry-jamaican-style/',
-    link: 'https://healthiersteps.com/kidney-bean-curry-jamaican-style/',
-    desc: 'Kidney beans in a creamy coconut milk curry with allspice, thyme and fresh ginger. Ascent shake.',
-    protStr: '~16g+shake',
-    ingredients: [
-      { ingredientId:'kidney_beans_can', amount:2,    unit:'whole'},
-      { ingredientId:'coconut_milk_can', amount:1,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'thyme',            amount:4,    unit:'whole', note:'sprigs' },
-      { ingredientId:'allspice',         amount:1,    unit:'tsp'  },
-      { ingredientId:'canned_tomatoes',  amount:1,    unit:'whole'},
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R30 — Cheesy Chicken Vegetable Rice Casserole
+  // ----------------------------------------------------------------
+  cheesy_chicken_rice_casserole: {
+    id:           'cheesy_chicken_rice_casserole',
+    name:         'Cheesy Chicken Vegetable Rice Casserole',
+    rank:         'B',
+    source_url:   'https://www.budgetbytes.com/cheesy-chicken-vegetable-rice-casserole/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'white_rice_long_grain_dry',  grams: 315,  qty: '1½ cups'           },
+      { id: 'chicken_breast_raw',         grams: 311,  qty: '11 oz, cubed'      },
+      { id: 'cheddar_cheese',             grams: 226,  qty: '8 oz, shredded'    },
+      { id: 'frozen_broccoli',            grams: 226,  qty: '½ lb (2 cups)'     },
+      { id: 'whole_milk',                 grams: 244,  qty: '1 cup'             },
+      { id: 'yellow_onion',               grams: 270,  qty: '1 whole (2 cups)'  },
+      { id: 'carrots_raw',                grams: 230,  qty: '3 medium (2 cups)' },
+      { id: 'butter_unsalted',            grams: 42,   qty: '3 tbsp'            },
+      { id: 'all_purpose_flour',          grams: 30,   qty: '3 tbsp'            },
+      { id: 'olive_oil_extra_virgin',     grams: 14,   qty: '1 tbsp'            },
+      { id: 'chicken_broth_low_sodium',   grams: 236,  qty: '1 cup'             },
+      { id: 'smoked_paprika',             grams: 1.25, qty: '½ tsp'             },
+      { id: 'garlic_powder',              grams: 1.25, qty: '½ tsp'             },
+      { id: 'onion_powder',               grams: 1.25, qty: '½ tsp'             },
     ],
-    brief_instructions: [
-      'Sauté diced onion, garlic and ginger in olive oil 5 min. Add ground allspice and thyme sprigs.',
-      'Add drained kidney beans and canned tomatoes; cook 5 min, stirring.',
-      'Pour in coconut milk; simmer 15–20 min until sauce thickens and beans are deeply flavored.',
-      'Remove thyme sprigs, season with salt. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 3366, proteinG: 175.7, fatG: 142.8, carbsG: 350.1, sodiumMg: 6113 },
   },
 
-  black_bean_plantain_bowl: {
-    id: 'black_bean_plantain_bowl',
-    name: 'Black Bean & Plantain Bowl',
-    cuisineId: 'caribbean',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 13, calories: 430, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 20,
-    source_url: 'https://minimalistbaker.com/roasted-plantain-black-bean-vegan-bowl/',
-    link: 'https://minimalistbaker.com/roasted-plantain-black-bean-vegan-bowl/',
-    desc: 'Sweet fried plantains over spiced black beans and brown rice with cilantro and lime. Ascent shake.',
-    protStr: '~13g+shake',
-    ingredients: [
-      { ingredientId:'black_beans_can', amount:2,    unit:'whole'},
-      { ingredientId:'plantains',       amount:2,    unit:'whole', note:'ripe, yellow-black' },
-      { ingredientId:'onion',           amount:1,    unit:'whole'},
-      { ingredientId:'garlic',          amount:3,    unit:'clove'},
-      { ingredientId:'cumin',           amount:1,    unit:'tsp'  },
-      { ingredientId:'allspice',        amount:0.5,  unit:'tsp'  },
-      { ingredientId:'olive_oil',       amount:3,    unit:'tbsp' },
-      { ingredientId:'lime',            amount:2,    unit:'whole'},
-      { ingredientId:'cilantro',        amount:0.25, unit:'cup'  },
-      { ingredientId:'brown_rice',      amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R31 — Lentil Loaf
+  // ----------------------------------------------------------------
+  lentil_loaf: {
+    id:           'lentil_loaf',
+    name:         'Lentil Loaf',
+    rank:         'B',
+    source_url:   'https://www.budgetbytes.com/lentil-loaf/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'lentils_cooked',         grams: 594, qty: '3 cups'                  },
+      { id: 'mushrooms_white_raw',    grams: 454, qty: '16 oz'                   },
+      { id: 'ketchup',                grams: 150, qty: '½ cup + 2 tbsp (glaze + loaf)' },
+      { id: 'carrots_raw',            grams: 180, qty: '2 large'                 },
+      { id: 'walnuts',                grams: 58,  qty: '½ cup, processed'        },
+      { id: 'ground_flaxseed',        grams: 18,  qty: '2 tbsp'                  },
+      { id: 'olive_oil_extra_virgin', grams: 14,  qty: '1 tbsp'                  },
+      { id: 'soy_sauce',              grams: 30,  qty: '2 tbsp (1 loaf + 1 glaze)'},
+      { id: 'breadcrumbs_dry_plain',  grams: 27,  qty: '¼ cup'                   },
+      { id: 'garlic',                 grams: 20,  qty: '4 cloves'                },
+      { id: 'sundried_tomatoes',      grams: 22,  qty: '2 tbsp in oil'           },
+      { id: 'onion_yellow',           grams: 55,  qty: '½ medium'                },
+      { id: 'brown_sugar',            grams: 12,  qty: '1 tbsp'                  },
+      { id: 'dijon_mustard',          grams: 5,   qty: '1 tsp'                   },
+      { id: 'fresh_parsley',          grams: 10,  qty: '2 tbsp minced'           },
     ],
-    brief_instructions: [
-      'Slice ripe plantains diagonally ½ inch thick. Pan-fry in olive oil 3 min per side until golden.',
-      'Sauté diced onion and garlic in oil 4 min. Add cumin and allspice; cook 1 min.',
-      'Add black beans with a splash of water; simmer 10 min until flavors meld.',
-      'Build bowls: brown rice, spiced black beans, fried plantains, cilantro and fresh lime.'
-    ]
+    _totalMacros: { calories: 1963, proteinG: 93.8, fatG: 67.9, carbsG: 260.8, sodiumMg: 7102 },
   },
 
-  caribbean_pumpkin_curry: {
-    id: 'caribbean_pumpkin_curry',
-    name: 'Caribbean Pumpkin Curry',
-    cuisineId: 'caribbean',
-    mealTypes: ['dinner'],
-    isVeg: true, servings: 4, proteinG: 14, calories: 450, carbsG: null, fatG: null,
-    prepMins: 10, cookMins: 30,
-    source_url: 'https://caribbeanpot.com/recipes/coconut-curry-pumpkin-soup/',
-    link: 'https://caribbeanpot.com/recipes/coconut-curry-pumpkin-soup/',
-    desc: 'Sweet potato and chickpeas in a creamy coconut milk curry with allspice and fresh thyme. Ascent shake.',
-    protStr: '~14g+shake',
-    ingredients: [
-      { ingredientId:'sweet_potato',     amount:2,    unit:'whole'},
-      { ingredientId:'canned_chickpeas', amount:2,    unit:'whole'},
-      { ingredientId:'coconut_milk_can', amount:1,    unit:'whole'},
-      { ingredientId:'onion',            amount:1,    unit:'whole'},
-      { ingredientId:'garlic',           amount:4,    unit:'clove'},
-      { ingredientId:'fresh_ginger',     amount:1,    unit:'tbsp' },
-      { ingredientId:'allspice',         amount:1,    unit:'tsp'  },
-      { ingredientId:'thyme',            amount:4,    unit:'whole', note:'sprigs' },
-      { ingredientId:'canned_tomatoes',  amount:1,    unit:'whole'},
-      { ingredientId:'olive_oil',        amount:2,    unit:'tbsp' },
-      { ingredientId:'brown_rice',       amount:1.5,  unit:'cup', note:'for serving' }
+  // ----------------------------------------------------------------
+  // R32 — Southwest Lentils and Rice Skillet
+  // ----------------------------------------------------------------
+  southwest_lentil_rice_skillet: {
+    id:           'southwest_lentil_rice_skillet',
+    name:         'Southwest Lentils and Rice Skillet',
+    rank:         'A',
+    source_url:   'https://www.budgetbytes.com/southwest-lentils-and-rice-skillet/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'white_rice_long_grain_dry',  grams: 139, qty: '¾ cup'                   },
+      { id: 'black_beans_canned_drained', grams: 245, qty: '1 can (15 oz), drained'  },
+      { id: 'canned_diced_tomatoes',      grams: 411, qty: '1 can (14.5 oz)'         },
+      { id: 'lentils_dry',                grams: 95,  qty: '½ cup'                   },
+      { id: 'frozen_corn',                grams: 154, qty: '1 cup'                   },
+      { id: 'cheddar_cheese',             grams: 57,  qty: '½ cup shredded'          },
+      { id: 'red_onion',                  grams: 85,  qty: '1 small'                 },
+      { id: 'olive_oil_extra_virgin',     grams: 14,  qty: '1 tbsp'                  },
+      { id: 'garlic',                     grams: 10,  qty: '2 cloves'                },
+      { id: 'vegetable_broth',            grams: 472, qty: '2 cups'                  },
+      { id: 'ground_cumin',               grams: 4,   qty: '1½ tsp'                  },
+      { id: 'chili_powder',               grams: 3,   qty: '1 tsp'                   },
+      { id: 'adobo_seasoning',            grams: 3,   qty: '1 tsp'                   },
+      { id: 'dried_oregano',              grams: 0.5, qty: '½ tsp'                   },
+      { id: 'green_onions',               grams: 15,  qty: '2 whole'                 },
     ],
-    brief_instructions: [
-      'Sauté diced onion, garlic and ginger in olive oil 5 min. Add allspice and thyme; cook 1 min.',
-      'Add cubed sweet potato; stir and cook 3 min.',
-      'Pour in canned tomatoes and coconut milk; add chickpeas. Bring to simmer.',
-      'Cook 20 min until sweet potato is completely tender. Remove thyme; season. Serve over brown rice.'
-    ]
+    _totalMacros: { calories: 1774, proteinG: 75.2, fatG: 41.4, carbsG: 288.2, sodiumMg: 4397 },
   },
 
+  // ----------------------------------------------------------------
+  // R33 — Spanish Chickpeas and Rice
+  // ----------------------------------------------------------------
+  spanish_chickpeas_rice: {
+    id:           'spanish_chickpeas_rice',
+    name:         'Spanish Chickpeas and Rice',
+    rank:         'B',
+    source_url:   'https://www.budgetbytes.com/spanish-chickpeas-and-rice/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'white_rice_long_grain_dry', grams: 185, qty: '1 cup'                                                     },
+      { id: 'chickpeas_canned_drained',  grams: 245, qty: '1 can (15 oz), drained'                                    },
+      { id: 'artichoke_hearts_canned',   grams: 250, qty: '1 can (15 oz)', note: 'USDA SR 169311 proxy — cooked globe artichoke w/ salt' },
+      { id: 'canned_diced_tomatoes',     grams: 425, qty: '1 can (15 oz)'                                             },
+      { id: 'olive_oil_extra_virgin',    grams: 28,  qty: '2 tbsp'                                                    },
+      { id: 'yellow_onion',              grams: 110, qty: '1 whole'                                                   },
+      { id: 'garlic',                    grams: 10,  qty: '2 cloves'                                                  },
+      { id: 'smoked_paprika',            grams: 3.5, qty: '½ tbsp'                                                    },
+      { id: 'ground_cumin',              grams: 2.5, qty: '1 tsp'                                                     },
+      { id: 'dried_oregano',             grams: 0.5, qty: '½ tsp'                                                     },
+      { id: 'cayenne_pepper',            grams: 0.75,qty: '¼ tsp'                                                     },
+      { id: 'vegetable_broth',           grams: 354, qty: '1½ cups'                                                   },
+      { id: 'fresh_parsley',             grams: 15,  qty: '¼ bunch'                                                   },
+      { id: 'lemon',                     grams: 25,  qty: '1 whole (juice + wedges)'                                  },
+    ],
+    _totalMacros: { calories: 1531, proteinG: 44.1, fatG: 38.8, carbsG: 258.2, sodiumMg: 3805 },
+  },
+
+  // ----------------------------------------------------------------
+  // R34 — Thai Coconut Chicken Red Curry  (batch 3992 kcal → 5 servings, capped)
+  // ----------------------------------------------------------------
+  thai_coconut_red_curry: {
+    id:           'thai_coconut_red_curry',
+    name:         'Thai Coconut Chicken Red Curry',
+    rank:         'A',
+    source_url:   'https://www.mealprepmanual.com/thai-coconut-chicken-red-curry/',
+    lastUsedWeek: null,
+    _ingredients: [
+      { id: 'chicken_thigh_boneless_skinless_raw', grams: 1135, qty: '2½ lbs'                                                              },
+      { id: 'white_rice_cooked',                   grams: 675,  qty: '4½ cups cooked'                                                      },
+      { id: 'light_coconut_milk_canned',           grams: 400,  qty: '1 can (13.5 oz)',  note: 'Thai Kitchen label: 120 kcal/cup, 1g P, 11g F, 8g C, 30mg Na' },
+      { id: 'russet_potatoes_raw',                 grams: 400,  qty: '2 medium'                                                            },
+      { id: 'red_thai_curry_paste',                grams: 60,   qty: '¼ cup',            note: 'Thai Kitchen label: 25 kcal/tbsp, 0g P, 1g F, 4g C, 230mg Na' },
+      { id: 'carrots_raw',                         grams: 200,  qty: '3 medium'                                                            },
+      { id: 'green_bell_pepper',                   grams: 150,  qty: '1 medium'                                                            },
+      { id: 'green_onions',                        grams: 100,  qty: '1 bunch'                                                             },
+      { id: 'peanut_butter',                       grams: 32,   qty: '2 tbsp'                                                              },
+      { id: 'oil',                                 grams: 23,   qty: '1½ tbsp'                                                             },
+      { id: 'lime_juice',                          grams: 23,   qty: '1½ tbsp'                                                             },
+      { id: 'dry_roasted_peanuts',                 grams: 25,   qty: '2 tbsp'                                                              },
+      { id: 'brown_sugar',                         grams: 14,   qty: '1 tbsp'                                                              },
+      { id: 'garlic',                              grams: 15,   qty: '1 tbsp minced'                                                       },
+      { id: 'ginger_fresh',                        grams: 15,   qty: '1 tbsp minced'                                                       },
+      { id: 'cornstarch',                          grams: 6,    qty: '1 tbsp'                                                              },
+      { id: 'ground_cumin',                        grams: 8,    qty: '1 tbsp'                                                              },
+      { id: 'chicken_broth_low_sodium',            grams: 360,  qty: '1½ cups'                                                             },
+      { id: 'cilantro',                            grams: 10,   qty: 'small handful, optional'                                             },
+    ],
+    _totalMacros: { calories: 3992, proteinG: 275.5, fatG: 173.3, carbsG: 348.2, sodiumMg: 3954 },
+  },
 
 };
+
+// Lock _ingredients and _totalMacros on every recipe
+Object.values(RECIPE_CATALOG).forEach(recipe => {
+  Object.freeze(recipe._ingredients);
+  Object.freeze(recipe._totalMacros);
+});

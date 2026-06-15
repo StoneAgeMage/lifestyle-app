@@ -13,8 +13,9 @@ const storage = (function () {
   const PLANS_KEY    = 'rowing_week_plans_v2';
   const SHOPPING_KEY = 'rowing_shopping_v2';
   const SETTINGS_KEY = 'rowing_settings_v2';
-  const CW_KEY       = 'rowing_custom_workouts_v2';
-  const CR_KEY       = 'rowing_custom_recipes_v2';
+  const CW_KEY        = 'rowing_custom_workouts_v2';
+  const CR_KEY        = 'rowing_custom_recipes_v2';
+  const COOLDOWNS_KEY = 'rowing_cooldowns_v2';
 
   // V1 keys targeted by one-time migration
   const V1_LIFT     = 'rowing_lift_log_v1';
@@ -60,8 +61,11 @@ const storage = (function () {
   function readCustomWorkouts()    { return _get(CW_KEY) || []; }
   function writeCustomWorkouts(d)  { _set(CW_KEY, d); }
 
-  function readCustomRecipes()     { return _get(CR_KEY) || []; }
+  function readCustomRecipes()     { return _get(CR_KEY)        || []; }
   function writeCustomRecipes(d)   { _set(CR_KEY, d); }
+
+  function readCooldowns()         { return _get(COOLDOWNS_KEY) || {}; }
+  function writeCooldowns(d)       { _set(COOLDOWNS_KEY, d); }
 
   // ---- Migration helpers -----------------------------------------
 
@@ -124,11 +128,12 @@ const storage = (function () {
     var payload = {
       version:        2,
       exportedAt:     new Date().toISOString(),
-      logs:           _get(LOGS_KEY)     || [],
-      weekPlans:      _get(PLANS_KEY)    || [],
-      settings:       _get(SETTINGS_KEY) || {},
-      customWorkouts: _get(CW_KEY)       || [],
-      customRecipes:  _get(CR_KEY)       || []
+      logs:           _get(LOGS_KEY)        || [],
+      weekPlans:      _get(PLANS_KEY)       || [],
+      settings:       _get(SETTINGS_KEY)    || {},
+      customWorkouts: _get(CW_KEY)          || [],
+      customRecipes:  _get(CR_KEY)          || [],
+      cooldowns:      _get(COOLDOWNS_KEY)   || {}
     };
     var json = JSON.stringify(payload, null, 2);
     var blob = new Blob([json], { type: 'application/json' });
@@ -144,11 +149,12 @@ const storage = (function () {
     try { data = JSON.parse(json); } catch(e) { return { ok: false, error: 'Invalid JSON' }; }
     if (!data || data.version !== 2) return { ok: false, error: 'Unknown backup format (expected version 2)' };
 
-    if (Array.isArray(data.logs))           _set(LOGS_KEY,     data.logs);
-    if (Array.isArray(data.weekPlans))      _set(PLANS_KEY,    data.weekPlans);
-    if (data.settings && typeof data.settings === 'object') _set(SETTINGS_KEY, data.settings);
-    if (Array.isArray(data.customWorkouts)) _set(CW_KEY,       data.customWorkouts);
-    if (Array.isArray(data.customRecipes))  _set(CR_KEY,       data.customRecipes);
+    if (Array.isArray(data.logs))                              _set(LOGS_KEY,        data.logs);
+    if (Array.isArray(data.weekPlans))                         _set(PLANS_KEY,       data.weekPlans);
+    if (data.settings  && typeof data.settings  === 'object') _set(SETTINGS_KEY,    data.settings);
+    if (Array.isArray(data.customWorkouts))                    _set(CW_KEY,          data.customWorkouts);
+    if (Array.isArray(data.customRecipes))                     _set(CR_KEY,          data.customRecipes);
+    if (data.cooldowns && typeof data.cooldowns === 'object')  _set(COOLDOWNS_KEY,   data.cooldowns);
 
     return { ok: true, count: (data.logs || []).length };
   }
@@ -165,6 +171,7 @@ const storage = (function () {
     readShoppingLists, writeShoppingLists,
     readCustomWorkouts, writeCustomWorkouts,
     readCustomRecipes, writeCustomRecipes,
+    readCooldowns, writeCooldowns,
     exportAll, importAll
   };
 

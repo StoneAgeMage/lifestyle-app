@@ -101,7 +101,7 @@ function openModal(y, m, d) {
 
   document.getElementById('m-date').textContent =
     monthNames[m] + ' ' + d + ', ' + y +
-    (meal ? ' · ' + meal.cuisine + ' Week · Pete Wk ' + (wf.peteWeek + 1) : '');
+    ' · ' + wf.blockName + ' Wk ' + (wf.blockWeek + 1);
   document.getElementById('m-dow').textContent = dowNames[date.getDay()];
 
   document.getElementById('m-workout').innerHTML = wf.workoutItems.map(function(item) {

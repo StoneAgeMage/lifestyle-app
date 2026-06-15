@@ -86,7 +86,7 @@ function renderDateContext() {
     '<div class="td-ctx">' +
     '<span>' + ctx.dowName + ', ' + dateStr + '</span>' +
     '<span class="td-ctx-sep">·</span>' +
-    '<span>' + (ctx.blockDisplay || 'Wk ' + ctx.peteWeekDisplay) + '</span>' +
+    '<span>' + ctx.blockDisplay + '</span>' +
     '</div>';
 }
 

@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v21';
+const CACHE_NAME = 'rowing-v23';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.
@@ -48,7 +48,6 @@ const PRECACHE_ASSETS = [
   'js/storage.js',
   'js/data-ingredients.js',
   'js/data-recipes.js',
-  'js/data-cuisines.js',
   'js/data-workouts.js',
   'js/data-blocks.js',
   'js/data-mobility.js',
@@ -57,7 +56,6 @@ const PRECACHE_ASSETS = [
   'js/calendar.js',
   'js/workouts.js',
   'js/meals.js',
-  'js/sauces.js',
   'js/log.js',
   'js/settings.js',
   'js/dashboard.js',

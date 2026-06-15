@@ -1,7 +1,7 @@
 // ============================================================
 // ENGINE — pure computation layer (no DOM, no localStorage)
 // Phase 3. All date/workout/meal resolution lives here.
-// Depends on: WORKOUT_LIBRARY, TRAINING_PLANS, CUISINE_CATALOG,
+// Depends on: WORKOUT_LIBRARY, TRAINING_PLANS,
 //   RECIPE_CATALOG, INGREDIENT_CATALOG (all loaded before this file)
 // ============================================================
 
@@ -115,8 +115,7 @@ const TrainingEngine = (function () {
         workoutItems: restWk.items || [],
         weekIndex:     wi,
         blockWeek:     wib,
-        peteWeek:      wib,            // backward-compat alias
-        mealWeekIndex: wi % plan.mealCycleIds.length,
+          mealWeekIndex: wi % plan.mealCycleIds.length,
         dow:           dow,
         mobilityBias:  null,
         blockId:       block.id,
@@ -142,7 +141,6 @@ const TrainingEngine = (function () {
       workoutItems: wk.items,
       weekIndex:    wi,
       blockWeek:    wib,
-      peteWeek:     wib,             // backward-compat alias
       mealWeekIndex: wi % plan.mealCycleIds.length,
       dow:          dow,
       mobilityBias: wk.mobilityBias || null,
@@ -160,15 +158,10 @@ const TrainingEngine = (function () {
     if (!wf) return null;
 
     var dowNames  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    var cuisineId = plan.mealCycleIds[wf.mealWeekIndex];
-    var cuisine   = CUISINE_CATALOG[cuisineId];
 
     return {
       workout:         wf,
-      cuisineId:       cuisineId,
-      cuisineName:     cuisine ? cuisine.name : '',
       dowName:         dowNames[wf.dow],
-      peteWeekDisplay: wf.blockWeek + 1,                        // backward-compat
       blockDisplay:    wf.blockName + ' Wk ' + (wf.blockWeek + 1)
     };
   }
@@ -205,83 +198,304 @@ const TrainingEngine = (function () {
 
 const MealEngine = (function () {
 
-  function buildMealObject(plan, mealWeekIndex) {
-    const cuisineId = plan.mealCycleIds[mealWeekIndex];
-    const cuisine   = CUISINE_CATALOG[cuisineId];
-    if (!cuisine) return null;
+  // --- Constants (5b) ---
+  var COOLDOWN_THRESHOLDS = { A: 2, B: 4,  C: 10 };
+  var RANK_PRIORITY       = { A: 0, B: 1,  C: 2  };
+  var MIN_SERVING_CAL     = 400;
+  var MAX_SERVINGS        = 5;
+  var MINIMUM_RECIPES     = 3;
 
-    const dinnerIds     = (cuisine.recipeIds || []).filter(id => RECIPE_CATALOG[id] && RECIPE_CATALOG[id].mealTypes.includes('dinner'));
-    const dinner1Recipe = dinnerIds.map(id => RECIPE_CATALOG[id]).find(r => !r.isVeg);
-    const dinner2Recipe = dinnerIds.map(id => RECIPE_CATALOG[id]).find(r =>  r.isVeg);
+  // --- Private helpers ---
 
-    function _fmt(r) {
-      if (!r) return null;
-      return {
-        name: r.name,
-        desc: r.desc || '',
-        prot: r.protStr || (r.proteinG ? '~' + r.proteinG + 'g' : ''),
-        link: r.link,
-        veg:  !!r.isVeg
-      };
+  function _weekIndex(plan, date) {
+    if (!plan || !plan.startDate) return -1;
+    var d  = new Date(date); d.setHours(0, 0, 0, 0);
+    var s  = new Date(plan.startDate); s.setHours(0, 0, 0, 0);
+    var ms = d - s;
+    if (ms < 0 || isNaN(ms)) return -1;
+    return Math.floor(ms / (7 * 86400000));
+  }
+
+  function _ingIdSet(recipes) {
+    var set = {};
+    recipes.forEach(function(r) {
+      r._ingredients.forEach(function(ing) { set[ing.id] = true; });
+    });
+    return set;
+  }
+
+  function _overlapScore(recipe, ingSet) {
+    var n = 0;
+    recipe._ingredients.forEach(function(ing) { if (ingSet[ing.id]) n++; });
+    return n;
+  }
+
+  // 5b — Eligibility filter (cooldown check)
+  function _eligibleRecipes(currentWeek, excludeIds, cooldowns) {
+    var excl = {};
+    (excludeIds || []).forEach(function(id) { excl[id] = true; });
+    return Object.values(RECIPE_CATALOG).filter(function(r) {
+      if (excl[r.id]) return false;
+      var last      = cooldowns[r.id] != null ? cooldowns[r.id] : null;
+      if (last === null) return true;
+      var threshold = COOLDOWN_THRESHOLDS[r.rank] || 4;
+      return (currentWeek - last) >= threshold;
+    });
+  }
+
+  // 5c — Recipe selection loop
+  function _selectRecipes(settings, currentWeek, pinnedRecipeIds, cooldowns) {
+    var pinnedIds = pinnedRecipeIds || [];
+    var pinned    = pinnedIds.map(function(id) { return RECIPE_CATALOG[id]; }).filter(Boolean);
+    var selected  = pinned.slice();
+    var totalCal  = selected.reduce(function(s, r) { return s + r._totalMacros.calories; }, 0);
+    var target    = (settings.dailyCalorieTarget - settings.dailyBaselineCalories) * 5;
+
+    var eligible  = _eligibleRecipes(currentWeek, selected.map(function(r) { return r.id; }), cooldowns);
+
+    while (selected.length < MINIMUM_RECIPES || totalCal < target) {
+      if (eligible.length === 0) break;
+
+      var ingSet = _ingIdSet(selected);
+      var next;
+
+      if (selected.length === 0) {
+        // Anchor: highest rank, oldest last-used as tiebreaker
+        next = eligible.slice().sort(function(a, b) {
+          var rDiff = (RANK_PRIORITY[a.rank] || 1) - (RANK_PRIORITY[b.rank] || 1);
+          if (rDiff !== 0) return rDiff;
+          var la = cooldowns[a.id] != null ? cooldowns[a.id] : -1;
+          var lb = cooldowns[b.id] != null ? cooldowns[b.id] : -1;
+          return la - lb;
+        })[0];
+
+      } else if (totalCal >= target) {
+        // MODE A: calorie target met, still need recipes — pick smallest-calorie
+        next = eligible.slice().sort(function(a, b) {
+          var calDiff = a._totalMacros.calories - b._totalMacros.calories;
+          if (calDiff !== 0) return calDiff;
+          var oDiff   = _overlapScore(b, ingSet) - _overlapScore(a, ingSet);
+          if (oDiff   !== 0) return oDiff;
+          var la = cooldowns[a.id] != null ? cooldowns[a.id] : -1;
+          var lb = cooldowns[b.id] != null ? cooldowns[b.id] : -1;
+          return la - lb;
+        })[0];
+
+      } else {
+        // MODE B: calorie target not yet met — prefer overlap, then rank
+        var remaining = target - totalCal;
+        var byOverlap = eligible.slice().sort(function(a, b) {
+          var oDiff = _overlapScore(b, ingSet) - _overlapScore(a, ingSet);
+          if (oDiff !== 0) return oDiff;
+          var rDiff = (RANK_PRIORITY[a.rank] || 1) - (RANK_PRIORITY[b.rank] || 1);
+          if (rDiff !== 0) return rDiff;
+          var la = cooldowns[a.id] != null ? cooldowns[a.id] : -1;
+          var lb = cooldowns[b.id] != null ? cooldowns[b.id] : -1;
+          return la - lb;
+        });
+        var top = byOverlap[0];
+
+        if (top._totalMacros.calories > remaining * 2) {
+          // Overshoot guard: look for closer-fitting candidate with ≥ half the top's overlap score
+          var halfScore  = _overlapScore(top, ingSet) / 2;
+          var betterFits = byOverlap.filter(function(r) {
+            return _overlapScore(r, ingSet) >= halfScore;
+          }).sort(function(a, b) {
+            return Math.abs(a._totalMacros.calories - remaining)
+                 - Math.abs(b._totalMacros.calories - remaining);
+          });
+          next = betterFits.length > 0 ? betterFits[0] : top;
+        } else {
+          next = top;
+        }
+      }
+
+      selected.push(next);
+      eligible  = eligible.filter(function(r) { return r.id !== next.id; });
+      totalCal += next._totalMacros.calories;
     }
 
-    return {
-      cuisine: cuisine.name,
-      color:   cuisine.colorClass,
-      bowl:    cuisine.bowlName,
-      sauce:   cuisine.sauceName,
-      dinner1: _fmt(dinner1Recipe),
-      dinner2: _fmt(dinner2Recipe),
-      flex:    cuisine.flexMeal || null
+    return selected;
+  }
+
+  // 5d — Serving division
+  function _computeServings(recipe, settings) {
+    var targetPerServing = (settings.dailyCalorieTarget - settings.dailyBaselineCalories) / 2;
+    var N = Math.round(recipe._totalMacros.calories / targetPerServing);
+    N = Math.max(N, 1);
+    N = Math.min(N, MAX_SERVINGS);
+    if (recipe._totalMacros.calories / N < MIN_SERVING_CAL && N > 1) N--;
+    return N;
+  }
+
+  // 5e — Daily assignment (Mon–Fri, 2 slots/day; no recipe in both slots same day)
+  function _assignDailyMeals(recipesWithServings) {
+    var pool = recipesWithServings.map(function(r) {
+      return { recipeId: r.recipeId, remaining: r.servings };
+    });
+
+    var assignment = {};
+    for (var day = 1; day <= 5; day++) assignment[day] = { lunch: null, dinner: null };
+
+    for (var day = 1; day <= 5; day++) {
+      pool.sort(function(a, b) { return b.remaining - a.remaining; });
+
+      var lunchId = null;
+      for (var j = 0; j < pool.length; j++) {
+        if (pool[j].remaining > 0) {
+          lunchId = pool[j].recipeId;
+          pool[j].remaining--;
+          break;
+        }
+      }
+      assignment[day].lunch = lunchId;
+
+      pool.sort(function(a, b) { return b.remaining - a.remaining; });
+
+      for (var k = 0; k < pool.length; k++) {
+        if (pool[k].remaining > 0 && pool[k].recipeId !== lunchId) {
+          assignment[day].dinner = pool[k].recipeId;
+          pool[k].remaining--;
+          break;
+        }
+      }
+    }
+
+    var overflow = pool.filter(function(p) { return p.remaining > 0; });
+    return { dailyAssignment: assignment, weekendOverflow: overflow };
+  }
+
+  // --- Public functions ---
+
+  // 5b/5c/5d/5e — Generate and store a week plan
+  function generateWeekPlan(plan, date, settings, pinnedRecipeIds) {
+    var d  = new Date(date); d.setHours(12, 0, 0, 0);
+    var wi = _weekIndex(plan, d);
+    if (wi < 0) return null;
+
+    var cooldowns = storage.readCooldowns();
+    var selected  = _selectRecipes(settings, wi, pinnedRecipeIds, cooldowns);
+    if (selected.length === 0) return null;
+
+    var servingCounts = {};
+    selected.forEach(function(r) { servingCounts[r.id] = _computeServings(r, settings); });
+
+    var result = _assignDailyMeals(selected.map(function(r) {
+      return { recipeId: r.id, servings: servingCounts[r.id] };
+    }));
+
+    var weekendOverflow = result.weekendOverflow.map(function(o) {
+      var recipe = RECIPE_CATALOG[o.recipeId];
+      var n      = servingCounts[o.recipeId] || 1;
+      return {
+        recipeId: o.recipeId,
+        count:    o.remaining,
+        calsEach: recipe ? Math.round(recipe._totalMacros.calories / n) : 0
+      };
+    });
+
+    var weekPlan = {
+      id:              'week_plan_' + wi,
+      weekIndex:       wi,
+      recipeIds:       selected.map(function(r) { return r.id; }),
+      pinnedRecipeIds: (pinnedRecipeIds || []).slice(),
+      servingCounts:   servingCounts,
+      dailyAssignment: result.dailyAssignment,
+      weekendOverflow: weekendOverflow,
+      confirmed:       false,
+      generatedAt:     new Date().toISOString()
     };
+
+    var plans = storage.readWeekPlans();
+    var idx   = -1;
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].weekIndex === wi) { idx = i; break; }
+    }
+    if (idx >= 0) { plans[idx] = weekPlan; } else { plans.push(weekPlan); }
+    storage.writeWeekPlans(plans);
+
+    return weekPlan;
+  }
+
+  function getStoredWeekPlanForDate(plan, date) {
+    var wi    = _weekIndex(plan, new Date(date));
+    var plans = storage.readWeekPlans();
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].weekIndex === wi) return plans[i];
+    }
+    return null;
+  }
+
+  // 5f — Confirm plan: lock cooldowns, mark confirmed
+  function confirmWeekPlan(weekPlanId) {
+    var plans = storage.readWeekPlans();
+    var wp    = null;
+    for (var i = 0; i < plans.length; i++) {
+      if (plans[i].id === weekPlanId) { wp = plans[i]; break; }
+    }
+    if (!wp)          return false;
+    if (wp.confirmed) return true; // idempotent
+
+    var cooldowns = storage.readCooldowns();
+    wp.recipeIds.forEach(function(id) { cooldowns[id] = wp.weekIndex; });
+    storage.writeCooldowns(cooldowns);
+
+    wp.confirmed = true;
+    storage.writeWeekPlans(plans);
+    return true;
+  }
+
+  function buildMealObject(plan, mealWeekIndex) {
+    return null; // legacy stub — daily assignment drives meal display
   }
 
   function getMealsForDate(plan, date, workoutResult) {
-    const d   = new Date(date); d.setHours(12, 0, 0, 0);
-    const dow = d.getDay();
-    const meal = buildMealObject(plan, workoutResult.mealWeekIndex);
-    if (!meal) return [];
+    var d   = new Date(date); d.setHours(12, 0, 0, 0);
+    var dow = d.getDay(); // 0=Sun 1=Mon … 5=Fri 6=Sat
+    if (dow < 1 || dow > 5) return [];
 
-    const meals = [];
+    var wp = getStoredWeekPlanForDate(plan, d);
+    if (!wp || !wp.dailyAssignment) return [];
 
-    if (dow === 0) {
-      meals.push({ type:'Today', name:'Overnight Oats', desc:'Or simple eggs — easy meal while prepping.', link:null });
+    var daySlots = wp.dailyAssignment[dow];
+    if (!daySlots) return [];
+
+    var meals = [];
+    ['lunch', 'dinner'].forEach(function(slot) {
+      var id = daySlots[slot];
+      if (!id) return;
+      var recipe   = RECIPE_CATALOG[id];
+      if (!recipe) return;
+      var n        = wp.servingCounts[id] || 1;
+      var calsEach = Math.round(recipe._totalMacros.calories / n);
+      var protEach = Math.round(recipe._totalMacros.proteinG  / n);
       meals.push({
-        type: 'Prep',
-        name: meal.cuisine + ' Week Prep',
-        desc: 'Make: brown rice, roast veg, ' + meal.sauce +
-              (meal.dinner1 ? ', ' + meal.dinner1.name + ' (marinate)' : '') +
-              (meal.dinner2 ? ', ' + meal.dinner2.name : '') +
-              ', boil 6 eggs, 5 oat jars.',
-        link: null
+        type:     slot.charAt(0).toUpperCase() + slot.slice(1),
+        recipeId: id,
+        name:     recipe.name,
+        desc:     calsEach + ' kcal · ' + protEach + 'g protein',
+        link:     recipe.source_url || null
       });
-    } else {
-      meals.push({ type:'Breakfast', name:'Overnight Oats', desc:'Prep jar + fresh toppings', link:null });
-      meals.push({ type:'Lunch', name:meal.bowl, desc:'Prepped grain + roasted veg + protein + ' + meal.sauce, link:null });
-
-      if (dow === 1 || dow === 3) {
-        if (meal.dinner2) meals.push({ type:'Dinner', name:meal.dinner2.name, desc:meal.dinner2.desc + ' 🌱 Ascent shake tonight.', link:meal.dinner2.link });
-      } else if (dow === 2 || dow === 4 || dow === 6) {
-        if (meal.dinner1) meals.push({ type:'Dinner', name:meal.dinner1.name, desc:meal.dinner1.desc, link:meal.dinner1.link });
-      } else if (dow === 5) {
-        if (meal.flex) meals.push({ type:'Dinner', name:meal.flex.name, desc:meal.flex.desc, link:null });
-      }
-    }
+    });
 
     return meals;
   }
 
   function getWeekContext(plan, date) {
-    const d  = new Date(date); d.setHours(12, 0, 0, 0);
-    const s  = new Date(plan.startDate); s.setHours(0, 0, 0, 0);
-    const wi = Math.max(0, Math.floor((d - s) / (7 * 86400000)));
-    const mealWeekIndex = wi % plan.mealCycleIds.length;
-    const cuisineId     = plan.mealCycleIds[mealWeekIndex];
-    const cuisine       = CUISINE_CATALOG[cuisineId];
-    return { cuisineId, cuisineName: cuisine ? cuisine.name : '', mealWeekIndex, weekIndex: wi };
+    var d  = new Date(date); d.setHours(12, 0, 0, 0);
+    var wi = Math.max(0, _weekIndex(plan, d));
+    var mealWeekIndex = plan.mealCycleIds ? wi % plan.mealCycleIds.length : 0;
+    return { mealWeekIndex: mealWeekIndex, weekIndex: wi };
   }
 
-  return { getMealsForDate, buildMealObject, getWeekContext };
+  return {
+    generateWeekPlan,
+    getStoredWeekPlanForDate,
+    confirmWeekPlan,
+    buildMealObject,
+    getMealsForDate,
+    getWeekContext
+  };
 })();
 
 
@@ -298,13 +512,7 @@ const PantryEngine = (function () {
     return ing ? !!ing.isPantryStaple : false;
   }
 
-  function getStaplesForCuisine(cuisineId) {
-    const cuisine = CUISINE_CATALOG[cuisineId];
-    if (!cuisine) return [];
-    return (cuisine.stapleIngredientIds || []).map(id => INGREDIENT_CATALOG[id]).filter(Boolean);
-  }
-
-  return { resolveIngredient, isPantryStaple, getStaplesForCuisine };
+  return { resolveIngredient, isPantryStaple };
 })();
 
 
@@ -315,41 +523,26 @@ const ShoppingListEngine = (function () {
   function buildList(weekPlan, settings) {
     if (!weekPlan || !weekPlan.recipeIds || weekPlan.recipeIds.length === 0) return null;
 
-    // Gather recipe IDs: selected dinners + cuisine sauces/marinades + weekly base prep
-    var ids = weekPlan.recipeIds.slice();
-    var cuisine = CUISINE_CATALOG[weekPlan.cuisineId];
-    if (cuisine && cuisine.recipeIds) {
-      cuisine.recipeIds.forEach(function (id) {
-        var r = RECIPE_CATALOG[id];
-        if (r && (r.mealTypes.indexOf('sauce') >= 0 || r.mealTypes.indexOf('marinade') >= 0)) {
-          if (ids.indexOf(id) < 0) ids.push(id);
-        }
-      });
-    }
-    ids.push('overnight_oats_base', 'trail_mix_batch');
-
-    // Aggregate ingredient amounts — apply portionScales to the 3 selected dinner recipes
-    var portionScales = weekPlan.portionScales || [1.25, 1.25, 1.25];
+    // Aggregate ingredient grams across all selected recipes (full batch per recipe)
     var agg = {};
-    ids.forEach(function (recipeId) {
+    weekPlan.recipeIds.forEach(function(recipeId) {
       var recipe = RECIPE_CATALOG[recipeId];
       if (!recipe) return;
-      var recipeIdx = weekPlan.recipeIds.indexOf(recipeId);
-      var scale = (recipeIdx >= 0 && portionScales[recipeIdx] != null) ? portionScales[recipeIdx] : 1.0;
-      recipe.ingredients.forEach(function (ing) {
-        var ingredient = INGREDIENT_CATALOG[ing.ingredientId];
+      recipe._ingredients.forEach(function(ing) {
+        var ingredient = INGREDIENT_CATALOG[ing.id];
         if (!ingredient) return;
-        if (!agg[ing.ingredientId]) {
-          agg[ing.ingredientId] = {
-            ingredientId:  ing.ingredientId,
-            name:          ingredient.name,
-            category:      ingredient.category,
+        if (!agg[ing.id]) {
+          agg[ing.id] = {
+            ingredientId:   ing.id,
+            name:           ingredient.name,
+            category:       ingredient.category,
             isPantryStaple: !!ingredient.isPantryStaple,
-            byUnit: {}
+            totalGrams:     0,
+            qtys:           []
           };
         }
-        var u = agg[ing.ingredientId].byUnit;
-        u[ing.unit] = (u[ing.unit] || 0) + (ing.amount * scale);
+        agg[ing.id].totalGrams += ing.grams;
+        agg[ing.id].qtys.push(ing.qty || (ing.grams + 'g'));
       });
     });
 
@@ -358,10 +551,11 @@ const ShoppingListEngine = (function () {
 
     var CATEGORY_ORDER = ['protein', 'produce', 'dairy', 'grains', 'pantry', 'spice', 'condiment', 'frozen'];
 
-    var items = Object.values(agg).map(function (a) {
-      var amountStr = Object.entries(a.byUnit).map(function (p) {
-        return _fmtAmt(Math.round(p[1] * 100) / 100) + ' ' + p[0];
-      }).join(' + ');
+    var items = Object.values(agg).map(function(a) {
+      // Single-recipe ingredient: show its human-readable qty. Multi-recipe: sum in grams.
+      var amountStr = a.qtys.length === 1
+        ? a.qtys[0]
+        : Math.round(a.totalGrams) + 'g';
       return {
         ingredientId:   a.ingredientId,
         name:           a.name,
@@ -370,8 +564,7 @@ const ShoppingListEngine = (function () {
         amountStr:      amountStr,
         checked:        checked.indexOf(a.ingredientId) >= 0,
         pantryOverride: overrides.indexOf(a.ingredientId) >= 0,
-        // Visibility rule lives here — not in any UI layer
-        visible: !a.isPantryStaple || !!(settings && settings.showPantryStaples) || overrides.indexOf(a.ingredientId) >= 0
+        visible:        !a.isPantryStaple || !!(settings && settings.showPantryStaples) || overrides.indexOf(a.ingredientId) >= 0
       };
     });
 
@@ -511,20 +704,27 @@ function validateCatalogs() {
   });
 
   Object.values(RECIPE_CATALOG).forEach(recipe => {
-    (recipe.ingredients || []).forEach(ing => {
-      if (!INGREDIENT_CATALOG[ing.ingredientId]) {
-        errors.push('Recipe "' + recipe.id + '" refs unknown ingredient "' + ing.ingredientId + '"');
+    // Rank must be A, B, or C
+    if (!['A','B','C'].includes(recipe.rank)) {
+      errors.push('Recipe "' + recipe.id + '" has invalid rank "' + recipe.rank + '"');
+    }
+    // _totalMacros must have calories
+    if (!recipe._totalMacros || typeof recipe._totalMacros.calories !== 'number') {
+      errors.push('Recipe "' + recipe.id + '" missing valid _totalMacros.calories');
+    }
+    // All _ingredients must reference known ingredient IDs
+    (recipe._ingredients || []).forEach(ing => {
+      if (!INGREDIENT_CATALOG[ing.id]) {
+        errors.push('Recipe "' + recipe.id + '" refs unknown ingredient "' + ing.id + '"');
       }
     });
   });
 
-  Object.values(CUISINE_CATALOG).forEach(cuisine => {
-    (cuisine.recipeIds || []).forEach(id => {
-      if (!RECIPE_CATALOG[id]) errors.push('Cuisine "' + cuisine.id + '" refs unknown recipe "' + id + '"');
-    });
-    (cuisine.stapleIngredientIds || []).forEach(id => {
-      if (!INGREDIENT_CATALOG[id]) errors.push('Cuisine "' + cuisine.id + '" refs unknown staple "' + id + '"');
-    });
+  // Cooldown keys must all be known recipe IDs
+  Object.keys(storage.readCooldowns()).forEach(id => {
+    if (!RECIPE_CATALOG[id]) {
+      errors.push('Cooldown entry for unknown recipe "' + id + '"');
+    }
   });
 
   TRAINING_BLOCKS.forEach(function(block) {
