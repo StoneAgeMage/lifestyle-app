@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v23';
+const CACHE_NAME = 'rowing-v24';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.

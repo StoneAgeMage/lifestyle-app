@@ -570,3 +570,82 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 /* ===== FUEL TAB — Portion scale selector ===== */
 .mp-dinner-info{flex:1;min-width:0}
 .mp-portion-select{flex-shrink:0;align-self:center;font-size:10px;padding:3px 6px;background:var(--foam);border:1px solid var(--bdr);border-radius:6px;color:var(--txt);cursor:pointer;font-family:'DM Mono',monospace}
+
+/* ===== FUEL TAB — Phase 6 plan builder ===== */
+
+/* Week header + confirmed/draft badges */
+.mp-week-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.mp-week-date{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--txl)}
+.mp-plan-confirmed-badge{font-size:10px;font-weight:600;color:var(--grn);background:rgba(45,138,94,.1);border-radius:12px;padding:2px 8px}
+.mp-plan-draft-badge{font-size:10px;font-weight:600;color:var(--oar);background:rgba(200,134,74,.1);border-radius:12px;padding:2px 8px}
+
+/* Recipe cards in plan review */
+.mp-plan-recipes{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.mp-plan-rc{background:var(--foam);border-radius:12px;padding:12px 14px;border-left:4px solid var(--txl);transition:border-color .15s}
+.mp-plan-rc.pinned{border-left-color:var(--acc)}
+.mp-plan-rc-top{display:flex;align-items:center;gap:8px}
+.mp-plan-rc-name{flex:1;font-size:14px;font-weight:600;color:var(--txt);cursor:pointer}
+.mp-plan-rc-name:hover{color:var(--wm);text-decoration:underline}
+.mp-plan-rc-meta{font-size:11px;color:var(--txl);margin-top:5px;font-family:'DM Mono',monospace}
+.mp-plan-rc-btns{display:flex;gap:6px}
+
+/* Rank badges */
+.mp-rank-badge{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;border-radius:5px;padding:2px 6px;flex-shrink:0}
+.mp-rank-a{background:rgba(232,93,38,.15);color:var(--acc)}
+.mp-rank-b{background:rgba(13,107,148,.15);color:var(--wm)}
+.mp-rank-c{background:rgba(45,138,94,.12);color:var(--grn)}
+
+/* Pin / Swap buttons */
+.mp-pin-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--card);color:var(--txl);cursor:pointer;transition:all .15s}
+.mp-pin-btn.active{background:var(--acc);color:#fff;border-color:var(--acc)}
+.mp-pin-btn:hover{border-color:var(--acc);color:var(--acc)}
+.mp-pin-btn.active:hover{opacity:.85}
+.mp-swap-btn{font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--card);color:var(--txl);cursor:pointer}
+.mp-swap-btn:hover{border-color:var(--wm);color:var(--wm)}
+
+/* Day grid (2 rows × 5 days) */
+.mp-day-grid{display:grid;grid-template-columns:28px repeat(5,1fr);gap:4px;margin-top:8px}
+.mp-dg-lbl{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--txl);display:flex;align-items:center;justify-content:center}
+.mp-dg-day-hdr{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--txl);text-align:center;padding:3px 0;background:var(--foam);border-radius:6px}
+.mp-dg-cell{font-size:10px;font-weight:600;color:#fff;border-radius:6px;padding:6px 4px;text-align:center;min-height:30px;display:flex;align-items:center;justify-content:center;cursor:default;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-dg-cell.mp-dg-empty{background:var(--foam);color:var(--txl);font-weight:400}
+
+/* Recipe color palette (5 distinct colors) */
+.mp-rc-clr-0{background:var(--water)}
+.mp-rc-clr-1{background:var(--oar)}
+.mp-rc-clr-2{background:var(--grn)}
+.mp-rc-clr-3{background:#7b5ea7}
+.mp-rc-clr-4{background:#c0534a}
+
+/* Weekend overflow shelf */
+.mp-overflow{margin-top:12px;padding:10px 14px;background:rgba(200,134,74,.08);border-radius:10px;border:1px solid rgba(200,134,74,.2)}
+.mp-overflow-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--oar);margin-bottom:6px}
+.mp-overflow-item{font-size:12px;color:var(--txt);padding:3px 0;border-bottom:1px solid rgba(200,134,74,.12)}
+.mp-overflow-item:last-child{border-bottom:none}
+
+/* Review action bar */
+.mp-plan-review{padding-top:4px}
+.mp-review-actions{margin-top:16px}
+.mp-review-btn-row{display:flex;gap:10px}
+.mp-regen-btn{flex:1;padding:11px 0;border:1.5px solid var(--wm);background:transparent;color:var(--wm);border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.mp-regen-btn:hover{background:var(--foam)}
+.mp-confirm-btn{flex:2;padding:11px 0;background:var(--water);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.mp-confirm-btn:hover{opacity:.85}
+
+/* Recipe link (clickable recipe name in home view) */
+.mp-recipe-link{cursor:pointer}
+.mp-recipe-link:hover{color:var(--wm);text-decoration:underline}
+
+/* Shopping list enhancements */
+.mp-pantry-toggle{font-size:11px;color:var(--txl);background:none;border:1px solid var(--bdr);border-radius:6px;padding:3px 8px;cursor:pointer}
+.mp-pantry-badge{font-size:9px;color:var(--txl);background:var(--foam);border-radius:4px;padding:1px 5px;margin-left:4px;font-family:'DM Mono',monospace}
+.mp-hidden-staples{display:flex;flex-wrap:wrap;gap:6px;padding:6px 0 2px}
+.mp-need-this{font-size:11px;color:var(--txl);background:var(--foam);border:1px solid var(--bdr);border-radius:6px;padding:3px 8px;cursor:pointer}
+.mp-need-this:hover{border-color:var(--wm);color:var(--wm)}
+.mp-item.checked .mp-item-name{text-decoration:line-through;color:var(--txl)}
+.mp-item.checked .mp-item-check{color:var(--grn);font-weight:700}
+.mp-item-main{flex:1;display:flex;align-items:center;gap:4px}
+
+/* Week plan home view */
+.mp-plan-week{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7)}
+.mp-plan-cuisine{font-size:13px;font-weight:600;color:#fff;margin-top:2px}

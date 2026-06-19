@@ -1,16 +1,15 @@
 // ============================================================
-// MEAL PLANNER
+// MEAL PLANNER — Phase 6 rewrite
 // Week-aware: toggle between This Week and Next Week.
-// Plans stored as array keyed by weekStart date string (Sunday).
+// Uses MealEngine.generateWeekPlan / confirmWeekPlan.
 // Exposes: mpLoadWeekPlanForDate, mpEnrichMeals,
-//   renderMealPlannerHome, initMealPlanner,
-//   mpSwitchWeek (called by dashboard nudge)
+//   renderMealPlannerHome, initMealPlanner, mpSwitchWeek
 // ============================================================
 
 // ---- State --------------------------------------------------
 
-var _draftRecipeIds  = [];
-var _mpWeekOffset    = 0;   // 0 = this week, 1 = next week
+var _mpWeekOffset     = 0;   // 0 = this week, 1 = next week
+var _mpDraftPinnedIds = [];  // session-only pin state for current draft
 
 // ---- Week helpers -------------------------------------------
 
@@ -27,70 +26,15 @@ function _mpViewingWeekStart() {
   return _mpWeekStart(d);
 }
 
+function _mpViewingDate() {
+  var d = new Date();
+  if (_mpWeekOffset) d.setDate(d.getDate() + _mpWeekOffset * 7);
+  return d;
+}
+
 function _mpPlanId(weekStart) {
-  return 'wp_' + weekStart;
+  return 'wp_' + weekStart; // old date-keyed plan ID format (kept for compat)
 }
-
-// ---- Storage helpers ----------------------------------------
-
-function mpLoadCurrentWeekPlan() {
-  return mpLoadWeekPlanForDate(new Date());
-}
-
-function mpLoadWeekPlanForDate(date) {
-  var weekStart = _mpWeekStart(date);
-  var id = _mpPlanId(weekStart);
-  return (storage.readWeekPlans() || []).find(function (p) { return p.id === id; }) || null;
-}
-
-function _mpLoadViewingPlan() {
-  var weekStart = _mpViewingWeekStart();
-  var id = _mpPlanId(weekStart);
-  return (storage.readWeekPlans() || []).find(function (p) { return p.id === id; }) || null;
-}
-
-function _mpSavePlan(plan) {
-  var plans = (storage.readWeekPlans() || []).filter(function (p) { return p.id !== plan.id; });
-  plans.unshift(plan);
-  storage.writeWeekPlans(plans);
-}
-
-// ---- Meal enrichment (used by dashboard + calendar) ---------
-
-function mpEnrichMeals(meals, weekPlan, dow) {
-  if (!weekPlan || !weekPlan.recipeIds || weekPlan.recipeIds.length === 0) return meals;
-  var recipes = weekPlan.recipeIds
-    .map(function (id) { return RECIPE_CATALOG[id]; })
-    .filter(function (r) { return r && r.mealTypes && r.mealTypes.indexOf('dinner') >= 0; });
-  if (recipes.length < 3) return meals;
-
-  // Perfect 12-serving stagger: 3 recipes × 4 servings each
-  // 6 dinners (Mon–Sat) + 6 lunches (Mon–Sat) = 12 total
-  // No recipe repeats for both lunch and dinner on the same day
-  // Verified: R0×4, R1×4, R2×4 — no same-day conflicts
-  // R0: Mon-D Tue-L Thu-D Fri-L | R1: Mon-L Wed-D Thu-L Sat-D | R2: Tue-D Wed-L Fri-D Sat-L
-  var DINNER_IDX = { 1:0, 2:2, 3:1, 4:0, 5:2, 6:1 };
-  var LUNCH_IDX  = { 1:1, 2:0, 3:2, 4:1, 5:0, 6:2 };
-
-  var dinnerRecipe = recipes[DINNER_IDX[dow]] || null;
-  var lunchIdx     = LUNCH_IDX[dow];
-  var lunchRecipe  = (lunchIdx !== undefined) ? (recipes[lunchIdx] || null) : null;
-
-  return meals.map(function (m) {
-    if (m.type === 'Dinner' && dinnerRecipe) {
-      return { type: m.type, name: dinnerRecipe.name, desc: dinnerRecipe.desc || m.desc, link: dinnerRecipe.link || m.link, recipeId: dinnerRecipe.id };
-    }
-    if (m.type === 'Lunch') {
-      if (lunchRecipe) {
-        return { type: m.type, name: lunchRecipe.name, desc: 'Lunch prep — batch-cooked at Sunday prep', link: lunchRecipe.link || m.link, recipeId: lunchRecipe.id };
-      }
-      return null; // Sat/Sun lunch — intentional flex day, drop from output
-    }
-    return m;
-  }).filter(Boolean);
-}
-
-// ---- Week label helper --------------------------------------
 
 function _mpFmtWeek(weekStart) {
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -108,145 +52,246 @@ function _mpWeekToggle() {
 }
 
 function mpSwitchWeek(offset) {
-  _mpWeekOffset   = offset;
-  _draftRecipeIds = [];
+  _mpWeekOffset     = offset;
+  _mpDraftPinnedIds = [];
   renderMealPlannerHome();
 }
 
-// ---- Sunday prep timeline -----------------------------------
+// ---- Training plan access -----------------------------------
 
-function _renderPrepTimeline(plan) {
-  if (!plan) return '';
-  var recipes = (plan.recipeIds || [])
+function _mpTrainPlan() {
+  return (typeof TRAINING_PLANS !== 'undefined' && typeof ACTIVE_PLAN_ID !== 'undefined')
+    ? TRAINING_PLANS[ACTIVE_PLAN_ID] : null;
+}
+
+// ---- Storage helpers ----------------------------------------
+
+// Primary loader: prefers new index-keyed plan, falls back to old date-keyed plan.
+function mpLoadWeekPlanForDate(date) {
+  var tp = _mpTrainPlan();
+  if (tp) {
+    var np = MealEngine.getStoredWeekPlanForDate(tp, date);
+    if (np) return np;
+  }
+  var weekStart = _mpWeekStart(date);
+  var id = _mpPlanId(weekStart);
+  return (storage.readWeekPlans() || []).find(function(p) { return p.id === id; }) || null;
+}
+
+function mpLoadCurrentWeekPlan() {
+  return mpLoadWeekPlanForDate(new Date());
+}
+
+function _mpLoadViewingPlan() {
+  return mpLoadWeekPlanForDate(_mpViewingDate());
+}
+
+// Save any plan object back to storage (works for both ID formats).
+function _mpSavePlan(plan) {
+  var plans = (storage.readWeekPlans() || []).filter(function(p) { return p.id !== plan.id; });
+  plans.unshift(plan);
+  storage.writeWeekPlans(plans);
+}
+
+// ---- Meal enrichment (calendar / dashboard compat) ----------
+// Returns meals unchanged for new-schema recipes (no r.mealTypes).
+
+function mpEnrichMeals(meals, weekPlan, dow) {
+  if (!weekPlan || !weekPlan.recipeIds || weekPlan.recipeIds.length === 0) return meals;
+  var recipes = weekPlan.recipeIds
     .map(function(id) { return RECIPE_CATALOG[id]; })
-    .filter(function(r) { return r && r.mealTypes && r.mealTypes.indexOf('dinner') >= 0; })
-    .slice(0, 3);
-  if (recipes.length === 0) return '';
+    .filter(function(r) { return r && r.mealTypes && r.mealTypes.indexOf('dinner') >= 0; });
+  if (recipes.length < 3) return meals; // new-schema recipes have no mealTypes → no-op
 
-  var sauceName = 'sauce';
+  var DINNER_IDX = { 1:0, 2:2, 3:1, 4:0, 5:2, 6:1 };
+  var LUNCH_IDX  = { 1:1, 2:0, 3:2, 4:1, 5:0, 6:2 };
 
-  function _t(mins) {
-    var totalMins = 9 * 60 + mins;
-    var h = Math.floor(totalMins / 60);
-    var m = totalMins % 60;
-    var ampm = h >= 12 ? ' PM' : ' AM';
-    if (h > 12) h -= 12;
-    return h + ':' + (m < 10 ? '0' + m : m) + ampm;
+  var dinnerRecipe = recipes[DINNER_IDX[dow]] || null;
+  var lunchIdx     = LUNCH_IDX[dow];
+  var lunchRecipe  = (lunchIdx !== undefined) ? (recipes[lunchIdx] || null) : null;
+
+  return meals.map(function(m) {
+    if (m.type === 'Dinner' && dinnerRecipe) {
+      return { type: m.type, name: dinnerRecipe.name, desc: dinnerRecipe.desc || m.desc, link: dinnerRecipe.link || m.link, recipeId: dinnerRecipe.id };
+    }
+    if (m.type === 'Lunch' && lunchRecipe) {
+      return { type: m.type, name: lunchRecipe.name, desc: 'Lunch prep — batch-cooked at Sunday prep', link: lunchRecipe.link || m.link, recipeId: lunchRecipe.id };
+    }
+    return m;
+  }).filter(Boolean);
+}
+
+// ---- Plan review sub-renderers ------------------------------
+
+// Color classes indexed by recipe position in the week plan.
+var _MP_RECIPE_COLORS = ['mp-rc-clr-0', 'mp-rc-clr-1', 'mp-rc-clr-2', 'mp-rc-clr-3', 'mp-rc-clr-4'];
+
+function _mpColorMap(weekPlan) {
+  var map = {};
+  (weekPlan.recipeIds || []).forEach(function(id, i) {
+    map[id] = _MP_RECIPE_COLORS[i % _MP_RECIPE_COLORS.length];
+  });
+  return map;
+}
+
+function _renderRecipeCards(weekPlan, settings) {
+  var targetPerServing = Math.round(
+    (settings.dailyCalorieTarget - settings.dailyBaselineCalories) / 2
+  );
+  var colorMap = _mpColorMap(weekPlan);
+
+  return (weekPlan.recipeIds || []).map(function(id) {
+    var recipe = RECIPE_CATALOG[id];
+    if (!recipe) return '';
+    var n        = (weekPlan.servingCounts && weekPlan.servingCounts[id]) || 1;
+    var calBatch = recipe._totalMacros.calories;
+    var calEach  = Math.round(calBatch / n);
+    var protEach = Math.round(recipe._totalMacros.proteinG / n);
+    var isPinned = _mpDraftPinnedIds.indexOf(id) >= 0;
+
+    return '<div class="mp-plan-rc' + (isPinned ? ' pinned' : '') + '">' +
+      '<div class="mp-plan-rc-top">' +
+        '<span class="mp-rank-badge mp-rank-' + recipe.rank.toLowerCase() + '">' + recipe.rank + '</span>' +
+        '<div class="mp-plan-rc-name mp-recipe-link" onclick="openRecipeModal(\'' + id + '\')">' + recipe.name + '</div>' +
+        '<div class="mp-plan-rc-btns">' +
+          '<button class="mp-pin-btn' + (isPinned ? ' active' : '') + '" onclick="mpPinToggle(\'' + id + '\')">' +
+            (isPinned ? '● Pinned' : '○ Pin') +
+          '</button>' +
+          '<button class="mp-swap-btn" onclick="mpSwapRecipe(\'' + id + '\')">⇄ Swap</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mp-plan-rc-meta">' +
+        calBatch.toLocaleString() + ' kcal batch · ' +
+        n + ' serving' + (n !== 1 ? 's' : '') + ' · ' +
+        '~' + calEach + ' kcal each · ' + protEach + 'g protein each' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function _renderDayGrid(weekPlan) {
+  var colorMap   = _mpColorMap(weekPlan);
+  var assignment = weekPlan.dailyAssignment || {};
+  var servings   = weekPlan.servingCounts   || {};
+  var DOW_LABELS = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+
+  function cell(recipeId) {
+    if (!recipeId) return '<div class="mp-dg-cell mp-dg-empty">—</div>';
+    var recipe = RECIPE_CATALOG[recipeId];
+    var n      = servings[recipeId] || 1;
+    var cal    = recipe ? Math.round(recipe._totalMacros.calories / n) : 0;
+    var label  = recipe ? recipe.name.split(' ')[0] : '?';
+    var title  = recipe ? recipe.name + ' (~' + cal + ' kcal)' : recipeId;
+    return '<div class="mp-dg-cell ' + (colorMap[recipeId] || 'mp-rc-clr-0') + '" title="' + title + '">' + label + '</div>';
   }
 
-  var steps = [];
-  var t = 0;
+  var html = '<div class="mp-day-grid">';
+  // Header row: label column + day headers
+  html += '<div class="mp-dg-lbl"></div>';
+  DOW_LABELS.forEach(function(d) { html += '<div class="mp-dg-day-hdr">' + d + '</div>'; });
+  // Lunch row
+  html += '<div class="mp-dg-lbl">L</div>';
+  for (var day = 1; day <= 5; day++) {
+    html += cell(((assignment[day] || {}).lunch) || null);
+  }
+  // Dinner row
+  html += '<div class="mp-dg-lbl">D</div>';
+  for (var day = 1; day <= 5; day++) {
+    html += cell(((assignment[day] || {}).dinner) || null);
+  }
+  html += '</div>';
+  return html;
+}
 
-  steps.push({ time: _t(t), dur: '5 min',
-    desc: 'Station: preheat oven 400°F, lay out sheet pans, 12 labelled containers (Mon–Sat × Lunch + Dinner), sauce jar.' });
-  t += 5;
-
-  steps.push({ time: _t(t), dur: '5 min',
-    desc: 'Grain base: rinse 3 cups brown rice + 6 cups water. Bring to boil then simmer covered 35 min.' });
-  t += 5;
-
-  steps.push({ time: _t(t), dur: '5 min',
-    desc: 'Make ' + sauceName + ': whisk all ingredients in a jar, seal and refrigerate.' });
-  t += 5;
-
-  steps.push({ time: _t(t), dur: '15 min',
-    desc: 'Wash and chop all produce for ' + recipes.map(function(r) { return r.name; }).join(', ') + '. Group each recipe\'s ingredients separately.' });
-  t += 15;
-
-  // Prep / marinate phase — sequential hands-on work per recipe
-  recipes.forEach(function(r) {
-    var prepMins = r.prepMins || 10;
-    var step = (r.brief_instructions && r.brief_instructions[0]) || 'Prep and season ' + r.name + '.';
-    steps.push({ time: _t(t), dur: prepMins + ' min', desc: r.name + ': ' + step });
-    t += prepMins;
-  });
-
-  // Cook phase — all 3 recipes start roughly simultaneously (oven + stovetop overlap)
-  var cookStart = t;
-  var maxCook   = 0;
-  recipes.forEach(function(r, i) {
-    var cookMins = r.cookMins || 25;
-    var step = (r.brief_instructions && r.brief_instructions[2]) || 'Cook ' + r.name + ' per recipe.';
-    steps.push({ time: _t(cookStart + i * 2), dur: cookMins + ' min', desc: r.name + ': ' + step });
-    if (cookMins > maxCook) maxCook = cookMins;
-  });
-  t = cookStart + maxCook + (recipes.length - 1) * 2;
-
-  steps.push({ time: _t(t), dur: '10 min',
-    desc: '7 overnight oat jars: ½ cup oats + 1 cup oat milk + 1 tbsp chia + 1 tsp honey each. Refrigerate.' });
-  t += 10;
-
-  steps.push({ time: _t(t), dur: '10 min',
-    desc: 'Portion all 3 recipes into labelled Mon–Sat containers. Refrigerate proteins and grains separately.' });
-  t += 10;
-
-  steps.push({ time: _t(t), dur: '',
-    desc: 'Done — ~' + t + ' min total. Week is loaded.' });
-
-  return '<div class="mp-timeline">' +
-    '<div class="mp-tl-header">Sunday Prep · ~' + t + ' min</div>' +
-    steps.map(function(s) {
-      return '<div class="mp-tl-step">' +
-        '<div class="mp-tl-time">' + s.time + '</div>' +
-        '<div class="mp-tl-dur">' + (s.dur || '') + '</div>' +
-        '<div class="mp-tl-desc">' + s.desc + '</div>' +
+function _renderWeekendShelf(weekPlan) {
+  var overflow = weekPlan.weekendOverflow || [];
+  if (overflow.length === 0) return '';
+  return '<div class="mp-overflow">' +
+    '<div class="mp-overflow-title">Weekend · Extra Servings</div>' +
+    overflow.map(function(o) {
+      var recipe = RECIPE_CATALOG[o.recipeId];
+      var name   = recipe ? recipe.name : o.recipeId;
+      return '<div class="mp-overflow-item">' +
+        name + ' — ' + o.count + ' extra serving' + (o.count !== 1 ? 's' : '') +
+        ' · ~' + o.calsEach + ' kcal each' +
       '</div>';
     }).join('') +
   '</div>';
 }
 
-// ---- Macro summary box --------------------------------------
-// Baseline: Overnight Oats (~320 kcal, 15g) + Snacks (~280 kcal, 10g) + Shake (~200 kcal, 10g)
-var _MP_BASELINE_CAL  = 800;
-var _MP_BASELINE_PROT = 35;
+function _renderMacroStats(weekPlan, settings) {
+  var assignment = weekPlan.dailyAssignment || {};
+  var servings   = weekPlan.servingCounts   || {};
 
-function _renderMacroSummary(plan) {
-  if (!plan || !plan.recipeIds || plan.recipeIds.length < 3) return '';
+  var totalWeekdayCal  = 0;
+  var totalWeekdayProt = 0;
+  for (var day = 1; day <= 5; day++) {
+    var slots = assignment[day] || {};
+    ['lunch', 'dinner'].forEach(function(slot) {
+      var id = slots[slot];
+      if (!id) return;
+      var recipe = RECIPE_CATALOG[id];
+      if (!recipe) return;
+      var n = servings[id] || 1;
+      totalWeekdayCal  += recipe._totalMacros.calories / n;
+      totalWeekdayProt += recipe._totalMacros.proteinG  / n;
+    });
+  }
 
-  var scales  = plan.portionScales || [1.25, 1.25, 1.25];
-  var recipes = plan.recipeIds
-    .map(function(id) { return RECIPE_CATALOG[id]; })
-    .filter(function(r) { return r && r.calories != null && r.proteinG != null; });
+  var avgRecipeCal  = Math.round(totalWeekdayCal  / 5);
+  var avgDailyProt  = Math.round(totalWeekdayProt / 5);
+  var totalDailyCal = avgRecipeCal + (settings.dailyBaselineCalories || 800);
 
-  if (recipes.length < 3) return '';
+  var calTarget     = settings.dailyCalorieTarget || 2100;
+  var calDiff       = totalDailyCal - calTarget;
+  var calDiffStr    = (calDiff >= 0 ? '+' : '') + calDiff;
+  var calColor      = Math.abs(calDiff) <= 100 ? 'var(--grn)' : Math.abs(calDiff) <= 200 ? 'var(--txl)' : 'var(--acc)';
 
-  var avgCal  = ((recipes[0].calories  * (scales[0] || 1.25)) + (recipes[1].calories  * (scales[1] || 1.25)) + (recipes[2].calories  * (scales[2] || 1.25))) / 3;
-  var avgProt = ((recipes[0].proteinG * (scales[0] || 1.25)) + (recipes[1].proteinG * (scales[1] || 1.25)) + (recipes[2].proteinG * (scales[2] || 1.25))) / 3;
-  var dailyCal  = Math.round(avgCal * 2 + _MP_BASELINE_CAL);
-  var dailyProt = Math.round(avgProt * 2 + _MP_BASELINE_PROT);
-
-  // Compare against calorie target from engine
-  var weights   = typeof loadWeights === 'function' ? loadWeights() : [];
-  var s         = loadSettings();
-  var latest    = weights.sort(function(a, b) { return b.date.localeCompare(a.date); })[0];
-  var current   = latest ? parseFloat(latest.weight) : null;
-  var calTarget = CalorieEngine.getDailyTarget(current, s.goalWeight || 165);
-  var targetCal = calTarget.calories;
-  var protTarget = Math.round((s.goalWeight || 165) * 0.7);
-
-  var calDiff     = dailyCal - targetCal;
-  var calDiffStr  = (calDiff >= 0 ? '+' : '') + calDiff;
-  var absDiff     = Math.abs(calDiff);
-  var calDiffColor = absDiff <= 100 ? 'var(--grn)' : absDiff <= 200 ? 'var(--txl)' : 'var(--acc)';
-  var protDiff     = dailyProt - protTarget;
-  var protDiffStr  = (protDiff >= 0 ? '+' : '') + protDiff + 'g';
-  var protDiffColor = protDiff >= 0 ? 'var(--grn)' : 'var(--acc)';
+  var protTarget    = Math.round((settings.goalWeight || 165) * 0.7);
+  var protDiff      = avgDailyProt - protTarget;
+  var protDiffStr   = (protDiff >= 0 ? '+' : '') + protDiff + 'g';
+  var protColor     = protDiff >= 0 ? 'var(--grn)' : 'var(--acc)';
 
   return '<div class="mp-macro-summary">' +
-    '<div class="mp-macro-sum-title">Weekly Average · Daily Totals</div>' +
+    '<div class="mp-macro-sum-title">Weekday Average · Daily Totals</div>' +
     '<div class="mp-macro-sum-row">' +
       '<div class="mp-macro-sum-stat">' +
-        '<div class="mp-macro-sum-val">' + dailyCal + '</div>' +
+        '<div class="mp-macro-sum-val">' + totalDailyCal + '</div>' +
         '<div class="mp-macro-sum-lbl">kcal / day</div>' +
-        '<div class="mp-macro-sum-vs" style="color:' + calDiffColor + '">' + calDiffStr + ' vs ' + targetCal + ' target</div>' +
+        '<div class="mp-macro-sum-vs" style="color:' + calColor + '">' + calDiffStr + ' vs ' + calTarget + ' target</div>' +
       '</div>' +
       '<div class="mp-macro-sum-stat">' +
-        '<div class="mp-macro-sum-val">' + dailyProt + 'g</div>' +
+        '<div class="mp-macro-sum-val">' + avgDailyProt + 'g</div>' +
         '<div class="mp-macro-sum-lbl">protein / day</div>' +
-        '<div class="mp-macro-sum-vs" style="color:' + protDiffColor + '">' + protDiffStr + ' vs ' + protTarget + 'g target</div>' +
+        '<div class="mp-macro-sum-vs" style="color:' + protColor + '">' + protDiffStr + ' vs ' + protTarget + 'g target</div>' +
       '</div>' +
     '</div>' +
-    '<div class="mp-macro-sum-note">Meals only · includes ' + _MP_BASELINE_CAL + ' kcal / ' + _MP_BASELINE_PROT + 'g baseline (oats + snacks + shake)</div>' +
+    '<div class="mp-macro-sum-note">' +
+      'Recipe meals only · + ' + (settings.dailyBaselineCalories || 800) + ' kcal baseline (oats + snacks)' +
+    '</div>' +
+  '</div>';
+}
+
+function _renderWeekPlanReview(weekPlan, settings) {
+  var confirmLabel = weekPlan.confirmed ? 'Re-confirm Plan ✓' : 'Confirm Plan ✓';
+  var pinHint = _mpDraftPinnedIds.length > 0
+    ? '<p class="mp-cta-sub" style="margin:0 0 10px">' + _mpDraftPinnedIds.length + ' recipe' + (_mpDraftPinnedIds.length !== 1 ? 's' : '') + ' pinned — Regenerate will keep ' + (_mpDraftPinnedIds.length !== 1 ? 'them' : 'it') + ' and swap the rest.</p>'
+    : '';
+
+  return '<div class="mp-plan-review">' +
+    '<div class="rm-section-title">Recipe Selection</div>' +
+    '<div class="mp-plan-recipes">' + _renderRecipeCards(weekPlan, settings) + '</div>' +
+    '<div class="rm-section-title" style="margin-top:16px">Week Schedule</div>' +
+    _renderDayGrid(weekPlan) +
+    _renderWeekendShelf(weekPlan) +
+    _renderMacroStats(weekPlan, settings) +
+    '<div class="mp-review-actions">' +
+      pinHint +
+      '<div class="mp-review-btn-row">' +
+        '<button class="mp-regen-btn" onclick="mpRegenerateWeek()">↺ Regenerate</button>' +
+        '<button class="mp-confirm-btn" onclick="mpConfirmNewPlan(\'' + weekPlan.id + '\')">' + confirmLabel + '</button>' +
+      '</div>' +
+    '</div>' +
   '</div>';
 }
 
@@ -260,6 +305,7 @@ function renderMealPlannerHome() {
   var weekLabel  = _mpFmtWeek(weekStart);
   var plan       = _mpLoadViewingPlan();
   var isNextWeek = _mpWeekOffset === 1;
+  var settings   = loadSettings();
 
   if (!plan) {
     el.innerHTML =
@@ -269,89 +315,112 @@ function renderMealPlannerHome() {
           '<span class="mp-week-date">' + (isNextWeek ? 'NEXT WEEK · ' : 'THIS WEEK · ') + weekLabel + '</span>' +
         '</div>' +
         '<div class="mp-cta">' +
-          '<p class="mp-cta-text">No meal plan set.</p>' +
-          '<button class="log-btn" style="margin-top:12px;width:100%" onclick="renderCuisineSelector()">Plan This Week →</button>' +
+          '<p class="mp-cta-text">No meal plan for this week.</p>' +
+          '<p class="mp-cta-sub">Target: ' + ((settings.dailyCalorieTarget - settings.dailyBaselineCalories) * 5).toLocaleString() + ' kcal/week from recipe meals.</p>' +
+          '<button class="log-btn" style="margin-top:14px;width:100%" onclick="renderWeekPlanBuilder()">Plan This Week →</button>' +
         '</div>' +
       '</div>';
     return;
   }
 
-  var dinnerRecipes = (plan.recipeIds || []).map(function (id, i) { var r = RECIPE_CATALOG[id]; return r ? { recipe: r, idx: i } : null; }).filter(Boolean);
-
-  var settings = loadSettings();
+  // Compute shopping progress
   var list  = ShoppingListEngine.buildList(plan, settings);
   var total = 0, done = 0;
   if (list) {
-    list.groups.forEach(function (g) {
-      g.items.forEach(function (item) {
-        if (item.visible) { total++; if (item.checked) done++; }
-      });
+    list.groups.forEach(function(g) {
+      g.items.forEach(function(item) { if (item.visible) { total++; if (item.checked) done++; } });
     });
   }
   var progressLabel = total === 0 ? '' :
     done === total ? '✓ Shopping done' :
-    done + ' / ' + total + ' items checked — tap to open list';
+    done + ' / ' + total + ' items — tap to shop';
+
+  var statusBadge = plan.confirmed
+    ? '<span class="mp-plan-confirmed-badge">Confirmed</span>'
+    : '<span class="mp-plan-draft-badge">Draft</span>';
+
+  var servings = plan.servingCounts || {};
+  var colorMap = _mpColorMap(plan);
 
   el.innerHTML =
     _mpWeekToggle() +
     '<div class="mp-section">' +
       '<div class="mp-plan-card">' +
-        '<div class="mp-plan-hdr">' +
+        '<div class="mp-plan-hdr" style="background:var(--water)">' +
           '<div>' +
             '<div class="mp-plan-week">' + (isNextWeek ? 'NEXT WEEK · ' : 'THIS WEEK · ') + weekLabel + '</div>' +
+            '<div class="mp-plan-cuisine">' + plan.recipeIds.length + ' Recipes · This Week</div>' +
           '</div>' +
           '<div class="mp-plan-actions">' +
-            '<button class="mp-action-btn" onclick="renderCuisineSelector()">Edit</button>' +
+            statusBadge +
+            '<button class="mp-action-btn" onclick="renderWeekPlanBuilder()">Edit</button>' +
             '<button class="mp-action-btn" onclick="renderShoppingList()">List</button>' +
           '</div>' +
         '</div>' +
         '<div class="mp-plan-body">' +
-          dinnerRecipes.map(function (item) {
-            var r = item.recipe, idx = item.idx;
-            var scale = (plan.portionScales && plan.portionScales[idx] != null) ? plan.portionScales[idx] : 1.25;
+          (plan.recipeIds || []).map(function(id) {
+            var recipe = RECIPE_CATALOG[id];
+            if (!recipe) return '';
+            var n       = servings[id] || 1;
+            var calEach = Math.round(recipe._totalMacros.calories / n);
             return '<div class="mp-dinner">' +
-              '<span class="mp-dinner-type">' + (r.isVeg ? 'VEG' : 'PROTEIN') + '</span>' +
+              '<span class="mp-rank-badge mp-rank-' + recipe.rank.toLowerCase() + '">' + recipe.rank + '</span>' +
               '<div class="mp-dinner-info">' +
-                '<div class="mp-dinner-name mp-recipe-link" onclick="openRecipeModal(\'' + r.id + '\')">' + r.name + (r.isVeg ? '<span class="vd" style="margin-left:4px"></span>' : '') + '</div>' +
-                '<div class="mp-dinner-meta">' + (r.protStr || '~' + r.proteinG + 'g') + ' · Serves ' + r.servings + '</div>' +
+                '<div class="mp-dinner-name mp-recipe-link" onclick="openRecipeModal(\'' + id + '\')">' + recipe.name + '</div>' +
+                '<div class="mp-dinner-meta">' + n + ' serving' + (n !== 1 ? 's' : '') + ' · ~' + calEach + ' kcal each</div>' +
               '</div>' +
-              '<select class="mp-portion-select" onchange="mpSetPortionScale(' + idx + ',parseFloat(this.value))">' +
-                '<option value="1.0"' + (scale === 1.0 ? ' selected' : '') + '>Standard (1.0×)</option>' +
-                '<option value="1.25"' + (scale === 1.25 ? ' selected' : '') + '>Athlete (1.25×)</option>' +
-                '<option value="1.5"' + (scale === 1.5 ? ' selected' : '') + '>Heavy (1.5×)</option>' +
-              '</select>' +
             '</div>';
           }).join('') +
           (progressLabel ? '<div class="mp-list-progress" onclick="renderShoppingList()">' + progressLabel + '</div>' : '') +
         '</div>' +
       '</div>' +
-      _renderMacroSummary(plan) +
-      _renderPrepTimeline(plan) +
+      _renderMacroStats(plan, settings) +
     '</div>';
 }
 
-// ---- Cuisine selector (stub) --------------------------------
-// TODO: Phase 5 — replace with new rank/overlap-driven recipe selection UI
+// ---- Week plan builder (replaces renderCuisineSelector) -----
 
-function renderCuisineSelector() {
+function renderWeekPlanBuilder() {
+  _mpDraftPinnedIds = [];
+  _mpRefreshBuilder();
+}
+
+function _mpRefreshBuilder() {
   var el = document.getElementById('meal-planner-view');
   if (!el) return;
-  var isNextWeek = _mpWeekOffset === 1;
-  el.innerHTML =
-    _mpWeekToggle() +
-    '<div class="mp-section">' +
-      '<div class="mp-nav">' +
-        '<button class="mp-back" onclick="renderMealPlannerHome()">← Back</button>' +
-        '<span class="mp-nav-title">' + (isNextWeek ? 'Next Week' : 'This Week') + ' · Plan</span>' +
-      '</div>' +
-      '<div class="mp-cta">' +
-        '<p class="mp-cta-text">Recipe selection coming in Phase 5.</p>' +
-      '</div>' +
-    '</div>';
-}
 
-// TODO: Phase 5 — renderRecipeSelector replaced by new selection UI
-function renderRecipeSelector() { renderMealPlannerHome(); }
+  var isNextWeek = _mpWeekOffset === 1;
+  var weekLabel  = _mpFmtWeek(_mpViewingWeekStart());
+  var plan       = _mpLoadViewingPlan();
+  var settings   = loadSettings();
+
+  var nav =
+    '<div class="mp-nav">' +
+      '<button class="mp-back" onclick="renderMealPlannerHome()">← Back</button>' +
+      '<span class="mp-nav-title">' + (isNextWeek ? 'Next Week' : 'This Week') + ' · ' + weekLabel + '</span>' +
+    '</div>';
+
+  if (plan) {
+    el.innerHTML =
+      _mpWeekToggle() +
+      '<div class="mp-section">' +
+        nav +
+        _renderWeekPlanReview(plan, settings) +
+      '</div>';
+  } else {
+    var weeklyTarget = (settings.dailyCalorieTarget - settings.dailyBaselineCalories) * 5;
+    el.innerHTML =
+      _mpWeekToggle() +
+      '<div class="mp-section">' +
+        nav +
+        '<div class="mp-cta">' +
+          '<p class="mp-cta-text">The engine will select recipes based on your calorie target, rank preferences (A → B → C), and ingredient overlap to minimise your shopping run.</p>' +
+          '<p class="mp-cta-sub" style="margin-top:6px">Target: ' + weeklyTarget.toLocaleString() + ' kcal/week from recipe meals (' + settings.dailyCalorieTarget + ' − ' + settings.dailyBaselineCalories + ' baseline × 5 days)</p>' +
+          '<button class="log-btn" style="margin-top:14px;width:100%" onclick="mpGenerateWeek()">Generate Week ▶</button>' +
+        '</div>' +
+      '</div>';
+  }
+}
 
 // ---- Shopping list ------------------------------------------
 
@@ -368,8 +437,8 @@ function renderShoppingList() {
 
   var showPantry = !!settings.showPantryStaples;
   var total = 0, done = 0;
-  list.groups.forEach(function (g) {
-    g.items.forEach(function (item) { if (item.visible) { total++; if (item.checked) done++; } });
+  list.groups.forEach(function(g) {
+    g.items.forEach(function(item) { if (item.visible) { total++; if (item.checked) done++; } });
   });
 
   var isNextWeek = _mpWeekOffset === 1;
@@ -383,13 +452,13 @@ function renderShoppingList() {
       '</div>' +
       '<div class="mp-sl-progress">' + done + ' / ' + total + ' items checked</div>';
 
-  list.groups.forEach(function (g) {
-    var visItems      = g.items.filter(function (i) { return i.visible; });
-    var hiddenStaples = g.items.filter(function (i) { return !i.visible; });
+  list.groups.forEach(function(g) {
+    var visItems      = g.items.filter(function(i) { return i.visible; });
+    var hiddenStaples = g.items.filter(function(i) { return !i.visible; });
     if (visItems.length === 0 && hiddenStaples.length === 0) return;
 
     html += '<div class="mp-group"><div class="mp-group-title">' + g.category.toUpperCase() + '</div>';
-    visItems.forEach(function (item) {
+    visItems.forEach(function(item) {
       var cls = 'mp-item' + (item.checked ? ' checked' : '') + (item.isPantryStaple ? ' staple' : '');
       html +=
         '<div class="' + cls + '" onclick="mpToggleShoppingItem(\'' + item.ingredientId + '\')">' +
@@ -403,7 +472,7 @@ function renderShoppingList() {
     });
     if (hiddenStaples.length > 0) {
       html += '<div class="mp-hidden-staples">' +
-        hiddenStaples.map(function (item) {
+        hiddenStaples.map(function(item) {
           return '<button class="mp-need-this" onclick="event.stopPropagation();mpTogglePantryOverride(\'' + item.ingredientId + '\')">' +
             '+ ' + item.name + '</button>';
         }).join('') +
@@ -418,38 +487,48 @@ function renderShoppingList() {
 
 // ---- Action handlers ----------------------------------------
 
-// TODO: Phase 5 — mpSelectCuisine removed with cuisine system
-function mpSelectCuisine() { renderMealPlannerHome(); }
-
-function mpToggleRecipe(id) {
-  var idx = _draftRecipeIds.indexOf(id);
-  if (idx >= 0) {
-    _draftRecipeIds.splice(idx, 1);
-  } else if (_draftRecipeIds.length < 3) {
-    _draftRecipeIds.push(id);
-  }
-  renderRecipeSelector();
+function mpGenerateWeek() {
+  var tp       = _mpTrainPlan();
+  var settings = loadSettings();
+  if (!tp) { showToast('No active training plan'); return; }
+  var plan = MealEngine.generateWeekPlan(tp, _mpViewingDate(), settings, []);
+  if (!plan) { showToast('No eligible recipes — all may be on cooldown'); return; }
+  _mpDraftPinnedIds = [];
+  _mpRefreshBuilder();
 }
 
-function mpConfirmPlan() {
-  // TODO: Phase 5 — plan confirmation rebuilt with new selection engine
-  if (_draftRecipeIds.length !== 3) return;
-  var weekStart   = _mpViewingWeekStart();
-  var existing    = _mpLoadViewingPlan() || {};
-  var sameRecipes = existing.recipeIds && existing.recipeIds.join(',') === _draftRecipeIds.join(',');
-  _mpSavePlan({
-    id:              _mpPlanId(weekStart),
-    weekStart:       weekStart,
-    recipeIds:       _draftRecipeIds.slice(),
-    portionScales:   sameRecipes && existing.portionScales ? existing.portionScales.slice() : [1.25, 1.25, 1.25],
-    checkedItems:    existing.checkedItems    || [],
-    pantryOverrides: existing.pantryOverrides || []
-  });
-  _draftRecipeIds = [];
+function mpRegenerateWeek() {
+  var tp       = _mpTrainPlan();
+  var settings = loadSettings();
+  if (!tp) return;
+  var plan = MealEngine.generateWeekPlan(tp, _mpViewingDate(), settings, _mpDraftPinnedIds.slice());
+  if (!plan) { showToast('No eligible recipes — try unpinning some'); return; }
+  _mpRefreshBuilder(); // keep current pins
+}
+
+function mpPinToggle(recipeId) {
+  var idx = _mpDraftPinnedIds.indexOf(recipeId);
+  if (idx >= 0) { _mpDraftPinnedIds.splice(idx, 1); } else { _mpDraftPinnedIds.push(recipeId); }
+  _mpRefreshBuilder();
+}
+
+function mpSwapRecipe(recipeId) {
+  var plan = _mpLoadViewingPlan();
+  if (!plan) return;
+  // Pin everything except the recipe being swapped out, then regenerate
+  _mpDraftPinnedIds = (plan.recipeIds || []).filter(function(id) { return id !== recipeId; });
+  mpRegenerateWeek();
+}
+
+function mpConfirmNewPlan(weekPlanId) {
+  var ok = MealEngine.confirmWeekPlan(weekPlanId);
+  if (!ok) { showToast('Could not confirm plan'); return; }
+  _mpDraftPinnedIds = [];
+  showToast('Plan confirmed ✓');
   renderMealPlannerHome();
-  if (typeof renderTodayMeals  === 'function') renderTodayMeals();
-  if (typeof renderPlanWeeks   === 'function') renderPlanWeeks();
-  if (typeof renderMealNudge   === 'function') renderMealNudge();
+  if (typeof renderTodayMeals === 'function') renderTodayMeals();
+  if (typeof renderPlanWeeks  === 'function') renderPlanWeeks();
+  if (typeof renderMealNudge  === 'function') renderMealNudge();
 }
 
 function mpToggleShoppingItem(ingredientId) {
@@ -457,7 +536,7 @@ function mpToggleShoppingItem(ingredientId) {
   if (!plan) return;
   var arr = plan.checkedItems || [];
   var idx = arr.indexOf(ingredientId);
-  if (idx >= 0) arr.splice(idx, 1); else arr.push(ingredientId);
+  if (idx >= 0) { arr.splice(idx, 1); } else { arr.push(ingredientId); }
   plan.checkedItems = arr;
   _mpSavePlan(plan);
   renderShoppingList();
@@ -468,7 +547,7 @@ function mpTogglePantryOverride(ingredientId) {
   if (!plan) return;
   var arr = plan.pantryOverrides || [];
   var idx = arr.indexOf(ingredientId);
-  if (idx >= 0) arr.splice(idx, 1); else arr.push(ingredientId);
+  if (idx >= 0) { arr.splice(idx, 1); } else { arr.push(ingredientId); }
   plan.pantryOverrides = arr;
   _mpSavePlan(plan);
   renderShoppingList();
@@ -481,20 +560,11 @@ function mpTogglePantryView() {
   renderShoppingList();
 }
 
-function mpSetPortionScale(recipeIdx, scale) {
-  var plan = _mpLoadViewingPlan();
-  if (!plan) return;
-  var scales = plan.portionScales ? plan.portionScales.slice() : [1.25, 1.25, 1.25];
-  scales[recipeIdx] = scale;
-  plan.portionScales = scales;
-  _mpSavePlan(plan);
-  renderMealPlannerHome();
-}
-
 // ---- Entry point --------------------------------------------
 
 function initMealPlanner() {
-  _mpWeekOffset = 0;
+  _mpWeekOffset     = 0;
+  _mpDraftPinnedIds = [];
   renderMealPlannerHome();
 }
 
@@ -517,9 +587,9 @@ function openRecipeModal(recipeId) {
     var amt     = ing.qty || (ing.grams + 'g');
     return '<li class="rm-ing-item">' + amt + ' ' + ingName + '</li>';
   }).join('');
-  var tm        = recipe._totalMacros || {};
-  var macroStr  = '';
-  if (tm.calories)  macroStr  = tm.calories + ' cal (full batch)';
+  var tm       = recipe._totalMacros || {};
+  var macroStr = '';
+  if (tm.calories)  macroStr  = tm.calories.toLocaleString() + ' cal (full batch)';
   if (tm.proteinG)  macroStr += (macroStr ? ' · ' : '') + tm.proteinG + 'g protein';
   var sourceBtn = recipe.source_url
     ? '<a href="' + recipe.source_url + '" target="_blank" rel="noopener" class="rm-source-btn">View Full Recipe Online →</a>'
