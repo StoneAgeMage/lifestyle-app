@@ -8,8 +8,9 @@
 
 // ---- State --------------------------------------------------
 
-var _mpWeekOffset     = 0;   // 0 = this week, 1 = next week
-var _mpDraftPinnedIds = [];  // session-only pin state for current draft
+var _mpWeekOffset          = 0;   // 0 = this week, 1 = next week
+var _mpDraftPinnedIds      = [];  // session-only pin state for current draft
+var _mpSessionExcludedIds  = [];  // recipes excluded from the current regen cycle
 
 // ---- Week helpers -------------------------------------------
 
@@ -52,8 +53,9 @@ function _mpWeekToggle() {
 }
 
 function mpSwitchWeek(offset) {
-  _mpWeekOffset     = offset;
-  _mpDraftPinnedIds = [];
+  _mpWeekOffset         = offset;
+  _mpDraftPinnedIds     = [];
+  _mpSessionExcludedIds = [];
   renderMealPlannerHome();
 }
 
@@ -457,7 +459,8 @@ function renderMealPlannerHome() {
 // ---- Week plan builder (replaces renderCuisineSelector) -----
 
 function renderWeekPlanBuilder() {
-  _mpDraftPinnedIds = [];
+  _mpDraftPinnedIds     = [];
+  _mpSessionExcludedIds = [];
   _mpRefreshBuilder();
 }
 
@@ -567,9 +570,10 @@ function mpGenerateWeek() {
   var tp       = _mpTrainPlan();
   var settings = loadSettings();
   if (!tp) { showToast('No active training plan'); return; }
-  var plan = MealEngine.generateWeekPlan(tp, _mpViewingDate(), settings, []);
+  _mpDraftPinnedIds     = [];
+  _mpSessionExcludedIds = [];
+  var plan = MealEngine.generateWeekPlan(tp, _mpViewingDate(), settings, [], []);
   if (!plan) { showToast('No eligible recipes — all may be on cooldown'); return; }
-  _mpDraftPinnedIds = [];
   _mpRefreshBuilder();
 }
 
@@ -577,9 +581,32 @@ function mpRegenerateWeek() {
   var tp       = _mpTrainPlan();
   var settings = loadSettings();
   if (!tp) return;
-  var plan = MealEngine.generateWeekPlan(tp, _mpViewingDate(), settings, _mpDraftPinnedIds.slice());
+
+  // Accumulate unpinned recipes from the current plan into the session exclusion list
+  // so each press of Regenerate cycles forward through the catalog.
+  var currentPlan = _mpLoadViewingPlan();
+  if (currentPlan) {
+    (currentPlan.recipeIds || []).forEach(function(id) {
+      if (_mpDraftPinnedIds.indexOf(id) < 0 && _mpSessionExcludedIds.indexOf(id) < 0) {
+        _mpSessionExcludedIds.push(id);
+      }
+    });
+  }
+
+  var plan = MealEngine.generateWeekPlan(
+    tp, _mpViewingDate(), settings,
+    _mpDraftPinnedIds.slice(),
+    _mpSessionExcludedIds.slice()
+  );
+
+  if (!plan) {
+    // Exclusion pool exhausted — wrap around and try once more with a clean slate.
+    _mpSessionExcludedIds = [];
+    plan = MealEngine.generateWeekPlan(tp, _mpViewingDate(), settings, _mpDraftPinnedIds.slice(), []);
+  }
+
   if (!plan) { showToast('No eligible recipes — try unpinning some'); return; }
-  _mpRefreshBuilder(); // keep current pins
+  _mpRefreshBuilder();
 }
 
 function mpPinToggle(recipeId) {
@@ -591,15 +618,17 @@ function mpPinToggle(recipeId) {
 function mpSwapRecipe(recipeId) {
   var plan = _mpLoadViewingPlan();
   if (!plan) return;
-  // Pin everything except the recipe being swapped out, then regenerate
+  // Pin everything except the swapped recipe; exclude it so the engine can't re-pick it.
   _mpDraftPinnedIds = (plan.recipeIds || []).filter(function(id) { return id !== recipeId; });
+  if (_mpSessionExcludedIds.indexOf(recipeId) < 0) _mpSessionExcludedIds.push(recipeId);
   mpRegenerateWeek();
 }
 
 function mpConfirmNewPlan(weekPlanId) {
   var ok = MealEngine.confirmWeekPlan(weekPlanId);
   if (!ok) { showToast('Could not confirm plan'); return; }
-  _mpDraftPinnedIds = [];
+  _mpDraftPinnedIds     = [];
+  _mpSessionExcludedIds = [];
   showToast('Plan confirmed ✓');
   renderMealPlannerHome();
   if (typeof renderTodayMeals === 'function') renderTodayMeals();
@@ -639,8 +668,9 @@ function mpTogglePantryView() {
 // ---- Entry point --------------------------------------------
 
 function initMealPlanner() {
-  _mpWeekOffset     = 0;
-  _mpDraftPinnedIds = [];
+  _mpWeekOffset         = 0;
+  _mpDraftPinnedIds     = [];
+  _mpSessionExcludedIds = [];
   renderMealPlannerHome();
 }
 

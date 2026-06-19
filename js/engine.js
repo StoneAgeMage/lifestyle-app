@@ -244,14 +244,16 @@ const MealEngine = (function () {
   }
 
   // 5c — Recipe selection loop
-  function _selectRecipes(settings, currentWeek, pinnedRecipeIds, cooldowns) {
-    var pinnedIds = pinnedRecipeIds || [];
-    var pinned    = pinnedIds.map(function(id) { return RECIPE_CATALOG[id]; }).filter(Boolean);
-    var selected  = pinned.slice();
-    var totalCal  = selected.reduce(function(s, r) { return s + r._totalMacros.calories; }, 0);
-    var target    = (settings.dailyCalorieTarget - settings.dailyBaselineCalories) * 5;
+  // extraExcludeIds: session-level exclusions (regenerate cycling, swap)
+  function _selectRecipes(settings, currentWeek, pinnedRecipeIds, cooldowns, extraExcludeIds) {
+    var pinnedIds  = pinnedRecipeIds || [];
+    var pinned     = pinnedIds.map(function(id) { return RECIPE_CATALOG[id]; }).filter(Boolean);
+    var selected   = pinned.slice();
+    var totalCal   = selected.reduce(function(s, r) { return s + r._totalMacros.calories; }, 0);
+    var target     = (settings.dailyCalorieTarget - settings.dailyBaselineCalories) * 5;
+    var excludeAll = pinnedIds.concat(extraExcludeIds || []);
 
-    var eligible  = _eligibleRecipes(currentWeek, selected.map(function(r) { return r.id; }), cooldowns);
+    var eligible   = _eligibleRecipes(currentWeek, excludeAll, cooldowns);
 
     while (selected.length < MINIMUM_RECIPES || totalCal < target) {
       if (eligible.length === 0) break;
@@ -260,38 +262,37 @@ const MealEngine = (function () {
       var next;
 
       if (selected.length === 0) {
-        // Anchor: highest rank, oldest last-used as tiebreaker
-        next = eligible.slice().sort(function(a, b) {
-          var rDiff = (RANK_PRIORITY[a.rank] || 1) - (RANK_PRIORITY[b.rank] || 1);
-          if (rDiff !== 0) return rDiff;
-          var la = cooldowns[a.id] != null ? cooldowns[a.id] : -1;
-          var lb = cooldowns[b.id] != null ? cooldowns[b.id] : -1;
-          return la - lb;
-        })[0];
+        // Anchor: random pick within the highest available rank tier.
+        // Randomising here cascades into different overlap scores for all subsequent picks,
+        // giving genuine variety across regenerations without sacrificing rank preference.
+        var TIER_ORDER = ['A', 'B', 'C'];
+        next = null;
+        for (var t = 0; t < TIER_ORDER.length && !next; t++) {
+          var tier = eligible.filter(function(r) { return r.rank === TIER_ORDER[t]; });
+          if (tier.length > 0) next = tier[Math.floor(Math.random() * tier.length)];
+        }
+        if (!next) next = eligible[Math.floor(Math.random() * eligible.length)];
 
       } else if (totalCal >= target) {
-        // MODE A: calorie target met, still need recipes — pick smallest-calorie
+        // MODE A: calorie target met, still need minimum recipe count — pick smallest-calorie.
+        // Random tiebreaker at the end so equal-calorie candidates rotate.
         next = eligible.slice().sort(function(a, b) {
           var calDiff = a._totalMacros.calories - b._totalMacros.calories;
           if (calDiff !== 0) return calDiff;
-          var oDiff   = _overlapScore(b, ingSet) - _overlapScore(a, ingSet);
+          var oDiff = _overlapScore(b, ingSet) - _overlapScore(a, ingSet);
           if (oDiff   !== 0) return oDiff;
-          var la = cooldowns[a.id] != null ? cooldowns[a.id] : -1;
-          var lb = cooldowns[b.id] != null ? cooldowns[b.id] : -1;
-          return la - lb;
+          return Math.random() - 0.5;
         })[0];
 
       } else {
-        // MODE B: calorie target not yet met — prefer overlap, then rank
+        // MODE B: calorie target not yet met — prefer overlap, then rank, then random.
         var remaining = target - totalCal;
         var byOverlap = eligible.slice().sort(function(a, b) {
           var oDiff = _overlapScore(b, ingSet) - _overlapScore(a, ingSet);
           if (oDiff !== 0) return oDiff;
           var rDiff = (RANK_PRIORITY[a.rank] || 1) - (RANK_PRIORITY[b.rank] || 1);
           if (rDiff !== 0) return rDiff;
-          var la = cooldowns[a.id] != null ? cooldowns[a.id] : -1;
-          var lb = cooldowns[b.id] != null ? cooldowns[b.id] : -1;
-          return la - lb;
+          return Math.random() - 0.5;
         });
         var top = byOverlap[0];
 
@@ -368,13 +369,13 @@ const MealEngine = (function () {
   // --- Public functions ---
 
   // 5b/5c/5d/5e — Generate and store a week plan
-  function generateWeekPlan(plan, date, settings, pinnedRecipeIds) {
+  function generateWeekPlan(plan, date, settings, pinnedRecipeIds, excludeRecipeIds) {
     var d  = new Date(date); d.setHours(12, 0, 0, 0);
     var wi = _weekIndex(plan, d);
     if (wi < 0) return null;
 
     var cooldowns = storage.readCooldowns();
-    var selected  = _selectRecipes(settings, wi, pinnedRecipeIds, cooldowns);
+    var selected  = _selectRecipes(settings, wi, pinnedRecipeIds, cooldowns, excludeRecipeIds || []);
     if (selected.length === 0) return null;
 
     var servingCounts = {};
