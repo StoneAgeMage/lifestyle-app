@@ -144,9 +144,12 @@ function _renderRecipeCards(weekPlan, settings) {
     var recipe = RECIPE_CATALOG[id];
     if (!recipe) return '';
     var n        = (weekPlan.servingCounts && weekPlan.servingCounts[id]) || 1;
-    var calBatch = recipe._totalMacros.calories;
+    var tm       = recipe._totalMacros;
+    var calBatch = tm.calories;
     var calEach  = Math.round(calBatch / n);
-    var protEach = Math.round(recipe._totalMacros.proteinG / n);
+    var protEach = Math.round(tm.proteinG / n);
+    var fatEach  = Math.round(tm.fatG    / n);
+    var carbEach = Math.round(tm.carbsG  / n);
     var isPinned = _mpDraftPinnedIds.indexOf(id) >= 0;
 
     return '<div class="mp-plan-rc' + (isPinned ? ' pinned' : '') + '">' +
@@ -161,9 +164,17 @@ function _renderRecipeCards(weekPlan, settings) {
         '</div>' +
       '</div>' +
       '<div class="mp-plan-rc-meta">' +
-        calBatch.toLocaleString() + ' kcal batch · ' +
-        n + ' serving' + (n !== 1 ? 's' : '') + ' · ' +
-        '~' + calEach + ' kcal each · ' + protEach + 'g protein each' +
+        calBatch.toLocaleString() + ' kcal batch · ' + n + ' serving' + (n !== 1 ? 's' : '') +
+      '</div>' +
+      '<div class="mp-plan-rc-macros">' +
+        '<span class="mp-rm-cal">' + calEach + ' kcal</span>' +
+        '<span class="mp-rm-sep">·</span>' +
+        '<span class="mp-rm-p">' + protEach + 'g P</span>' +
+        '<span class="mp-rm-sep">·</span>' +
+        '<span class="mp-rm-f">' + fatEach + 'g F</span>' +
+        '<span class="mp-rm-sep">·</span>' +
+        '<span class="mp-rm-c">' + carbEach + 'g C</span>' +
+        '<span class="mp-rm-note">per serving</span>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -219,12 +230,10 @@ function _renderWeekendShelf(weekPlan) {
   '</div>';
 }
 
-function _renderMacroStats(weekPlan, settings) {
+function _weekdayMacros(weekPlan) {
   var assignment = weekPlan.dailyAssignment || {};
   var servings   = weekPlan.servingCounts   || {};
-
-  var totalWeekdayCal  = 0;
-  var totalWeekdayProt = 0;
+  var totals     = { cal: 0, prot: 0, fat: 0, carb: 0 };
   for (var day = 1; day <= 5; day++) {
     var slots = assignment[day] || {};
     ['lunch', 'dinner'].forEach(function(slot) {
@@ -233,27 +242,34 @@ function _renderMacroStats(weekPlan, settings) {
       var recipe = RECIPE_CATALOG[id];
       if (!recipe) return;
       var n = servings[id] || 1;
-      totalWeekdayCal  += recipe._totalMacros.calories / n;
-      totalWeekdayProt += recipe._totalMacros.proteinG  / n;
+      totals.cal  += recipe._totalMacros.calories / n;
+      totals.prot += recipe._totalMacros.proteinG / n;
+      totals.fat  += recipe._totalMacros.fatG     / n;
+      totals.carb += recipe._totalMacros.carbsG   / n;
     });
   }
+  return {
+    avgCal:  Math.round(totals.cal  / 5),
+    avgProt: Math.round(totals.prot / 5),
+    avgFat:  Math.round(totals.fat  / 5),
+    avgCarb: Math.round(totals.carb / 5)
+  };
+}
 
-  var avgRecipeCal  = Math.round(totalWeekdayCal  / 5);
-  var avgDailyProt  = Math.round(totalWeekdayProt / 5);
-  var totalDailyCal = avgRecipeCal + (settings.dailyBaselineCalories || 800);
-
+function _renderMacroStats(weekPlan, settings) {
+  var avg           = _weekdayMacros(weekPlan);
+  var totalDailyCal = avg.avgCal + (settings.dailyBaselineCalories || 800);
   var calTarget     = settings.dailyCalorieTarget || 2100;
   var calDiff       = totalDailyCal - calTarget;
   var calDiffStr    = (calDiff >= 0 ? '+' : '') + calDiff;
   var calColor      = Math.abs(calDiff) <= 100 ? 'var(--grn)' : Math.abs(calDiff) <= 200 ? 'var(--txl)' : 'var(--acc)';
-
   var protTarget    = Math.round((settings.goalWeight || 165) * 0.7);
-  var protDiff      = avgDailyProt - protTarget;
+  var protDiff      = avg.avgProt - protTarget;
   var protDiffStr   = (protDiff >= 0 ? '+' : '') + protDiff + 'g';
   var protColor     = protDiff >= 0 ? 'var(--grn)' : 'var(--acc)';
 
   return '<div class="mp-macro-summary">' +
-    '<div class="mp-macro-sum-title">Weekday Average · Daily Totals</div>' +
+    '<div class="mp-macro-sum-title">Weekday Average · Recipe Meals (L+D)</div>' +
     '<div class="mp-macro-sum-row">' +
       '<div class="mp-macro-sum-stat">' +
         '<div class="mp-macro-sum-val">' + totalDailyCal + '</div>' +
@@ -261,14 +277,73 @@ function _renderMacroStats(weekPlan, settings) {
         '<div class="mp-macro-sum-vs" style="color:' + calColor + '">' + calDiffStr + ' vs ' + calTarget + ' target</div>' +
       '</div>' +
       '<div class="mp-macro-sum-stat">' +
-        '<div class="mp-macro-sum-val">' + avgDailyProt + 'g</div>' +
+        '<div class="mp-macro-sum-val">' + avg.avgProt + 'g</div>' +
         '<div class="mp-macro-sum-lbl">protein / day</div>' +
         '<div class="mp-macro-sum-vs" style="color:' + protColor + '">' + protDiffStr + ' vs ' + protTarget + 'g target</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="mp-macro-sum-row" style="margin-top:6px">' +
+      '<div class="mp-macro-sum-stat">' +
+        '<div class="mp-macro-sum-val">' + avg.avgFat + 'g</div>' +
+        '<div class="mp-macro-sum-lbl">fat / day</div>' +
+      '</div>' +
+      '<div class="mp-macro-sum-stat">' +
+        '<div class="mp-macro-sum-val">' + avg.avgCarb + 'g</div>' +
+        '<div class="mp-macro-sum-lbl">carbs / day</div>' +
       '</div>' +
     '</div>' +
     '<div class="mp-macro-sum-note">' +
       'Recipe meals only · + ' + (settings.dailyBaselineCalories || 800) + ' kcal baseline (oats + snacks)' +
     '</div>' +
+  '</div>';
+}
+
+function _renderDayMacros(weekPlan, settings) {
+  var assignment = weekPlan.dailyAssignment || {};
+  var servings   = weekPlan.servingCounts   || {};
+  var protTarget = Math.round((settings.goalWeight || 165) * 0.7);
+  var DOW_LABELS = ['MON', 'TUE', 'WED', 'THU', 'FRI'];
+
+  var days = [];
+  for (var d = 1; d <= 5; d++) {
+    var slots = assignment[d] || {};
+    var cal = 0, prot = 0, fat = 0, carb = 0;
+    ['lunch', 'dinner'].forEach(function(slot) {
+      var id = slots[slot];
+      if (!id) return;
+      var recipe = RECIPE_CATALOG[id];
+      if (!recipe) return;
+      var n = servings[id] || 1;
+      cal  += Math.round(recipe._totalMacros.calories / n);
+      prot += Math.round(recipe._totalMacros.proteinG / n);
+      fat  += Math.round(recipe._totalMacros.fatG     / n);
+      carb += Math.round(recipe._totalMacros.carbsG   / n);
+    });
+    days.push({ label: DOW_LABELS[d - 1], cal: cal, prot: prot, fat: fat, carb: carb });
+  }
+
+  // Flag days where recipe-meal protein is among the lowest (within 5g of minimum)
+  var minProt = Math.min.apply(null, days.map(function(d) { return d.prot; }));
+
+  function row(lbl, vals, cls, suffix, flagFn) {
+    var cells = vals.map(function(v, i) {
+      var flag = flagFn && flagFn(v, i);
+      return '<div class="mp-dm-val' + (flag ? ' mp-dm-low' : '') + '">' + v + (suffix || '') + (flag ? '<span class="mp-dm-shake">↑shake</span>' : '') + '</div>';
+    }).join('');
+    return '<div class="mp-dm-lbl ' + (cls || '') + '">' + lbl + '</div>' + cells;
+  }
+
+  return '<div class="mp-day-macros">' +
+    '<div class="mp-day-macros-title">Daily Totals · Recipe Meals (L+D)</div>' +
+    '<div class="mp-dm-grid">' +
+      '<div class="mp-dm-hdr-lbl"></div>' +
+      days.map(function(d) { return '<div class="mp-dm-hdr">' + d.label + '</div>'; }).join('') +
+      row('kcal', days.map(function(d) { return d.cal; }),  'mp-dm-cal')  +
+      row('P',    days.map(function(d) { return d.prot; }), 'mp-dm-p', 'g', function(v) { return v <= minProt + 5; }) +
+      row('F',    days.map(function(d) { return d.fat; }),  'mp-dm-f', 'g') +
+      row('C',    days.map(function(d) { return d.carb; }), 'mp-dm-c', 'g') +
+    '</div>' +
+    '<div class="mp-dm-note">↑ Lower protein days · consider a shake · target ' + protTarget + 'g total/day</div>' +
   '</div>';
 }
 
@@ -283,6 +358,7 @@ function _renderWeekPlanReview(weekPlan, settings) {
     '<div class="mp-plan-recipes">' + _renderRecipeCards(weekPlan, settings) + '</div>' +
     '<div class="rm-section-title" style="margin-top:16px">Week Schedule</div>' +
     _renderDayGrid(weekPlan) +
+    _renderDayMacros(weekPlan, settings) +
     _renderWeekendShelf(weekPlan) +
     _renderMacroStats(weekPlan, settings) +
     '<div class="mp-review-actions">' +

@@ -649,3 +649,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 /* Week plan home view */
 .mp-plan-week{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7)}
 .mp-plan-cuisine{font-size:13px;font-weight:600;color:#fff;margin-top:2px}
+
+/* Recipe card per-serving macro row */
+.mp-plan-rc-macros{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}
+.mp-rm-cal{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--txt)}
+.mp-rm-p{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--acc)}
+.mp-rm-f{font-family:'DM Mono',monospace;font-size:12px;color:var(--oar)}
+.mp-rm-c{font-family:'DM Mono',monospace;font-size:12px;color:var(--wm)}
+.mp-rm-sep{color:var(--bdr);font-size:12px}
+.mp-rm-note{font-size:10px;color:var(--txl);margin-left:2px}
+
+/* Daily macro breakdown table */
+.mp-day-macros{background:var(--foam);border-radius:12px;padding:12px 14px;margin-top:10px}
+.mp-day-macros-title{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--txl);margin-bottom:8px}
+.mp-dm-grid{display:grid;grid-template-columns:28px repeat(5,1fr);gap:3px}
+.mp-dm-hdr-lbl{display:block}
+.mp-dm-hdr{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--txl);text-align:center;padding:2px 0}
+.mp-dm-lbl{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:var(--txl);display:flex;align-items:center}
+.mp-dm-lbl.mp-dm-cal{color:var(--txt)}
+.mp-dm-lbl.mp-dm-p{color:var(--acc)}
+.mp-dm-lbl.mp-dm-f{color:var(--oar)}
+.mp-dm-lbl.mp-dm-c{color:var(--wm)}
+.mp-dm-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--txt);text-align:center;padding:3px 1px;border-radius:4px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.mp-dm-val.mp-dm-low{background:rgba(232,93,38,.08);color:var(--acc)}
+.mp-dm-shake{font-size:8px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+.mp-dm-note{font-size:10px;color:var(--txl);margin-top:8px;font-style:italic}
