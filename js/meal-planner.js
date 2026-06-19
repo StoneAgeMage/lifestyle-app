@@ -676,6 +676,15 @@ function initMealPlanner() {
 
 // ---- Recipe modal -------------------------------------------
 
+// Resolve an ingredient ID to a human-readable name.
+// Falls back to title-casing the ID (e.g. "peanut_oil" → "Peanut Oil")
+// so uncatalogued items never show raw snake_case in the UI.
+function _ingName(id) {
+  var entry = INGREDIENT_CATALOG[id];
+  if (entry) return entry.name;
+  return id.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+}
+
 function openRecipeModal(recipeId) {
   var recipe = RECIPE_CATALOG[recipeId];
   if (!recipe) return;
@@ -688,8 +697,7 @@ function openRecipeModal(recipeId) {
     document.body.appendChild(overlay);
   }
   var ingredientHtml = (recipe._ingredients || []).map(function(ing) {
-    var ingData = INGREDIENT_CATALOG[ing.id];
-    var ingName = ingData ? ingData.name : ing.id;
+    var ingName = _ingName(ing.id);
     var amt     = ing.qty || (ing.grams + 'g');
     return '<li class="rm-ing-item">' + amt + ' ' + ingName + '</li>';
   }).join('');

@@ -531,13 +531,16 @@ const ShoppingListEngine = (function () {
       if (!recipe) return;
       recipe._ingredients.forEach(function(ing) {
         var ingredient = INGREDIENT_CATALOG[ing.id];
-        if (!ingredient) return;
+        // Fallback: title-case the ID so uncatalogued items still appear
+        var name     = ingredient ? ingredient.name
+          : ing.id.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+        var category = ingredient ? ingredient.category : 'pantry';
         if (!agg[ing.id]) {
           agg[ing.id] = {
             ingredientId:   ing.id,
-            name:           ingredient.name,
-            category:       ingredient.category,
-            isPantryStaple: !!ingredient.isPantryStaple,
+            name:           name,
+            category:       category,
+            isPantryStaple: ingredient ? !!ingredient.isPantryStaple : false,
             totalGrams:     0,
             qtys:           []
           };
