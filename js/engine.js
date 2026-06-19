@@ -556,10 +556,13 @@ const ShoppingListEngine = (function () {
     var CATEGORY_ORDER = ['protein', 'produce', 'dairy', 'grains', 'pantry', 'spice', 'condiment', 'frozen'];
 
     var items = Object.values(agg).map(function(a) {
-      // Single-recipe ingredient: show its human-readable qty. Multi-recipe: sum in grams.
-      var amountStr = a.qtys.length === 1
-        ? a.qtys[0]
-        : Math.round(a.totalGrams) + 'g';
+      // Collapse duplicate qty strings (e.g. two recipes both need "1 medium" → "2× 1 medium").
+      // Different qtys are joined with " + " so the shopper sees every call-out.
+      var qtyCount = {};
+      a.qtys.forEach(function(q) { qtyCount[q] = (qtyCount[q] || 0) + 1; });
+      var amountStr = Object.keys(qtyCount).map(function(q) {
+        return qtyCount[q] > 1 ? qtyCount[q] + '× ' + q : q;
+      }).join(' + ');
       return {
         ingredientId:   a.ingredientId,
         name:           a.name,
