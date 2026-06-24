@@ -12,7 +12,7 @@ Six phases. Each phase ends with a fully working app. Stop between any two phase
 | 2 | Static Data Restructure | Infrastructure | No | ✅ Complete |
 | 3 | Engine Layer | Infrastructure | No | ✅ Complete |
 | 4 | Today Screen | UI Redesign | **Yes** | ✅ Complete |
-| 5 | Meal Planning V2 | Feature | **Yes** | ⬜ Not started |
+| 5 | Meal Planning V2 | Feature | **Yes** | 🔄 In progress (engine complete, UI pending) |
 | 6 | Training Plan V2 | Feature | **Yes** | ⬜ Not started |
 
 ---
@@ -398,67 +398,57 @@ Quick Stats moves to the new **Stats** tab alongside existing PRs and recent ses
 
 ## Phase 5 — Meal Planning V2
 
-**Goal:** Dynamic weekly meal planning with cuisine selection, recipe picker, and shopping list with pantry toggle.
+**Goal:** Dynamic weekly meal planning driven by the recipe catalog. The engine selects recipes based on rank, cooldowns, and ingredient overlap; the UI shows a recipe card set, a 5-day assignment grid, and a shopping list.
+
+> **Note:** The original cuisine-selector approach (cuisine grid → recipe picker) was replaced during implementation with the Umami + Cronometer recipe catalog approach. `MealEngine.generateWeekPlan()` in `engine.js` is complete. This phase covers the Fuel tab UI rewrite only. See `RECIPE_REFACTOR.md` for full engine and data schema documentation.
 
 ### Files
 
 | File | Action |
 |---|---|
-| `js/meal-planner.js` | **Create** — all planning UI logic |
-| `js/meals.js` | Modify — `renderMeals()` defers to meal-planner.js |
-| `js/sauces.js` | Modify — sauce data from `data-cuisines.js` |
-| `js/settings.js` | Modify — add `showPantryStaples` toggle to settings form |
-| `js/dashboard.js` | Modify — `renderTodayMeals()` reads from current WeekPlan |
-| `index.html` | Modify — update Meals panel HTML for new planner shell |
-| `css/styles.css` | Modify — cuisine grid, recipe cards, shopping list styles |
+| `js/meal-planner.js` | Rewrite — replace cuisine-era rendering with recipe-catalog-based planner |
+| `js/settings.js` | Modify — add `dailyCalorieTarget` and `dailyBaselineCalories` editable fields |
+| `index.html` | Modify — update Fuel panel HTML for new planner shell |
+| `css/styles.css` | Modify — recipe cards, assignment grid, overflow shelf styles |
 
 ### meal-planner.js API
 
 ```
-renderMealPlannerHome()            — this week summary or "Start planning" prompt
-renderCuisineSelector()            — cuisine grid with ingredient overlap hints
-renderRecipeSelector(cuisineId)    — recipe cards with macro/ingredient info
-renderShoppingList(weekPlanId)     — grouped list with pantry toggle
-renderPrepGuide(weekPlanId)        — Sunday prep timeline
-saveCuisineSelection(cuisineId)
-saveRecipeSelection(recipeIds)
-toggleShoppingItem(ingredientId)   — check/uncheck
-togglePantryItemOverride(id)       — force-include a normally-hidden pantry item
+renderMealPlannerHome(weekPlan)    — recipe cards + 5-day grid, or "Generate" prompt if no plan
+renderRecipeCards(weekPlan)        — one card per selected recipe (name, batch cal, N, cal/serving, Pin, Swap)
+renderAssignmentGrid(weekPlan)     — Mon–Fri columns × Lunch/Dinner rows; no recipe appears twice in one column
+renderOverflowShelf(weekPlan)      — servings beyond 10 weekday slots ("X extra serving(s) · ~Y cal each")
+generateAndShowWeekPlan()          — calls MealEngine.generateWeekPlan(), renders result
+confirmWeekPlan(weekPlan)          — locks plan, updates cooldowns in localStorage
+renderShoppingList(weekPlan)       — ingredient aggregate across all recipes, grouped by category
 ```
 
 ### User Flow
 
 ```
-Meals Tab
- └── No plan set → "Start planning this week" prompt
- └── Cuisine selected → Recipe selector
- └── Recipes confirmed → This week's summary + Shopping List button
-      └── Shopping List → Categorized list
+Fuel Tab
+ └── No plan → [Generate Week Plan] button
+ └── Plan generated → Recipe Card Set + 5-Day Assignment Grid
+      └── [Pin] lock a recipe into next regeneration
+      └── [Swap] replace one recipe while keeping others
+      └── [↺ Regenerate] — new selection respecting pins and cooldowns
+      └── [Confirm Plan ✓] → Shopping List view
+           └── Ingredient aggregate grouped by category
            └── [Hide pantry items] toggle
-           └── [I need this] override per item
 ```
-
-### Shopping List — Unit Vocabulary
-
-All recipe ingredient amounts must use one of these unit strings exactly:
-`tbsp`, `tsp`, `cup`, `oz`, `lb`, `g`, `kg`, `ml`, `whole`, `clove`, `bunch`, `sprig`, `slice`, `strip`
-
-No abbreviation variants. This is what makes consolidation work.
 
 ### Testing Checkpoint
 
-- [ ] Meals tab: no plan → prompt shown, no errors
-- [ ] Select Asian cuisine → week plan saved to storage
-- [ ] Select 2 recipes → recipe selection saved
-- [ ] Shopping list renders, grouped by category
-- [ ] Hide pantry items toggle works — count badge correct
-- [ ] "I need this" override keeps item visible despite toggle
-- [ ] Check off item → refresh → check state persists
-- [ ] Today tab: dinner shows selected recipe on correct days
-- [ ] Sauces & Prep tab: sauce data still renders (now from data-cuisines.js)
-
-### Note
-All fractional quantities must be normalized as decimal numbers internally; display formatting handles fraction rendering
+- [ ] Fuel tab: no plan → "Generate Week Plan" button shown, no errors
+- [ ] Generate plan → recipe cards and 5-day grid render correctly
+- [ ] Pin a recipe → Regenerate preserves the pinned recipe
+- [ ] 5-day grid shows correct assignments — no column has the same recipe twice
+- [ ] Overflow shelf shows correct serving counts and calories
+- [ ] Confirm plan updates cooldowns in localStorage; Regenerate does not
+- [ ] Shopping list renders ingredient aggregate grouped by category
+- [ ] Hide pantry items toggle works
+- [ ] Plan tab (calendar): meal cells show assigned recipes on correct days
+- [ ] Calorie target and baseline settings persist across sessions
 
 ---
 
