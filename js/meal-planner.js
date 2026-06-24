@@ -406,7 +406,7 @@ function renderMealPlannerHome() {
   var total = 0, done = 0;
   if (list) {
     list.groups.forEach(function(g) {
-      g.items.forEach(function(item) { if (item.visible) { total++; if (item.checked) done++; } });
+      g.items.forEach(function(item) { total++; if (item.checked) done++; });
     });
   }
   var progressLabel = total === 0 ? '' :
@@ -514,10 +514,9 @@ function renderShoppingList() {
   var list       = ShoppingListEngine.buildList(plan, settings);
   if (!list)     { renderMealPlannerHome(); return; }
 
-  var showPantry = !!settings.showPantryStaples;
   var total = 0, done = 0;
   list.groups.forEach(function(g) {
-    g.items.forEach(function(item) { if (item.visible) { total++; if (item.checked) done++; } });
+    g.items.forEach(function(item) { total++; if (item.checked) done++; });
   });
 
   var isNextWeek = _mpWeekOffset === 1;
@@ -527,36 +526,24 @@ function renderShoppingList() {
       '<div class="mp-nav">' +
         '<button class="mp-back" onclick="renderMealPlannerHome()">← Plan</button>' +
         '<span class="mp-nav-title">' + (isNextWeek ? 'Next Week · ' : '') + 'Shopping List</span>' +
-        '<button class="mp-pantry-toggle" onclick="mpTogglePantryView()">' + (showPantry ? 'Hide pantry' : 'Show pantry') + '</button>' +
       '</div>' +
       '<div class="mp-sl-progress">' + done + ' / ' + total + ' items checked</div>';
 
   list.groups.forEach(function(g) {
-    var visItems      = g.items.filter(function(i) { return i.visible; });
-    var hiddenStaples = g.items.filter(function(i) { return !i.visible; });
-    if (visItems.length === 0 && hiddenStaples.length === 0) return;
+    if (g.items.length === 0) return;
 
     html += '<div class="mp-group"><div class="mp-group-title">' + g.category.toUpperCase() + '</div>';
-    visItems.forEach(function(item) {
-      var cls = 'mp-item' + (item.checked ? ' checked' : '') + (item.isPantryStaple ? ' staple' : '');
+    g.items.forEach(function(item) {
+      var cls = 'mp-item' + (item.checked ? ' checked' : '');
       html +=
         '<div class="' + cls + '" onclick="mpToggleShoppingItem(\'' + item.ingredientId + '\')">' +
           '<div class="mp-item-check">' + (item.checked ? '✓' : '') + '</div>' +
           '<div class="mp-item-main">' +
             '<span class="mp-item-name">' + item.name + '</span>' +
-            (item.isPantryStaple ? '<span class="mp-pantry-badge">pantry</span>' : '') +
           '</div>' +
           '<div class="mp-item-amt">' + item.amountStr + '</div>' +
         '</div>';
     });
-    if (hiddenStaples.length > 0) {
-      html += '<div class="mp-hidden-staples">' +
-        hiddenStaples.map(function(item) {
-          return '<button class="mp-need-this" onclick="event.stopPropagation();mpTogglePantryOverride(\'' + item.ingredientId + '\')">' +
-            '+ ' + item.name + '</button>';
-        }).join('') +
-      '</div>';
-    }
     html += '</div>';
   });
 
@@ -647,23 +634,6 @@ function mpToggleShoppingItem(ingredientId) {
   renderShoppingList();
 }
 
-function mpTogglePantryOverride(ingredientId) {
-  var plan = _mpLoadViewingPlan();
-  if (!plan) return;
-  var arr = plan.pantryOverrides || [];
-  var idx = arr.indexOf(ingredientId);
-  if (idx >= 0) { arr.splice(idx, 1); } else { arr.push(ingredientId); }
-  plan.pantryOverrides = arr;
-  _mpSavePlan(plan);
-  renderShoppingList();
-}
-
-function mpTogglePantryView() {
-  var s = loadSettings();
-  s.showPantryStaples = !s.showPantryStaples;
-  saveSettings(s);
-  renderShoppingList();
-}
 
 // ---- Entry point --------------------------------------------
 

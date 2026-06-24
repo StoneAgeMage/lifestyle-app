@@ -10,7 +10,6 @@ const SETTINGS_DEFAULTS = {
   dailyCalorieTarget:     2100,
   dailyBaselineCalories:  800,
   mealPrepDay:            0,
-  showPantryStaples:      false,
   age:                    null,
   knownMaxHR:             null,
 };
@@ -89,14 +88,6 @@ function showDataManagement() {
     '</select>' +
     '</div>' +
     '</div>' +
-    '<div class="lf-row" style="margin-bottom:12px">' +
-    '<div class="lf-group">' +
-    '<label class="st-toggle">' +
-    '<input type="checkbox" id="dm-pantry-staples"' + (s.showPantryStaples ? ' checked' : '') + '>' +
-    '<span>Show pantry staples in shopping list</span>' +
-    '</label>' +
-    '</div>' +
-    '</div>' +
     '<button class="log-btn" onclick="saveDMPrefs()">Save Preferences</button>' +
 
     '</div>' +
@@ -112,7 +103,6 @@ function closeDataManagement() {
 
 function saveDMPrefs() {
   var prepDayEl  = document.getElementById('dm-prep-day');
-  var pantryEl   = document.getElementById('dm-pantry-staples');
   var calTgtEl   = document.getElementById('dm-cal-target');
   var calBaseEl  = document.getElementById('dm-cal-baseline');
   if (!prepDayEl) return;
@@ -123,7 +113,6 @@ function saveDMPrefs() {
   var s = loadSettings();
   saveSettings(Object.assign({}, s, {
     mealPrepDay:            parseInt(prepDayEl.value, 10),
-    showPantryStaples:      pantryEl ? pantryEl.checked : false,
     dailyCalorieTarget:     (calTarget   > 0 ? calTarget   : s.dailyCalorieTarget),
     dailyBaselineCalories:  (calBaseline >= 0 ? calBaseline : s.dailyBaselineCalories),
   }));
