@@ -16,7 +16,7 @@
 
 const RECIPE_CATALOG = {
 
-  20minute_tofu_stirfry: {
+  '20minute_tofu_stirfry': {
     name: '20-Minute Tofu Stir-Fry',
     servings: 2,
     rank: 'C',
@@ -46,7 +46,7 @@ const RECIPE_CATALOG = {
     _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
   },
 
-  30minute_mediterranean_chicken_bowls: {
+  '30minute_mediterranean_chicken_bowls': {
     name: '30-Minute Mediterranean Chicken Bowls',
     servings: 4,
     rank: 'B',
@@ -71,7 +71,7 @@ const RECIPE_CATALOG = {
     _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
   },
 
-  35_minute_chili_honey_garlic_salmon_bowls: {
+  '35_minute_chili_honey_garlic_salmon_bowls': {
     name: '35 Minute Chili Honey Garlic Salmon Bowls',
     servings: 4,
     rank: 'B',
