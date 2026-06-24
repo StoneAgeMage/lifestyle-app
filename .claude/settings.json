@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.ambitiouskitchen.com)",
+      "WebFetch(domain:www.recipetineats.com)",
+      "WebFetch(domain:minimalistbaker.com)",
+      "WebFetch(domain:www.themediterraneandish.com)",
+      "WebFetch(domain:www.halfbakedharvest.com)",
+      "WebFetch(domain:www.indianhealthyrecipes.com)",
+      "WebFetch(domain:cookieandkate.com)",
+      "WebFetch(domain:www.skinnytaste.com)",
+      "WebFetch(domain:www.budgetbytes.com)",
+      "WebFetch(domain:spainonafork.com)"
+    ]
+  }
+}
