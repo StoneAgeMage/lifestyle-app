@@ -73,9 +73,9 @@ function renderPlanWeeks() {
 
 function _buildLegend() {
   return '<div class="pw-legend">' +
-    [['bg-lift','Lift'],['bg-z1','Z1 Easy'],['bg-z2','Z2 Moderate'],
+    [['bg-lift','Lift A/B'],['bg-z1','Z1 UT2'],['bg-z2','Z2 UT1'],
      ['bg-at','Threshold'],['bg-vo2','VO2max'],['bg-spd','Speed'],
-     ['bg-restore','Restore']].map(function(x) {
+     ['bg-restore','Restore/Recovery']].map(function(x) {
       return '<div class="pw-leg"><span class="pw-leg-dot ' + x[0] + '"></span>' + x[1] + '</div>';
     }).join('') +
     '</div>';
@@ -104,12 +104,33 @@ function openModal(y, m, d) {
     ' · ' + wf.blockName + ' Wk ' + (wf.blockWeek + 1);
   document.getElementById('m-dow').textContent = dowNames[date.getDay()];
 
-  document.getElementById('m-workout').innerHTML = wf.workoutItems.map(function(item) {
-    return '<div class="modal-workout">' +
-      '<div class="modal-workout-title">' + item.t + '</div>' +
-      '<div class="modal-workout-detail">' + item.d + '</div>' +
-    '</div>';
-  }).join('');
+  // Build workout section — workoutItems are plain strings in the new format
+  var workoutHtml = '';
+  if (wf.type === 'hybrid' && wf.hybrid && wf.hybrid.erg) {
+    workoutHtml += '<div class="modal-workout-label">Erg</div>';
+    workoutHtml += (wf.hybrid.erg.items || []).map(function(s) {
+      return '<div class="db-workout-item">' + s + '</div>';
+    }).join('');
+    if (wf.hybrid.run) {
+      workoutHtml += '<div class="modal-workout-label" style="margin-top:10px">Run Fallback</div>';
+      workoutHtml += (wf.hybrid.run.items || []).map(function(s) {
+        return '<div class="db-workout-item">' + s + '</div>';
+      }).join('');
+    }
+  } else if (wf.type === 'lift' && wf.lift && wf.lift.primary) {
+    workoutHtml += '<div class="modal-workout-label">Strength</div>';
+    workoutHtml += (wf.lift.primary.items || []).map(function(s) {
+      return '<div class="db-workout-item">' + s + '</div>';
+    }).join('');
+  } else {
+    workoutHtml = (wf.workoutItems || []).map(function(item) {
+      if (typeof item === 'string') return '<div class="db-workout-item">' + item + '</div>';
+      return '<div class="modal-workout">' +
+        '<div class="modal-workout-title">' + (item.t || '') + '</div>' +
+        '<div class="modal-workout-detail">' + (item.d || '') + '</div></div>';
+    }).join('');
+  }
+  document.getElementById('m-workout').innerHTML = workoutHtml;
 
   document.getElementById('m-meals').innerHTML = meals.map(function(ml) {
     return '<div class="modal-meal">' +

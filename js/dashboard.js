@@ -92,6 +92,155 @@ function renderDateContext() {
 
 // ---- Today's Workout ----------------------------------------
 
+// Render a plain-string item list (new format) or legacy {t,d} object list
+function _renderItemList(items) {
+  if (!items || items.length === 0) return '';
+  return items.map(function(item) {
+    if (typeof item === 'string') {
+      return '<div class="db-workout-item">' + item + '</div>';
+    }
+    return '<div class="modal-workout">' +
+      '<div class="modal-workout-title">' + (item.t || '') + '</div>' +
+      '<div class="modal-workout-detail">' + (item.d || '') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// Mobility card HTML for post-workout (5-min) or restoration (20-min)
+function _renderMobCard(wf) {
+  function _exHtml(ex) {
+    var durStr = ex.duration >= 60 ? Math.round(ex.duration / 60) + ' min' : ex.duration + ' sec';
+    if (ex.side && ex.side !== 'bilateral') durStr += ' · ' + ex.side;
+    return '<div class="mob-exercise"><div class="mob-ex-dur">' + durStr + '</div>' +
+      '<div><div class="mob-ex-name">' + ex.name + '</div>' +
+      '<div class="mob-ex-cue">' + ex.cue + '</div></div></div>';
+  }
+  if (wf.type === 'restoration') {
+    var restore = TrainingEngine.getRestorationRoutine();
+    if (!restore || !restore.exercises) return '';
+    return '<div class="mob-card"><div class="mob-card-title">20-Min Deep Restoration</div>' +
+      restore.exercises.map(_exHtml).join('') + '</div>';
+  }
+  if (wf.mobilityBias) {
+    var mob = TrainingEngine.getMobilityRoutine(wf);
+    if (!mob || !mob.exercises) return '';
+    return '<div class="mob-card"><div class="mob-card-title">Post-Workout · 5 Min Mobility</div>' +
+      mob.exercises.map(_exHtml).join('') + '</div>';
+  }
+  return '';
+}
+
+// Hybrid card (Tue/Thu/Sat): three-tab toggle — Erg | Club Practice | Run Fallback
+function _renderHybridCard(wf, blockBadge, done) {
+  var h   = wf.hybrid || {};
+  var erg = h.erg     || {};
+  var run = h.run     || {};
+
+  var ergPanel =
+    '<div class="db-opt-panel active" id="db-panel-erg">' +
+    '<div class="db-workout-body">' +
+    (erg.name ? '<div class="db-opt-name">' + erg.name + '</div>' : '') +
+    _renderItemList(erg.items) +
+    '</div></div>';
+
+  var clubPanel =
+    '<div class="db-opt-panel" id="db-panel-club">' +
+    '<div class="db-workout-body db-club-form">' +
+    '<p class="db-club-subtitle">Log your on-water club session</p>' +
+    '<div class="db-club-field"><label>Meters Rowed</label>' +
+    '<input type="number" id="club-meters" class="lf-input" placeholder="5000" min="0"></div>' +
+    '<div class="db-club-field"><label>Effort Rating (1–10)</label>' +
+    '<input type="number" id="club-rating" class="lf-input" placeholder="7" min="1" max="10"></div>' +
+    '<div class="db-club-field"><label>Notes</label>' +
+    '<input type="text" id="club-notes" class="lf-input" placeholder="What did you work on?"></div>' +
+    '<button class="log-btn" style="margin-top:10px" onclick="saveClubLog()">Save Club Practice</button>' +
+    '</div></div>';
+
+  var runPanel =
+    '<div class="db-opt-panel" id="db-panel-run">' +
+    '<div class="db-workout-body">' +
+    (run.name ? '<div class="db-opt-name">' + run.name + '</div>' : '') +
+    _renderItemList(run.items) +
+    '</div></div>';
+
+  var tabs =
+    '<div class="db-opt-tabs">' +
+    '<button class="db-opt-tab active" onclick="switchWorkoutTab(\'erg\')">Erg</button>' +
+    '<button class="db-opt-tab" onclick="switchWorkoutTab(\'club\')">Club Practice</button>' +
+    '<button class="db-opt-tab" onclick="switchWorkoutTab(\'run\')">Run Fallback</button>' +
+    '</div>';
+
+  var logBtns =
+    '<div class="td-complete-row">' +
+    (done
+      ? '<button class="td-done-text" onclick="unmarkWorkoutComplete()">✓ Done</button>'
+      : '<button class="td-complete-btn" onclick="markWorkoutComplete()">Mark Complete</button>'
+    ) +
+    '<button class="td-log-btn" onclick="quickLogToday()">Log Erg →</button>' +
+    '</div>';
+
+  return '<div class="card db-workout-card" style="margin-bottom:16px">' +
+    '<div class="db-workout-header ' + wf.workoutBg + '">' +
+    '<span class="db-workout-badge">' + wf.workoutShort + '</span>' + blockBadge +
+    (done ? '<span class="td-done-badge">✓ Done</span>' : '') +
+    '</div>' +
+    tabs + ergPanel + clubPanel + runPanel +
+    _renderMobCard(wf) +
+    logBtns + '</div>';
+}
+
+// Lift card (Mon/Fri): two-tab toggle — Primary | Travel (Zero-Equipment)
+function _renderLiftCard(wf, blockBadge, done) {
+  var lift    = wf.lift    || {};
+  var primary = lift.primary || {};
+  var travel  = lift.travel  || {};
+
+  function _exRows(exercises) {
+    if (!exercises || exercises.length === 0) return '';
+    return exercises.map(function(ex) {
+      var setsReps = ex.sets + '×' + (ex.reps === 1 ? '—' : ex.reps);
+      return '<div class="db-lift-ex">' +
+        '<span class="db-ex-name">' + ex.name + '</span>' +
+        '<span class="db-ex-sets">' + setsReps + '</span></div>' +
+        (ex.cue ? '<div class="db-ex-cue">' + ex.cue + '</div>' : '');
+    }).join('');
+  }
+
+  var primaryPanel =
+    '<div class="db-opt-panel active" id="db-panel-primary">' +
+    '<div class="db-workout-body">' + _exRows(primary.exercises) + '</div></div>';
+
+  var travelPanel =
+    '<div class="db-opt-panel" id="db-panel-travel">' +
+    '<div class="db-workout-body">' +
+    '<div class="db-travel-note">Zero equipment — floor + wall only</div>' +
+    _exRows(travel.exercises) + '</div></div>';
+
+  var tabs =
+    '<div class="db-opt-tabs">' +
+    '<button class="db-opt-tab active" onclick="switchWorkoutTab(\'primary\')">' + (primary.label || 'Primary') + '</button>' +
+    '<button class="db-opt-tab" onclick="switchWorkoutTab(\'travel\')">' + (travel.label || 'Travel') + '</button>' +
+    '</div>';
+
+  var logBtns =
+    '<div class="td-complete-row">' +
+    (done
+      ? '<button class="td-done-text" onclick="unmarkWorkoutComplete()">✓ Done</button>'
+      : '<button class="td-complete-btn" onclick="markWorkoutComplete()">Mark Complete</button>'
+    ) +
+    '<button class="td-log-btn" onclick="quickLogToday()">Log Lifts →</button>' +
+    '</div>';
+
+  return '<div class="card db-workout-card" style="margin-bottom:16px">' +
+    '<div class="db-workout-header ' + wf.workoutBg + '">' +
+    '<span class="db-workout-badge">' + wf.workoutShort + '</span>' + blockBadge +
+    (done ? '<span class="td-done-badge">✓ Done</span>' : '') +
+    '</div>' +
+    tabs + primaryPanel + travelPanel +
+    _renderMobCard(wf) +
+    logBtns + '</div>';
+}
+
 function renderTodayWorkout() {
   const el = document.getElementById('td-workout');
   if (!el) return;
@@ -104,75 +253,71 @@ function renderTodayWorkout() {
     el.innerHTML =
       '<div class="card db-workout-card" style="margin-bottom:16px">' +
       '<div class="db-workout-header bg-rest"><span class="db-workout-badge">Rest Day</span></div>' +
-      '<div class="db-workout-body"><div class="tip" style="margin:0"><h4>Rest Day</h4><p>Sundays are full rest. Sleep, walk, eat well. Recovery is where the adaptation happens.</p></div></div>' +
-      '</div>';
+      '<div class="db-workout-body"><div class="tip" style="margin:0"><h4>Rest Day</h4>' +
+      '<p>Active rest. Sleep, walk, eat well — recovery is where adaptation happens.</p></div></div></div>';
     return;
   }
 
-  const done = loadCompletions().some(function(c) { return c.date === todayStr() && c.workoutId === wf.workoutId; });
+  const done       = loadCompletions().some(function(c) { return c.date === todayStr() && c.workoutId === wf.workoutId; });
+  var   blockBadge = wf.blockName
+    ? '<span class="td-block-badge">' + wf.blockName + (wf.isDeload ? ' · Deload' : wf.isTaper ? ' · Taper' : '') + '</span>'
+    : '';
 
-  // Mobility card — post-workout 5-min or restoration card
-  var mobilityHtml = '';
-  if (wf.type === 'restoration') {
-    var restore = TrainingEngine.getRestorationRoutine();
-    if (restore) {
-      mobilityHtml = '<div class="mob-card">' +
-        '<div class="mob-card-title">20-Min Deep Restoration</div>' +
-        restore.exercises.map(function(ex) {
-          var durStr = ex.duration >= 60 ? Math.round(ex.duration / 60) + ' min' : ex.duration + ' sec';
-          if (ex.side && ex.side !== 'bilateral') durStr += ' · ' + ex.side;
-          return '<div class="mob-exercise">' +
-            '<div class="mob-ex-dur">' + durStr + '</div>' +
-            '<div><div class="mob-ex-name">' + ex.name + '</div>' +
-            '<div class="mob-ex-cue">' + ex.cue + '</div></div>' +
-            '</div>';
-        }).join('') +
-        '</div>';
-    }
-  } else if (wf.mobilityBias) {
-    var mob = TrainingEngine.getMobilityRoutine(wf);
-    if (mob) {
-      mobilityHtml = '<div class="mob-card">' +
-        '<div class="mob-card-title">Post-Workout · 5 Min Mobility</div>' +
-        mob.exercises.map(function(ex) {
-          var durStr = ex.duration >= 60 ? Math.round(ex.duration / 60) + ' min' : ex.duration + ' sec';
-          if (ex.side && ex.side !== 'bilateral') durStr += ' · ' + ex.side;
-          return '<div class="mob-exercise">' +
-            '<div class="mob-ex-dur">' + durStr + '</div>' +
-            '<div><div class="mob-ex-name">' + ex.name + '</div>' +
-            '<div class="mob-ex-cue">' + ex.cue + '</div></div>' +
-            '</div>';
-        }).join('') +
-        '</div>';
-    }
-  }
+  if (wf.type === 'hybrid') { el.innerHTML = _renderHybridCard(wf, blockBadge, done); return; }
+  if (wf.type === 'lift')   { el.innerHTML = _renderLiftCard(wf, blockBadge, done);   return; }
 
-  var blockBadge = wf.blockName ? '<span class="td-block-badge">' + wf.blockName + (wf.isDeload ? ' · Deload' : wf.isTaper ? ' · Taper' : '') + '</span>' : '';
+  // Restoration (Sun), Recovery (Wed), or generic fallback
+  var logBtn = (wf.type !== 'restoration' && wf.type !== 'recovery')
+    ? '<button class="td-log-btn" onclick="quickLogToday()">Log Session →</button>'
+    : '';
 
   el.innerHTML =
     '<div class="card db-workout-card" style="margin-bottom:16px">' +
     '<div class="db-workout-header ' + wf.workoutBg + '">' +
-    '<span class="db-workout-badge">' + wf.workoutShort + '</span>' +
-    blockBadge +
+    '<span class="db-workout-badge">' + wf.workoutShort + '</span>' + blockBadge +
     (done ? '<span class="td-done-badge">✓ Done</span>' : '') +
     '</div>' +
     '<div class="db-workout-body">' +
-    wf.workoutItems.map(function(item) {
-      return '<div class="modal-workout">' +
-        '<div class="modal-workout-title">' + item.t + '</div>' +
-        '<div class="modal-workout-detail">' + item.d + '</div>' +
-        '</div>';
-    }).join('') +
-    mobilityHtml +
+    _renderItemList(wf.workoutItems) +
+    _renderMobCard(wf) +
     '</div>' +
     '<div class="td-complete-row">' +
-      (done
-        ? '<button class="td-done-text" onclick="unmarkWorkoutComplete()">✓ Done</button>'
-        : '<button class="td-complete-btn" onclick="markWorkoutComplete()">Mark Complete</button>'
-      ) +
-      (wf.type !== 'restoration' ? '<button class="td-log-btn" onclick="quickLogToday()">Log Session →</button>' : '') +
-    '</div>' +
-    '</div>';
+    (done
+      ? '<button class="td-done-text" onclick="unmarkWorkoutComplete()">✓ Done</button>'
+      : '<button class="td-complete-btn" onclick="markWorkoutComplete()">Mark Complete</button>'
+    ) + logBtn +
+    '</div></div>';
+}
+
+// Tab switcher for hybrid and lift cards
+function switchWorkoutTab(tab) {
+  var allTabs   = document.querySelectorAll('.db-opt-tab');
+  var allPanels = document.querySelectorAll('.db-opt-panel');
+  allTabs.forEach(function(t) {
+    var matches = (t.getAttribute('onclick') || '').indexOf("'" + tab + "'") >= 0;
+    t.classList.toggle('active', matches);
+  });
+  allPanels.forEach(function(p) {
+    p.classList.toggle('active', p.id === 'db-panel-' + tab);
+  });
+}
+
+// Club practice log save
+function saveClubLog() {
+  var metersEl = document.getElementById('club-meters');
+  var ratingEl = document.getElementById('club-rating');
+  var notesEl  = document.getElementById('club-notes');
+  var meters   = metersEl  ? (parseInt(metersEl.value)  || 0) : 0;
+  var rating   = ratingEl  ? (parseInt(ratingEl.value)  || 0) : 0;
+  var notes    = notesEl   ? (notesEl.value.trim() || '') : '';
+
+  if (!meters && !notes) { showToast('Enter at least meters or notes'); return; }
+
+  var logs = storage.readLogs();
+  logs.unshift({ id: Date.now(), date: todayStr(), meters: meters, rating: rating, notes: notes, _logType: 'clubPractice' });
+  storage.writeLogs(logs.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); }));
+  markWorkoutComplete();
+  showToast('Club practice saved ✓');
 }
 
 // ---- Meal Plan Nudge ----------------------------------------
@@ -313,15 +458,12 @@ function quickLogToday() {
 
   var detailsId, formSetup;
 
-  if (wf.workoutBg === 'bg-lift') {
+  if (wf.type === 'lift') {
     detailsId = 'td-log-lift';
     formSetup = function() {
       var sessionEl = document.getElementById('lf-session');
-      if (sessionEl && wf.type === 'lift') {
-        // Use logSession from the workout definition if available
-        var wkData = WORKOUT_LIBRARY[wf.workoutId];
-        if (wkData && wkData.logSession) sessionEl.value = wkData.logSession;
-        else { var sessionMap = {1:'A', 3:'B'}; if (sessionMap[wf.dow]) sessionEl.value = sessionMap[wf.dow]; }
+      if (sessionEl && wf.logSession) {
+        sessionEl.value = wf.logSession;
         if (typeof buildExerciseRows === 'function') buildExerciseRows();
       }
     };
@@ -330,11 +472,9 @@ function quickLogToday() {
     formSetup = function() {
       var typeEl = document.getElementById('ef-type');
       if (typeEl) {
-        // Map new block-era bg classes → erg log type values
         var bgToType = {
-          'bg-z1':'z1', 'bg-z2':'z2', 'bg-at':'at',
-          'bg-vo2':'vo2', 'bg-spd':'spd',
-          'bg-end':'endurance', 'bg-speed':'speed', 'bg-rest':'recovery'
+          'bg-z1': 'z1', 'bg-z2': 'z2', 'bg-at': 'at',
+          'bg-vo2': 'vo2', 'bg-spd': 'spd', 'bg-restore': 'recovery'
         };
         typeEl.value = bgToType[wf.workoutBg] || 'z1';
         if (typeof updateErgFields === 'function') updateErgFields();

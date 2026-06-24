@@ -6,11 +6,15 @@
 // Session exercises are loaded dynamically from WORKOUT_LIBRARY when available,
 // falling back to these defaults if the session ID can't be resolved.
 const sessionExercises = {
-  A: ['DB Romanian Deadlift','DB Pendlay Row','Ring Row (feet elevated)','DB Hip Thrust','Ring Ab Fallout'],
-  B: ['Bulgarian Split Squat (DBs)','Single-Leg Romanian Deadlift','Ring Push-up (feet elevated)','Copenhagen Plank','Single-Arm DB Row']
+  A: ['Goblet Squat','Ring Row','Single-Leg RDL (DB)','Ring Push-Up','Pallof Press','Hollow Body Hold'],
+  B: ['DB Romanian Deadlift','Ring Dip','DB Single-Arm Row','DB Lateral Raise','Copenhagen Plank','Dead Bug']
 };
 
-const timeBasedEx = new Set(['Copenhagen Plank','Plank','Dead Bug','Side Plank','Hollow Body Hold','Ring Ab Fallout']);
+const timeBasedEx = new Set([
+  'Copenhagen Plank','Plank','Dead Bug','Side Plank','Hollow Body Hold','Ring Ab Fallout',
+  'Pallof Press','Hollow Rock','Wall Sit','Bird-Dog','Prone Superman Hold','Prone I/Y/T Raises',
+  'Scapular Wall Slide','Wall Plank','Side-Lying Hip Raise','Side-Lying Hip Abduction','Hollow Body Rock'
+]);
 
 const ergTypeLabels = {
   z1:'Zone 1 Easy', z2:'Zone 2 Moderate', at:'Threshold',
@@ -83,20 +87,24 @@ function showToast(msg) {
 // ---- Lift form ----
 
 function _getExercisesForSession(session) {
-  // Try to resolve from today's actual workout in WORKOUT_LIBRARY
   if (typeof TRAINING_PLANS !== 'undefined' && typeof TrainingEngine !== 'undefined' && typeof WORKOUT_LIBRARY !== 'undefined') {
     var plan  = TRAINING_PLANS[ACTIVE_PLAN_ID];
     var today = new Date(); today.setHours(12, 0, 0, 0);
     var wf    = TrainingEngine.getWorkoutForDate(plan, today);
     if (wf && wf.type === 'lift') {
       var wkData = WORKOUT_LIBRARY[wf.workoutId];
+      // New format: exercises live in wkData.primary.exercises
+      if (wkData && wkData.primary && wkData.primary.exercises && wkData.primary.exercises.length > 0) {
+        return wkData.primary.exercises.map(function(ex) { return ex.name; });
+      }
+      // Legacy format fallback
       if (wkData && wkData.exercises && wkData.exercises.length > 0) return wkData.exercises;
     }
-    // If session letter matches a block's logSession, find it
+    // Fall back to any matching session in WORKOUT_LIBRARY
     var blockWks = Object.values(WORKOUT_LIBRARY).filter(function(w) {
-      return w.type === 'lift' && w.logSession === session && w.exercises && w.exercises.length > 0;
+      return w.type === 'lift' && w.logSession === session && w.primary && w.primary.exercises && w.primary.exercises.length > 0;
     });
-    if (blockWks.length > 0) return blockWks[0].exercises;
+    if (blockWks.length > 0) return blockWks[0].primary.exercises.map(function(ex) { return ex.name; });
   }
   return sessionExercises[session] || [];
 }

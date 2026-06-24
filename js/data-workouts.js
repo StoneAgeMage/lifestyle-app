@@ -1,554 +1,1163 @@
-// ============================================================
-// DATA-WORKOUTS — block-aware session library
-// Equipment: Dumbbells ≤70 lb · Pull-up bar · Gymnastics rings
-//
-// bgClass quick-reference:
-//   bg-z1      = Zone 1 easy aerobic    (light blue)
-//   bg-z2      = Zone 2 moderate aerobic (medium blue)
-//   bg-at      = Anaerobic threshold     (orange)
-//   bg-vo2     = VO2max intervals        (red)
-//   bg-spd     = Speed / sprint pieces   (purple)
-//   bg-lift    = Strength session        (gold)
-//   bg-restore = Restoration day        (teal)
-//
-// mobilityBias → key into POST_WORKOUT_ROUTINES:
-//   'row' | 'leg' | 'upper'
-// ============================================================
+'use strict';
 
-const WORKOUT_LIBRARY = {
+// Static club practice log config — same for all hybrid days
+var CLUB_LOG_CONFIG = {
+  type: 'club',
+  label: 'Log Team Practice on the Water',
+  subtitle: 'Quick capture for your club session',
+  fields: [
+    { id: 'club_meters', label: 'Meters Rowed (estimated)', type: 'number', placeholder: '5000' },
+    { id: 'club_rating', label: 'Effort Rating (1–10)', type: 'number', placeholder: '7', min: 1, max: 10 },
+    { id: 'club_notes', label: 'Notes', type: 'text', placeholder: 'What did you work on?' }
+  ]
+};
 
-  // ==========================================================
-  // WINTER BLOCK — Erg Sessions
-  // ==========================================================
+var WORKOUT_LIBRARY = {
 
-  wk_wint_z1_45: {
-    id: 'wk_wint_z1_45', name: '45-Min Steady State',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 · 45′',
-    mobilityBias: 'row',
-    items: [
-      { t: '45-Min Continuous Row', d: 'SR 18–20 · HR cap 140 bpm. Breathe through your nose — if you can\'t, you\'re too hard. Rhythm over resistance.' },
-      { t: 'Optional Rate Play', d: 'Every 10 min: 10 strokes at SR +2, settle back. Stay aerobic the whole piece.' },
-      { t: 'Catch Cue', d: 'Focus on body angle — lean to the catch before the hands arrive. Blade enters silent.' }
-    ]
+  // ═══════════════════════════════════════════════════════════════════
+  // WINTER ENGINE — Nov-Jan  |  Aerobic base, long steady state, UT2
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ── Tuesday (4 variants) — UT2 aerobic base
+  hyb_wint_tue_A: {
+    id: 'hyb_wint_tue_A', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'UT2 Steady', mobilityBias: 'row',
+    erg: {
+      name: '60-Min Steady State UT2',
+      items: ['10 min easy paddle, build to Z1 by min 5', '45 min continuous at UT2 (SR 18-20)', '5 min cool-down paddle']
+    },
+    run: {
+      name: '50-Min Easy Base Run', bgClass: 'bg-z1',
+      items: ['5 min walk warm-up', '40 min easy Z1 run (conversational pace)', '5 min walk cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_z1_60: {
-    id: 'wk_wint_z1_60', name: '60-Min Long Steady State',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 · 60′',
-    mobilityBias: 'row',
-    items: [
-      { t: '60-Min Continuous Row', d: 'SR 18–20 · HR 125–138 bpm. The long aerobic investment. Effort is "I could hold this forever".' },
-      { t: 'Mental Anchor', d: 'Split the 60 min into three 20-min focus blocks: catch, drive, finish. One cue per block.' },
-      { t: 'Fueling Note', d: 'Have water + a small snack ready. Eat oats 60–90 min before.' }
-    ]
+  hyb_wint_tue_B: {
+    id: 'hyb_wint_tue_B', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'UT2 Pyramids', mobilityBias: 'row',
+    erg: {
+      name: '4×15-Min Pyramid Intervals',
+      items: ['10 min easy warm-up', '4×15 min @ UT2 border (SR 20), 3 min rest between', '5 min cool-down']
+    },
+    run: {
+      name: '55-Min Easy Fartlek Run', bgClass: 'bg-z1',
+      items: ['10 min easy run', '35 min easy with 6× 30-sec light surges', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_z2_rate: {
-    id: 'wk_wint_z2_rate', name: 'Rate Ladder — Z2',
-    type: 'erg', ergType: 'z2', bgClass: 'bg-z2', calShort: 'Z2 Rate',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 5 min', d: 'Easy SR 18.' },
-      { t: 'Rate Ladder × 3', d: '5 min @ SR 18 → 5 min @ SR 20 → 5 min @ SR 22 → back to 18. Total: 45 min. Constant feel — let the rating do the work, don\'t change pressure.' },
-      { t: 'Goal', d: 'Same split across all rates. Any drift means you\'re applying more pressure at higher rates. Fix that.' },
-      { t: 'Cool-down 5 min', d: 'Light paddle SR 16.' }
-    ]
+  hyb_wint_tue_C: {
+    id: 'hyb_wint_tue_C', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'UT2 Cruise', mobilityBias: 'row',
+    erg: {
+      name: '75-Min Continuous Cruise',
+      items: ['10 min easy paddle (HR < 60% max)', '60 min at UT2 ceiling (SR 18, eyes on split)', '5 min paddle out']
+    },
+    run: {
+      name: '60-Min Easy Long Run', bgClass: 'bg-z1',
+      items: ['60 min easy conversational run at Z1', 'Focus on nose-breathing throughout']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_z1_30: {
-    id: 'wk_wint_z1_30', name: 'Easy 30-Min Flush',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 · 30′',
-    mobilityBias: 'row',
-    items: [
-      { t: '30-Min Easy Row (Deload)', d: 'SR 18 · HR <130. Pure aerobic flush. This is a recovery session — do not compete with yourself.' }
-    ]
+  hyb_wint_tue_D: {
+    id: 'hyb_wint_tue_D', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'UT2 Blocks', mobilityBias: 'row',
+    erg: {
+      name: '3×20-Min UT2 Blocks',
+      items: ['10 min warm-up', '3×20 min @ UT2 (SR 20), 2 min easy between', '5 min cool-down']
+    },
+    run: {
+      name: '45-Min Base Run + Drills', bgClass: 'bg-z1',
+      items: ['5 min walk', '30 min easy Z1 run', '10 min running drills (high knees, A-skips, strides)']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_at_4x10: {
-    id: 'wk_wint_at_4x10', name: '4 × 10-Min AT Intervals',
-    type: 'erg', ergType: 'at', bgClass: 'bg-at', calShort: 'AT 4×10′',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 10 min', d: 'Build from SR 18 to SR 22. Last 2 min at target rate.' },
-      { t: '4 × 10 min — Anaerobic Threshold', d: 'SR 22–24 · HR 155–165 bpm. 3 min rest between. "Comfortably hard" — short sentences only.' },
-      { t: 'Execution', d: 'Hold the same split across all 4 reps. Reps 3–4 should feel like work. If rep 1 felt like work, you went too hard.' },
-      { t: 'Cool-down 5 min', d: 'SR 16, complete flush.' }
-    ]
+  // ── Thursday (4 variants) — UT1 moderate
+  hyb_wint_thu_A: {
+    id: 'hyb_wint_thu_A', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Intervals', mobilityBias: 'row',
+    erg: {
+      name: '6×8-Min UT1 Intervals',
+      items: ['10 min easy warm-up', '6×8 min @ UT1 (SR 22), 2 min rest between', '5 min cool-down paddle']
+    },
+    run: {
+      name: '50-Min Moderate Run', bgClass: 'bg-z2',
+      items: ['10 min easy run', '30 min Z2 moderate (slightly elevated HR)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_threshold_20: {
-    id: 'wk_wint_threshold_20', name: '20-Min Threshold Test',
-    type: 'erg', ergType: 'at', bgClass: 'bg-at', calShort: 'FTP Test',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 15 min', d: 'Build to SR 22. 3 × 1-min pickups with 2-min rest.' },
-      { t: '20-Min Max Effort', d: 'SR 24 · All-out sustainable effort. This is your FTP benchmark — every 4 weeks, track your split improvement here.' },
-      { t: 'Execution', d: 'Go out slightly conservative first 5 min. Build through the middle. Empty the tank in the last 2 min.' },
-      { t: 'Log It', d: 'Average split → your AT split. Target this split in your intervals throughout the block.' }
-    ]
+  hyb_wint_thu_B: {
+    id: 'hyb_wint_thu_B', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Ladder', mobilityBias: 'row',
+    erg: {
+      name: '2-3-4-3-2-Min Ladder',
+      items: ['10 min easy warm-up', 'Ladder: 2-3-4-3-2 min @ UT1, 90s rest between', 'Repeat ladder once', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Negative-Split Run', bgClass: 'bg-z2',
+      items: ['22 min easy Z1 run', '23 min moderate Z2 (last 5 min progressive build)']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_z1_tech: {
-    id: 'wk_wint_z1_tech', name: 'Technical Paddle',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 Tech',
-    mobilityBias: 'row',
-    items: [
-      { t: '40-Min Z1 Technical Focus', d: 'SR 18–20 · HR <135. Pick one technical element per 10-min block and drill it obsessively.' },
-      { t: 'Block 1 — Catch', d: '10 min. Pause drill: hesitate at the catch. Feel blade enter before legs drive. No splash.' },
-      { t: 'Block 2 — Drive Sequencing', d: '10 min. Legs → back → arms, in that strict order. Resist the urge to pull early.' },
-      { t: 'Block 3 — Finish', d: '10 min. Controlled extraction. Hands away fast and flat before the body rocks over.' },
-      { t: 'Block 4 — Free Row', d: '10 min. Integrate all 3. Don\'t think — just feel.' }
-    ]
+  hyb_wint_thu_C: {
+    id: 'hyb_wint_thu_C', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Sustained', mobilityBias: 'row',
+    erg: {
+      name: '3×12-Min UT1 Sustained',
+      items: ['10 min easy warm-up', '3×12 min @ UT1 (SR 22), 3 min rest between', '8 min cool-down paddle']
+    },
+    run: {
+      name: '55-Min Trail/Road Run', bgClass: 'bg-z2',
+      items: ['10 min walk/easy jog', '40 min moderate Z2 run', '5 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_z1_fartlek: {
-    id: 'wk_wint_z1_fartlek', name: 'Aerobic Fartlek',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 Fartlek',
-    mobilityBias: 'row',
-    items: [
-      { t: '40-Min Aerobic Fartlek', d: 'SR 18–22 · Stay in Z1 the entire time. The only variable is rate.' },
-      { t: 'Structure', d: '5-min easy @ SR 18 → 3-min push @ SR 22 → back to SR 18. Repeat for 40 min. Judge pace only by feel and HR, not by split.' },
-      { t: 'Purpose', d: 'Build the aerobic bandwidth — the ability to absorb rate surges without going anaerobic. Direct head race carryover.' }
-    ]
+  hyb_wint_thu_D: {
+    id: 'hyb_wint_thu_D', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Blocks', mobilityBias: 'row',
+    erg: {
+      name: '2×20-Min UT1 Blocks',
+      items: ['10 min easy warm-up', '2×20 min @ UT1 ceiling (SR 22), 5 min rest between', '5 min cool-down']
+    },
+    run: {
+      name: '50-Min Tempo Build Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '30 min Z2 run (building last 10 min toward Z3)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-
-  // ==========================================================
-  // WINTER BLOCK — Strength Sessions
-  // ==========================================================
-
-  wk_wint_lift_a: {
-    id: 'wk_wint_lift_a', name: 'Winter Strength A — Heavy Hinge + Pull',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift A',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['DB Romanian Deadlift', 'DB Pendlay Row', 'Ring Row (feet elevated)', 'DB Hip Thrust', 'Ring Ab Fallout'],
-    items: [
-      { t: 'DB Romanian Deadlift', d: '4 × 6 · 55–70 lb · Hip hinge, soft knee, DBs skim shins · 3 min rest · Add 2.5–5 lb when you own all 6 reps' },
-      { t: 'DB Pendlay Row', d: '4 × 8 · 45–55 lb · Dead-stop each rep from floor, chest parallel · Scapular retraction at top · 2 min rest' },
-      { t: 'Ring Row (feet elevated)', d: '3 × 10 · Rings low (harder) or high (easier) · Full extension start, chest to rings · 90 sec rest' },
-      { t: 'DB Hip Thrust', d: '3 × 12 · 40–50 lb · 2-sec hold at lockout · Posterior pelvic tilt — ribs down · 90 sec rest' },
-      { t: 'Ring Ab Fallout', d: '3 × 8 · Rings at hip height · Full extension, hollow body throughout · Slow 3-sec return · 60 sec rest' }
-    ]
+  // ── Saturday (4 variants) — UT2 long volume, no post-workout mobility
+  hyb_wint_sat_A: {
+    id: 'hyb_wint_sat_A', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'Long Row', mobilityBias: null,
+    erg: {
+      name: '90-Min Long Steady Row',
+      items: ['10 min easy paddle', '75 min continuous at UT2 (SR 18)', '5 min easy paddle out']
+    },
+    run: {
+      name: '70-Min Long Easy Run', bgClass: 'bg-z1',
+      items: ['70 min easy Z1 long run', 'Focus on time on feet, not pace']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_lift_a_dl: {
-    id: 'wk_wint_lift_a_dl', name: 'Winter Strength A — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift A ↓',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['DB Romanian Deadlift', 'DB Pendlay Row', 'Ring Row (feet elevated)', 'DB Hip Thrust', 'Ring Ab Fallout'],
-    items: [
-      { t: 'Deload Week', d: 'Drop all loads by 40%. Keep movement quality perfect. 3 sets max per exercise. Nervous system recovers — next week you\'ll feel the adaptation.' },
-      { t: 'DB Romanian Deadlift', d: '3 × 8 · ~35–40 lb · Perfect hinge, no rushing' },
-      { t: 'DB Pendlay Row', d: '3 × 8 · ~25–30 lb · Focus on scapular control' },
-      { t: 'Ring Row + Hip Thrust + Ab Fallout', d: '3 × 10 each · Bodyweight / light · Move well, breathe well' }
-    ]
+  hyb_wint_sat_B: {
+    id: 'hyb_wint_sat_B', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'Long Intervals', mobilityBias: null,
+    erg: {
+      name: '4×18-Min Long Intervals',
+      items: ['10 min warm-up', '4×18 min @ UT2 (SR 20), 3 min easy between', '5 min cool-down']
+    },
+    run: {
+      name: '75-Min Easy Run', bgClass: 'bg-z1',
+      items: ['5 min walk', '65 min Z1 easy run', '5 min walk cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_lift_b: {
-    id: 'wk_wint_lift_b', name: 'Winter Strength B — Unilateral + Stability',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift B',
-    mobilityBias: 'leg', logSession: 'B',
-    exercises: ['Bulgarian Split Squat (DBs)', 'Single-Leg Romanian Deadlift', 'Ring Push-up (feet elevated)', 'Copenhagen Plank', 'Single-Arm DB Row'],
-    items: [
-      { t: 'Bulgarian Split Squat (DBs)', d: '4 × 8 / side · 30–40 lb · Rear foot on bench · Vertical shin · 3 min rest · The great asymmetry revealer' },
-      { t: 'Single-Leg Romanian Deadlift', d: '3 × 10 / side · 25–35 lb · Hinge until torso parallel · Hip stays square · 2 min rest' },
-      { t: 'Ring Push-up (feet elevated)', d: '3 × 10 · Rings allow natural wrist rotation — protect elbows and shoulders · Full ROM, chest to rings' },
-      { t: 'Copenhagen Plank', d: '3 × 20 sec / side · Top foot on bench · Hip adductor + lateral stability · Critical for single-blade rowing balance' },
-      { t: 'Single-Arm DB Row', d: '4 × 10 / side · 40–50 lb · Brace core against rotation · Elbow drives past hip · 2 min rest' }
-    ]
+  hyb_wint_sat_C: {
+    id: 'hyb_wint_sat_C', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: '10k Moderate', mobilityBias: null,
+    erg: {
+      name: '10,000m Moderate Time Trial',
+      items: ['10 min easy paddle', '10,000m @ controlled UT1 (not race pace)', '5 min cool-down']
+    },
+    run: {
+      name: '60-Min Progressive Long Run', bgClass: 'bg-z1',
+      items: ['20 min Z1 easy', '30 min Z2 moderate', '10 min Z1 easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_wint_lift_b_dl: {
-    id: 'wk_wint_lift_b_dl', name: 'Winter Strength B — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift B ↓',
-    mobilityBias: 'leg', logSession: 'B',
-    exercises: ['Bulgarian Split Squat (DBs)', 'Single-Leg Romanian Deadlift', 'Ring Push-up (feet elevated)', 'Copenhagen Plank', 'Single-Arm DB Row'],
-    items: [
-      { t: 'Deload Week', d: '40% load reduction, 3 sets, prioritize movement quality over stimulus. Both legs, both sides.' }
-    ]
+  hyb_wint_sat_D: {
+    id: 'hyb_wint_sat_D', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'Volume Row', mobilityBias: null,
+    erg: {
+      name: '5×12-Min Volume Session',
+      items: ['10 min warm-up', '5×12 min @ UT1/UT2 border (SR 20), 2 min easy between', '5 min cool-down']
+    },
+    run: {
+      name: '65-Min Easy + Strides', bgClass: 'bg-z1',
+      items: ['55 min easy Z1 run', '6×20-sec strides (full walk recovery between)', '5 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-
-  // ==========================================================
-  // SPRING BLOCK — Erg Sessions
-  // ==========================================================
-
-  wk_spr_vo2_5x4: {
-    id: 'wk_spr_vo2_5x4', name: '5 × 4-Min VO2max',
-    type: 'erg', ergType: 'vo2', bgClass: 'bg-vo2', calShort: 'VO2 5×4′',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 12 min', d: 'Build from SR 20 → 28. 3 × 20-stroke pickups with 1-min rest.' },
-      { t: '5 × 4 min / 3 min rest', d: 'SR 30–32 · All-out sustainable · HR 90–95% max. Each interval should feel like you\'re on the edge of not completing it.' },
-      { t: 'Execution', d: 'Rate matters more than split. High rate, full compression, strong drive. Blade entry and extraction must be clean under fatigue.' },
-      { t: 'Cool-down 10 min', d: 'Easy SR 16.' }
-    ]
+  // ── Winter Lift A — Mon (primary: DB + rings + pull-up bar; travel: floor + wall only)
+  lift_wint_A: {
+    id: 'lift_wint_A', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'Goblet Squat', sets: 3, reps: 10, cue: 'Chest tall, knees track toes' },
+        { name: 'Ring Row', sets: 3, reps: 8, cue: 'Straight body, pull chest to rings' },
+        { name: 'Single-Leg RDL (DB)', sets: 3, reps: 10, cue: 'Hinge from hip, soft knee on standing leg' },
+        { name: 'Ring Push-Up', sets: 3, reps: 12, cue: 'Elbows 45°, rings rotate inward at top' },
+        { name: 'Pallof Press', sets: 2, reps: 10, cue: 'Press and hold 2s, resist rotation' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '20s hold, lower back pressed to floor' }
+      ],
+      items: ['Goblet Squat 3×10', 'Ring Row 3×8', 'SL RDL 3×10/leg', 'Ring Push-Up 3×12', 'Pallof Press 2×10/side', 'Hollow Body Hold 2×20s']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment — Floor + Wall Only)',
+      exercises: [
+        { name: 'Bodyweight Squat', sets: 3, reps: 15, cue: 'Full depth, 2s pause at bottom' },
+        { name: 'Prone Superman Hold', sets: 3, reps: 10, cue: 'Lift arms + legs simultaneously, 3s hold' },
+        { name: 'Single-Leg RDL (Bodyweight)', sets: 3, reps: 10, cue: 'Reach fingertips toward floor, balance focus' },
+        { name: 'Wall Push-Up / Floor Push-Up', sets: 3, reps: 15, cue: 'Chest to wall or floor, elbows 45°' },
+        { name: 'Plank Shoulder Tap', sets: 2, reps: 10, cue: '10 taps/side, minimize hip sway' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '20s hold' }
+      ],
+      items: ['BW Squat 3×15', 'Prone Superman 3×10', 'SL RDL BW 3×10/leg', 'Push-Up (wall/floor) 3×15', 'Plank Shoulder Tap 2×10/side', 'Hollow Body Hold 2×20s']
+    }
   },
 
-  wk_spr_speed_6x500: {
-    id: 'wk_spr_speed_6x500', name: '6 × 500m Speed Pieces',
-    type: 'erg', ergType: 'spd', bgClass: 'bg-spd', calShort: 'Speed 6×500',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 12 min', d: 'Easy build. 4 × 10-stroke starts with full recovery.' },
-      { t: '6 × 500m / 4 min rest', d: 'SR 32–34 · Race-pace feel. Each rep: 3-stroke power start → settle into race rhythm at SR 32.' },
-      { t: 'Goal', d: 'Consistent 500m splits. The 5th and 6th should match the 1st and 2nd. If they slow dramatically, you went out too hard.' },
-      { t: 'Cool-down 10 min', d: 'Easy paddle.' }
-    ]
+  lift_wint_A_dl: {
+    id: 'lift_wint_A_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A (DL)', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'Goblet Squat', sets: 2, reps: 10, cue: 'Light load, quality reps' },
+        { name: 'Ring Row', sets: 2, reps: 8, cue: 'Controlled tempo' },
+        { name: 'Single-Leg RDL (DB)', sets: 2, reps: 8, cue: 'Light weight, balance focus' },
+        { name: 'Ring Push-Up', sets: 2, reps: 10, cue: 'Full range, no rush' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '15s hold' }
+      ],
+      items: ['Goblet Squat 2×10 (light)', 'Ring Row 2×8', 'SL RDL 2×8/leg', 'Ring Push-Up 2×10', 'Hollow Body Hold 2×15s']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Bodyweight Squat', sets: 2, reps: 12, cue: 'Easy pace, quality movement' },
+        { name: 'Prone Superman Hold', sets: 2, reps: 8, cue: '2s hold' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Full range' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '15s hold' }
+      ],
+      items: ['BW Squat 2×12', 'Prone Superman 2×8', 'Push-Up 2×10', 'Hollow Body Hold 2×15s']
+    }
   },
 
-  wk_spr_at_30: {
-    id: 'wk_spr_at_30', name: '30-Min AT Steady',
-    type: 'erg', ergType: 'at', bgClass: 'bg-at', calShort: 'AT · 30′',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 10 min', d: 'Build to SR 26.' },
-      { t: '30-Min Threshold', d: 'SR 26–28 · HR AT range (~155–165). Comfortably hard. This is head race pace — own it.' },
-      { t: 'Split discipline', d: 'Set a target split from your 20-min FTP test (add ~3–5 sec for 30 min). Hold it.' },
-      { t: 'Cool-down 5 min', d: 'SR 16.' }
-    ]
+  // ── Winter Lift B — Fri
+  lift_wint_B: {
+    id: 'lift_wint_B', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Romanian Deadlift', sets: 3, reps: 8, cue: 'Neutral spine, feel hamstring load' },
+        { name: 'Ring Dip', sets: 3, reps: 8, cue: 'Elbows back, chest slight forward lean' },
+        { name: 'DB Single-Arm Row', sets: 3, reps: 10, cue: 'Row elbow past rib, hold 1s at top' },
+        { name: 'DB Lateral Raise', sets: 2, reps: 12, cue: 'Lead with elbows, control the descent' },
+        { name: 'Copenhagen Plank', sets: 2, reps: 1, cue: '20s/side, hips level' },
+        { name: 'Dead Bug', sets: 2, reps: 8, cue: '8 reps/side, exhale on extension' }
+      ],
+      items: ['DB RDL 3×8', 'Ring Dip 3×8', 'DB Single-Arm Row 3×10/arm', 'DB Lateral Raise 2×12', 'Copenhagen Plank 2×20s/side', 'Dead Bug 2×8/side']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment — Floor + Wall Only)',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 3, reps: 12, cue: 'Drive through heel, 1s squeeze at top' },
+        { name: 'Prone I/Y/T Raises', sets: 3, reps: 10, cue: '10 reps each letter; scapular retraction focus' },
+        { name: 'Scapular Wall Slide', sets: 3, reps: 15, cue: 'Back flat to wall, thumbs up, slide slowly' },
+        { name: 'Floor Push-Up', sets: 3, reps: 12, cue: 'Full lockout at top, 2s hold' },
+        { name: 'Side-Lying Hip Raise', sets: 2, reps: 15, cue: '15/side, top hip stacked' },
+        { name: 'Dead Bug', sets: 2, reps: 8, cue: 'Lower back pinned to floor throughout' }
+      ],
+      items: ['SL Glute Bridge 3×12/leg', 'Prone I/Y/T Raises 3×10 each', 'Scapular Wall Slide 3×15', 'Floor Push-Up 3×12', 'Side-Lying Hip Raise 2×15/side', 'Dead Bug 2×8/side']
+    }
   },
 
-  wk_spr_race_pace: {
-    id: 'wk_spr_race_pace', name: 'Race-Pace Simulation',
-    type: 'erg', ergType: 'spd', bgClass: 'bg-spd', calShort: 'Race Pace',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 15 min', d: 'Full race warm-up protocol. 4 × 20-stroke pieces at race rate.' },
-      { t: '4 × 2-min / 4-min rest', d: 'SR 32–34 · Full race-pace effort. 1,000m sprint simulation — go out hard and hold it.' },
-      { t: 'Focus', d: 'Work on the race-shape: aggressive start, settle, hold through 750m, build for the finish. NW Regionals is a 1,000m — the whole thing is a sprint.' },
-      { t: 'Cool-down 10 min', d: 'Flush thoroughly. HR should be under 130 before you stop.' }
-    ]
+  lift_wint_B_dl: {
+    id: 'lift_wint_B_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B (DL)', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'DB Romanian Deadlift', sets: 2, reps: 8, cue: 'Light load' },
+        { name: 'Ring Dip', sets: 2, reps: 6, cue: 'Bodyweight only' },
+        { name: 'DB Single-Arm Row', sets: 2, reps: 8, cue: 'Light weight' },
+        { name: 'Dead Bug', sets: 2, reps: 6, cue: '6/side' }
+      ],
+      items: ['DB RDL 2×8 (light)', 'Ring Dip 2×6 (BW)', 'DB Row 2×8/arm', 'Dead Bug 2×6/side']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: 'Quality reps' },
+        { name: 'Prone I/Y/T Raises', sets: 2, reps: 8, cue: '8 reps each letter' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Full range' },
+        { name: 'Dead Bug', sets: 2, reps: 6, cue: '6/side' }
+      ],
+      items: ['SL Glute Bridge 2×10/leg', 'Prone I/Y/T 2×8 each', 'Push-Up 2×10', 'Dead Bug 2×6/side']
+    }
   },
 
-  wk_spr_z2_30: {
-    id: 'wk_spr_z2_30', name: 'Easy Z2 / Deload',
-    type: 'erg', ergType: 'z2', bgClass: 'bg-z2', calShort: 'Z2 · 30′',
-    mobilityBias: 'row',
-    items: [
-      { t: '30-Min Aerobic Z2', d: 'SR 20–22 · HR 140–150. Pre-race taper or deload week. Maintain feel without creating fatigue.' }
-    ]
+  // ═══════════════════════════════════════════════════════════════════
+  // SPRING SPRINT — Feb-Apr  |  AT threshold, speed development
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ── Tuesday (4 variants) — AT threshold
+  hyb_spr_tue_A: {
+    id: 'hyb_spr_tue_A', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Intervals', mobilityBias: 'row',
+    erg: {
+      name: '5×6-Min AT Intervals',
+      items: ['10 min warm-up (easy + 4 power strokes)', '5×6 min @ AT (SR 24-26), 2 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Tempo Run', bgClass: 'bg-at',
+      items: ['10 min easy warm-up', '25 min tempo run (AT zone, comfortably hard)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_spr_z1_tech: {
-    id: 'wk_spr_z1_tech', name: 'Technical Warm-down',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 Tech',
-    mobilityBias: 'row',
-    items: [
-      { t: '30-Min Z1 Technical Row', d: 'SR 18–20 · HR <135. After 2 high-intensity days this week, Friday is pure aerobic maintenance. Fix technique while fresh.' }
-    ]
+  hyb_spr_tue_B: {
+    id: 'hyb_spr_tue_B', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Cruise', mobilityBias: 'row',
+    erg: {
+      name: '3×10-Min AT Cruise',
+      items: ['12 min warm-up', '3×10 min @ AT (SR 26), 3 min rest between', '8 min cool-down']
+    },
+    run: {
+      name: '40-Min Cruise Intervals', bgClass: 'bg-at',
+      items: ['10 min easy', '3×8 min @ AT, 2 min easy between', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-
-  // ==========================================================
-  // SPRING BLOCK — Strength Sessions
-  // ==========================================================
-
-  wk_spr_lift_a: {
-    id: 'wk_spr_lift_a', name: 'Spring Strength A — Power + Explosive Pull',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Power A',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['DB Jump Squat', 'Weighted Pull-up', 'DB Clean + Press', 'Ring Dip', 'DB Bent Row (heavy)'],
-    items: [
-      { t: 'DB Jump Squat', d: '4 × 5 · 20–25 lb · Sub-max jump, land quietly and reset · 3 min rest · Power development for race-start explosiveness' },
-      { t: 'Weighted Pull-up', d: '4 × 5 · +10–20 lb belt or DB between feet · Full ROM · 3 min rest · Posterior chain upper-body anchor' },
-      { t: 'DB Clean + Press', d: '4 × 5 / side · 30–35 lb · Hip hinge → shrug → catch → press in one fluid chain · 2 min rest' },
-      { t: 'Ring Dip', d: '3 × 8 · Full ring dip, complete lockout · Rings turned out at bottom for shoulder safety · 90 sec rest' },
-      { t: 'DB Bent Row (heavy)', d: '4 × 6 · 55–65 lb · Double overhand, chest parallel, dead-stop · 2 min rest' }
-    ]
+  hyb_spr_tue_C: {
+    id: 'hyb_spr_tue_C', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Over-Under', mobilityBias: 'row',
+    erg: {
+      name: 'Over-Under AT Workout',
+      items: ['10 min warm-up', '4× (3 min over AT / 3 min under AT), 3 min rest between sets', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Over-Under Run', bgClass: 'bg-at',
+      items: ['10 min easy', '4× (2.5 min hard / 2.5 min easy)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_spr_lift_a_dl: {
-    id: 'wk_spr_lift_a_dl', name: 'Spring Strength A — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Power A ↓',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['DB Jump Squat', 'Weighted Pull-up', 'DB Clean + Press', 'Ring Dip', 'DB Bent Row (heavy)'],
-    items: [
-      { t: 'Deload / Pre-Race Taper', d: 'Reduce loads 40%, cut to 3 sets. Maintain neural patterns — don\'t create new soreness. Race prep priority over training stimulus.' }
-    ]
+  hyb_spr_tue_D: {
+    id: 'hyb_spr_tue_D', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Long Blocks', mobilityBias: 'row',
+    erg: {
+      name: '2×15-Min AT Long Blocks',
+      items: ['15 min warm-up (with build)', '2×15 min @ AT (SR 26), 5 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '50-Min Steady Tempo', bgClass: 'bg-at',
+      items: ['10 min easy', '30 min steady AT tempo', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_spr_lift_b: {
-    id: 'wk_spr_lift_b', name: 'Spring Strength B — Unilateral Power + Rings',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Power B',
-    mobilityBias: 'upper', logSession: 'B',
-    exercises: ['Single-Leg Box Jump', 'Bulgarian Split Squat (DBs)', 'Single-Arm DB Row (explosive)', 'Ring Push-up', 'Hanging Leg Raise'],
-    items: [
-      { t: 'Single-Leg Box Jump', d: '3 × 4 / side · Step-up style → explosive jump off one leg onto box or step · Land controlled · 3 min rest' },
-      { t: 'Bulgarian Split Squat (DBs)', d: '4 × 6 / side · 40–50 lb · Heavier than winter — power-strength continuum · 3 min rest' },
-      { t: 'Single-Arm DB Row (explosive)', d: '4 × 8 / side · 50–55 lb · Pull explosively, controlled lowering · 2 min rest' },
-      { t: 'Ring Push-up', d: '3 × 12 · Rings at floor height, feet on ground · Rings turned out at bottom · Scapular stability + natural rotation' },
-      { t: 'Hanging Leg Raise', d: '3 × 10 · From pull-up bar · Legs straight if possible, tuck if not · Posterior pelvic tilt — don\'t swing' }
-    ]
+  // ── Thursday (5 variants) — TR/VO2max speed
+  hyb_spr_thu_A: {
+    id: 'hyb_spr_thu_A', type: 'hybrid', bgClass: 'bg-vo2',
+    calShort: 'VO2 Shorts', mobilityBias: 'row',
+    erg: {
+      name: '8×3-Min VO2max Shorts',
+      items: ['15 min warm-up', '8×3 min @ VO2max (SR 28+), 3 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '40-Min VO2 Run', bgClass: 'bg-vo2',
+      items: ['10 min easy', '6×3 min hard / 3 min easy', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_spr_lift_b_dl: {
-    id: 'wk_spr_lift_b_dl', name: 'Spring Strength B — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Power B ↓',
-    mobilityBias: 'upper', logSession: 'B',
-    exercises: ['Single-Leg Box Jump', 'Bulgarian Split Squat (DBs)', 'Single-Arm DB Row (explosive)', 'Ring Push-up', 'Hanging Leg Raise'],
-    items: [
-      { t: 'Deload / Pre-Race Taper', d: '3 sets, 40% load reduction. 3–5 days before race: skip explosive work (jumps). Do controlled versions only.' }
-    ]
+  hyb_spr_thu_B: {
+    id: 'hyb_spr_thu_B', type: 'hybrid', bgClass: 'bg-vo2',
+    calShort: 'VO2 5-Min', mobilityBias: 'row',
+    erg: {
+      name: '5×5-Min VO2max Intervals',
+      items: ['15 min warm-up', '5×5 min @ VO2max (SR 28-30), 5 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min VO2 Cruise', bgClass: 'bg-vo2',
+      items: ['10 min easy warm-up', '5×4 min hard / 3 min easy', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-
-  // ==========================================================
-  // SUMMER BLOCK — Erg Sessions
-  // ==========================================================
-
-  wk_sum_z1_tech: {
-    id: 'wk_sum_z1_tech', name: 'Technical Z1 Focus',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 Tech',
-    mobilityBias: 'row',
-    items: [
-      { t: '40-Min Z1 Technical', d: 'SR 20–22 · HR <135. Post-race recovery phase. Technique gamification: pick one flaw and engineer a fix.' },
-      { t: 'Ideas', d: 'Pause drills · 20-stroke blindfold (eyes closed) · Legs-only + arms-only alternating · Half-slide work · All at SR 20, no pressure.' }
-    ]
+  hyb_spr_thu_C: {
+    id: 'hyb_spr_thu_C', type: 'hybrid', bgClass: 'bg-spd',
+    calShort: 'Speed Pieces', mobilityBias: 'row',
+    erg: {
+      name: 'Sprint Power Development',
+      items: ['15 min warm-up', '10×1 min sprint / 2 min rest (SR 30+, max effort)', '10 min cool-down']
+    },
+    run: {
+      name: 'Speed Strides + Hills', bgClass: 'bg-spd',
+      items: ['10 min easy jog', '8× hill sprint (30s up, walk down)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_sum_cross: {
-    id: 'wk_sum_cross', name: 'Cross-Training Session',
-    type: 'erg', ergType: 'cross', bgClass: 'bg-z1', calShort: 'X-Train',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Cross-Training Day', d: '30–45 min of any aerobic activity that isn\'t rowing. Run · cycle · swim · stand-up paddle · tennis. Keep HR under 150.' },
-      { t: 'Purpose', d: 'Active recovery that removes erg-specific CNS load while maintaining aerobic maintenance.' }
-    ]
+  hyb_spr_thu_D: {
+    id: 'hyb_spr_thu_D', type: 'hybrid', bgClass: 'bg-vo2',
+    calShort: 'VO2 Pyramid', mobilityBias: 'row',
+    erg: {
+      name: '2-3-5-3-2-Min VO2 Pyramid',
+      items: ['15 min warm-up', 'Pyramid: 2-3-5-3-2 min @ VO2max, equal rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min VO2 Pyramid Run', bgClass: 'bg-vo2',
+      items: ['10 min easy', 'Pyramid: 2-4-6-4-2 min hard / equal recovery', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_sum_z1_fartlek: {
-    id: 'wk_sum_z1_fartlek', name: 'Summer Aerobic Fartlek',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Fartlek',
-    mobilityBias: 'row',
-    items: [
-      { t: '40-Min Z1 Fartlek', d: 'SR 20–24 · HR cap 145. Unstructured rate play: surge to SR 24 whenever it feels right, settle back. No schedule. Just feel.' }
-    ]
+  hyb_spr_thu_E: {
+    id: 'hyb_spr_thu_E', type: 'hybrid', bgClass: 'bg-spd',
+    calShort: '2k Pace Work', mobilityBias: 'row',
+    erg: {
+      name: '2k Race Pace Pieces',
+      items: ['15 min warm-up with build', '4×500m @ 2k race pace (SR 30+), 4 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '40-Min Speed Run', bgClass: 'bg-spd',
+      items: ['10 min easy', '6×200m fast / 200m jog recovery', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_sum_z1_45: {
-    id: 'wk_sum_z1_45', name: '45-Min Easy Aerobic',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 · 45′',
-    mobilityBias: 'row',
-    items: [
-      { t: '45-Min Easy Row', d: 'SR 20 · HR <140. Summer maintenance volume. Don\'t race yourself. Restore the aerobic base between race seasons.' }
-    ]
+  // ── Saturday (4 variants) — race simulation, no mobility
+  hyb_spr_sat_A: {
+    id: 'hyb_spr_sat_A', type: 'hybrid', bgClass: 'bg-at',
+    calShort: '6k Sim', mobilityBias: null,
+    erg: {
+      name: '6,000m Race Simulation',
+      items: ['15 min warm-up', '6,000m @ race target pace (SR 26-28)', '10 min cool-down']
+    },
+    run: {
+      name: '50-Min AT Progression Run', bgClass: 'bg-at',
+      items: ['15 min easy', '25 min AT tempo (building effort)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_sum_z2_rate: {
-    id: 'wk_sum_z2_rate', name: 'Z2 Rate Progression',
-    type: 'erg', ergType: 'z2', bgClass: 'bg-z2', calShort: 'Z2 Rate',
-    mobilityBias: 'row',
-    items: [
-      { t: '40-Min Z2 Rate Progression', d: 'Build: 10 min @ SR 20 → 10 min @ SR 22 → 10 min @ SR 24 → 10 min free row. HR 140–150. First autumn threshold work starting here.' }
-    ]
+  hyb_spr_sat_B: {
+    id: 'hyb_spr_sat_B', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'Race-Pace 4×', mobilityBias: null,
+    erg: {
+      name: '4×2k Race-Pace Pieces',
+      items: ['15 min warm-up', '4×2,000m @ 2k race pace (SR 28-30), 5 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '55-Min Race Sim Run', bgClass: 'bg-at',
+      items: ['10 min easy', '2×20 min @ hard AT, 5 min easy between', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_sum_z1_gamify: {
-    id: 'wk_sum_z1_gamify', name: 'Technical Gamification',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Gamify',
-    mobilityBias: 'row',
-    items: [
-      { t: '35-Min Technical Games', d: 'Pick 2 of these: (1) Eyes-closed 100-stroke test · (2) "Quiet blade" — zero splash for 5 min · (3) Legs-only 5 min into arms-only 5 min · (4) Hit exact split without looking for 20 strokes.' },
-      { t: 'SR target', d: 'SR 20–22. All Z1. The gamification IS the intensity.' }
-    ]
+  hyb_spr_sat_C: {
+    id: 'hyb_spr_sat_C', type: 'hybrid', bgClass: 'bg-vo2',
+    calShort: 'Sprint Ladder', mobilityBias: null,
+    erg: {
+      name: '1k Sprint Ladder',
+      items: ['15 min warm-up', '500m-1k-1.5k-1k-500m @ race pace, 3-4 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Run Race Sim', bgClass: 'bg-vo2',
+      items: ['10 min easy', '5k at 5k race pace effort', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_sum_z1_30: {
-    id: 'wk_sum_z1_30', name: 'Easy 30-Min Recovery',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 · 30′',
-    mobilityBias: 'row',
-    items: [
-      { t: '30-Min Easy Deload Row', d: 'SR 18–20 · HR <130. Summer deload. Breathe through your nose the whole time. You should feel like you\'re on vacation.' }
-    ]
+  hyb_spr_sat_D: {
+    id: 'hyb_spr_sat_D', type: 'hybrid', bgClass: 'bg-at',
+    calShort: '30-Min Max', mobilityBias: null,
+    erg: {
+      name: '30-Min Sustained Max Effort',
+      items: ['15 min warm-up', '30 min max sustainable effort (AT+ ceiling)', '10 min cool-down']
+    },
+    run: {
+      name: '50-Min Hard Effort Run', bgClass: 'bg-at',
+      items: ['10 min easy', '30 min hard sustained effort (AT)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-
-  // ==========================================================
-  // SUMMER BLOCK — Strength Sessions
-  // ==========================================================
-
-  wk_sum_lift_a: {
-    id: 'wk_sum_lift_a', name: 'Summer Strength A — Unilateral Balance',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Unilateral A',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['Single-Leg RDL', 'Pistol Squat Progression', 'Ring Row', 'Side-Lying Clamshell', 'Single-Arm DB Press'],
-    items: [
-      { t: 'Single-Leg RDL', d: '3 × 12 / side · 20–30 lb · Slow and controlled. Summer is for correcting left-right imbalances.' },
-      { t: 'Pistol Squat Progression', d: '3 × 5 / side · Assisted (ring hold) → unassisted → weighted. Own it before going heavier.' },
-      { t: 'Ring Row', d: '4 × 12 · Full extension, control the return · Adjust foot position to vary difficulty · Pulling volume maintenance.' },
-      { t: 'Side-Lying Clamshell', d: '3 × 15 / side · Bodyweight only · Hip external rotator — critical for single-blade rowing balance · 45 sec rest' },
-      { t: 'Single-Arm DB Press', d: '3 × 10 / side · 25–35 lb · Overhead press standing, core braced · 90 sec rest' }
-    ]
+  // ── Spring Lift A
+  lift_spr_A: {
+    id: 'lift_spr_A', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Goblet Jump Squat', sets: 3, reps: 8, cue: 'Land soft, full depth before each jump' },
+        { name: 'Pull-Up (weighted if able)', sets: 3, reps: 6, cue: 'Dead hang start, chin over bar' },
+        { name: 'DB Split Squat', sets: 3, reps: 10, cue: '10/leg, front knee tracks over toes' },
+        { name: 'Ring Push-Up + Ring Dip', sets: 3, reps: 8, cue: '8 push-ups + 4 dips = 1 set' },
+        { name: 'KB Swing', sets: 3, reps: 15, cue: 'Hip hinge power, not a squat' },
+        { name: 'Pallof Press', sets: 2, reps: 12, cue: '12/side, arms fully extended each rep' }
+      ],
+      items: ['DB Jump Squat 3×8', 'Pull-Up 3×6', 'DB Split Squat 3×10/leg', 'Ring Push-Up+Dip 3×8+4', 'KB Swing 3×15', 'Pallof Press 2×12/side']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment)',
+      exercises: [
+        { name: 'Jump Squat', sets: 3, reps: 10, cue: 'Full depth, explosive push through floor' },
+        { name: 'Prone Y-Raise', sets: 3, reps: 12, cue: 'Thumbs up, squeeze shoulder blades together' },
+        { name: 'Lateral Lunge', sets: 3, reps: 10, cue: '10/side, sit into hip not knee' },
+        { name: 'Plyometric Push-Up', sets: 3, reps: 8, cue: 'Hands leave floor at top, land soft' },
+        { name: 'Single-Leg Glute Bridge', sets: 3, reps: 12, cue: '12/leg, full hip extension at top' },
+        { name: 'Hollow Rock', sets: 2, reps: 1, cue: '20s controlled rocking' }
+      ],
+      items: ['Jump Squat 3×10', 'Prone Y-Raise 3×12', 'Lateral Lunge 3×10/side', 'Plyo Push-Up 3×8', 'SL Glute Bridge 3×12/leg', 'Hollow Rock 2×20s']
+    }
   },
 
-  wk_sum_lift_a_dl: {
-    id: 'wk_sum_lift_a_dl', name: 'Summer Strength A — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Uni A ↓',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['Single-Leg RDL', 'Pistol Squat Progression', 'Ring Row', 'Side-Lying Clamshell', 'Single-Arm DB Press'],
-    items: [
-      { t: 'Deload Week', d: 'Body weight or very light loads. Focus entirely on movement quality, range of motion, and balance. No DOMS this week.' }
-    ]
+  lift_spr_A_dl: {
+    id: 'lift_spr_A_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A (DL)', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'Goblet Squat', sets: 2, reps: 10, cue: 'No jump today, quality reps' },
+        { name: 'Ring Row', sets: 2, reps: 8, cue: 'Bodyweight, controlled' },
+        { name: 'DB Split Squat', sets: 2, reps: 8, cue: 'Light load' },
+        { name: 'Ring Push-Up', sets: 2, reps: 10, cue: 'Full range' }
+      ],
+      items: ['Goblet Squat 2×10', 'Ring Row 2×8', 'Split Squat 2×8/leg', 'Ring Push-Up 2×10']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Bodyweight Squat', sets: 2, reps: 12, cue: 'Easy depth, quality' },
+        { name: 'Prone Y-Raise', sets: 2, reps: 10, cue: '2s hold at top' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Full range' }
+      ],
+      items: ['BW Squat 2×12', 'Prone Y-Raise 2×10', 'Push-Up 2×10']
+    }
   },
 
-  wk_sum_lift_b: {
-    id: 'wk_sum_lift_b', name: 'Summer Strength B — Mobility-Strength',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Mobility B',
-    mobilityBias: 'upper', logSession: 'B',
-    exercises: ['Goblet Squat (deep range)', 'Ring Face Pull', 'DB Lateral Lunge', 'Dead Bug', 'Ring Bicep Curl'],
-    items: [
-      { t: 'Goblet Squat (deep range)', d: '3 × 12 · 30–35 lb · Elbows inside knees, chest tall, deepest range possible · 90 sec rest · Summer is for building catch depth.' },
-      { t: 'Ring Face Pull', d: '3 × 15 · Rings at face height · Pull to ears, externally rotate at end position · Shoulder health — ring rotation protects the elbow' },
-      { t: 'DB Lateral Lunge', d: '3 × 10 / side · 20–25 lb · Lateral hip hinge — frontal plane mobility · 90 sec rest' },
-      { t: 'Dead Bug', d: '3 × 10 / side · Slow and controlled · Opposite arm-leg extension, lower back pressed to floor throughout' },
-      { t: 'Ring Bicep Curl', d: '3 × 12 · Supinated grip, curl to face · Rings allow natural wrist rotation · Elbow longevity' }
-    ]
+  // ── Spring Lift B
+  lift_spr_B: {
+    id: 'lift_spr_B', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Single-Leg Deadlift', sets: 3, reps: 8, cue: '8/leg, reach DB toward opposite foot' },
+        { name: 'Ring Dip + Negative', sets: 3, reps: 8, cue: '8 dips + 3s negative on last rep' },
+        { name: 'DB Bent-Over Row', sets: 3, reps: 10, cue: 'Chest parallel to floor, row elbows to ceiling' },
+        { name: 'DB External Rotation', sets: 2, reps: 15, cue: '15/arm, elbow pinned to side, thumb up finish' },
+        { name: 'Side Plank + Hip Dip', sets: 2, reps: 8, cue: '8 dips/side, hips travel full range' },
+        { name: 'Bird-Dog', sets: 2, reps: 10, cue: '10/side, pause 2s at extension' }
+      ],
+      items: ['DB SL Deadlift 3×8/leg', 'Ring Dip+Neg 3×8', 'DB Bent-Over Row 3×10', 'DB Ext Rotation 2×15/arm', 'Side Plank Hip Dip 2×8/side', 'Bird-Dog 2×10/side']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment)',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 3, reps: 15, cue: '15/leg, drive heel through floor' },
+        { name: 'Push-Up to Side Plank', sets: 3, reps: 8, cue: '8/side: push up, rotate to plank, return' },
+        { name: 'Prone Superman Alternating', sets: 3, reps: 10, cue: '10/side, opposite arm+leg lift' },
+        { name: 'Scapular Wall Slide', sets: 3, reps: 15, cue: 'Arms in goalpost, slide overhead on wall' },
+        { name: 'Side Plank Hip Dip', sets: 2, reps: 10, cue: '10/side, hips travel full range' },
+        { name: 'Bird-Dog', sets: 2, reps: 10, cue: '10/side, slow and controlled' }
+      ],
+      items: ['SL Glute Bridge 3×15/leg', 'Push-Up to Side Plank 3×8/side', 'Superman Alt 3×10/side', 'Scapular Wall Slide 3×15', 'Side Plank Hip Dip 2×10/side', 'Bird-Dog 2×10/side']
+    }
   },
 
-  wk_sum_lift_b_dl: {
-    id: 'wk_sum_lift_b_dl', name: 'Summer Strength B — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Mobility B ↓',
-    mobilityBias: 'upper', logSession: 'B',
-    exercises: ['Goblet Squat (deep range)', 'Ring Face Pull', 'DB Lateral Lunge', 'Dead Bug', 'Ring Bicep Curl'],
-    items: [
-      { t: 'Deload Week', d: 'Light loads, full ROM, 3 sets. This session is more stretch than strength. Take your time.' }
-    ]
+  lift_spr_B_dl: {
+    id: 'lift_spr_B_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B (DL)', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'DB RDL', sets: 2, reps: 8, cue: 'Light load' },
+        { name: 'Ring Dip', sets: 2, reps: 6, cue: 'Bodyweight only' },
+        { name: 'DB Row', sets: 2, reps: 8, cue: 'Light weight' },
+        { name: 'Bird-Dog', sets: 2, reps: 8, cue: '8/side' }
+      ],
+      items: ['DB RDL 2×8', 'Ring Dip 2×6', 'DB Row 2×8/arm', 'Bird-Dog 2×8/side']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: 'Easy' },
+        { name: 'Prone Superman Alternating', sets: 2, reps: 8, cue: '8/side' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Full range' },
+        { name: 'Bird-Dog', sets: 2, reps: 8, cue: '8/side' }
+      ],
+      items: ['SL Glute Bridge 2×10/leg', 'Superman Alt 2×8/side', 'Push-Up 2×10', 'Bird-Dog 2×8/side']
+    }
   },
 
+  // ═══════════════════════════════════════════════════════════════════
+  // SUMMER BRIDGE — May-Jul  |  Aerobic retention, reduced intensity
+  // ═══════════════════════════════════════════════════════════════════
 
-  // ==========================================================
-  // FALL BLOCK — Erg Sessions
-  // ==========================================================
-
-  wk_fall_at_3x15: {
-    id: 'wk_fall_at_3x15', name: '3 × 15-Min Threshold',
-    type: 'erg', ergType: 'at', bgClass: 'bg-at', calShort: 'AT 3×15′',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 10 min', d: 'Build to SR 24. 2 × 30-stroke steady-state pickups.' },
-      { t: '3 × 15 min / 5 min rest', d: 'SR 24–26 · HR 155–165 · "Comfortably hard". This is your head race pace. 3 reps at 15 min = 45 min of threshold work.' },
-      { t: 'Goal', d: 'All 3 reps at the same split. Track the split from your FTP test and target it here.' },
-      { t: 'Cool-down 5 min', d: 'SR 16.' }
-    ]
+  // ── Tuesday (3 variants)
+  hyb_sum_tue_A: {
+    id: 'hyb_sum_tue_A', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'Bridge Row', mobilityBias: 'row',
+    erg: {
+      name: '50-Min Bridge Steady State',
+      items: ['10 min easy warm-up', '35 min at UT1/UT2 (SR 20-22)', '5 min cool-down']
+    },
+    run: {
+      name: '45-Min Moderate Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '30 min Z2 moderate run', '5 min walk cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_rate_surges: {
-    id: 'wk_fall_rate_surges', name: 'Head Race Rate Surges',
-    type: 'erg', ergType: 'at', bgClass: 'bg-at', calShort: 'Rate Surges',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 10 min', d: 'Build to SR 24.' },
-      { t: '40-Min Race Simulation', d: 'Base pace SR 24 / 5-min blocks. Every 8 min: surge to SR 28 for 2 min, then settle back to SR 24. Repeat 5×.' },
-      { t: 'Purpose', d: 'Head races (4–5k) require mid-race surges to pass crews. This trains that exact capability.' },
-      { t: 'Cool-down 5 min', d: 'SR 16.' }
-    ]
+  hyb_sum_tue_B: {
+    id: 'hyb_sum_tue_B', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'Easy Row', mobilityBias: 'row',
+    erg: {
+      name: '60-Min Easy UT2 Aerobic',
+      items: ['10 min easy paddle', '45 min at UT2 (SR 18, focus on technique)', '5 min cool-down']
+    },
+    run: {
+      name: '50-Min Easy Base Run', bgClass: 'bg-z1',
+      items: ['50 min easy Z1 run', 'Focus on breathing and relaxed form']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_ftp_30: {
-    id: 'wk_fall_ftp_30', name: '30-Min FTP Benchmark',
-    type: 'erg', ergType: 'at', bgClass: 'bg-at', calShort: 'FTP 30′',
-    mobilityBias: 'row',
-    items: [
-      { t: 'Warm-up 12 min', d: 'Build from SR 20 to SR 26. 3 × 30-stroke pickups at FTP rate.' },
-      { t: '30-Min Sustained Threshold', d: 'SR 26 · Hold your FTP split from the 20-min test. This is harder — head race training.' },
-      { t: 'Pacing', d: '5-min blocks. First block: 3–5 sec slower than target. Settle in at target by min 10. Last 5 min: empty the tank.' }
-    ]
+  hyb_sum_tue_C: {
+    id: 'hyb_sum_tue_C', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Touch', mobilityBias: 'row',
+    erg: {
+      name: '4×5-Min AT Touch Intervals',
+      items: ['15 min warm-up', '4×5 min @ AT (SR 26), 3 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '40-Min Tempo Touch', bgClass: 'bg-at',
+      items: ['10 min easy', '3×6 min tempo / 3 min easy', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_z1_45: {
-    id: 'wk_fall_z1_45', name: 'Aerobic Maintenance / Deload',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 · 45′',
-    mobilityBias: 'row',
-    items: [
-      { t: '45-Min Easy Row', d: 'SR 20–22 · HR <140. Deload week. Flush high-intensity residue from the week. Protect the adaptation.' }
-    ]
+  // ── Thursday (3 variants)
+  hyb_sum_thu_A: {
+    id: 'hyb_sum_thu_A', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Refresh', mobilityBias: 'row',
+    erg: {
+      name: '4×10-Min UT1 Refresh',
+      items: ['10 min easy warm-up', '4×10 min @ UT1 (SR 22), 3 min rest between', '8 min cool-down']
+    },
+    run: {
+      name: '45-Min Z2 Refresh Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '30 min Z2 run (comfortable effort)', '5 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_z1_tech: {
-    id: 'wk_fall_z1_tech', name: 'Technical Paddle',
-    type: 'erg', ergType: 'z1', bgClass: 'bg-z1', calShort: 'Z1 Tech',
-    mobilityBias: 'row',
-    items: [
-      { t: '35-Min Z1 Technical Row', d: 'SR 20–22 · HR <135. Post high-intensity days, Friday is aerobic maintenance only. Work on technical consistency at head race rate (SR 24).' }
-    ]
+  hyb_sum_thu_B: {
+    id: 'hyb_sum_thu_B', type: 'hybrid', bgClass: 'bg-vo2',
+    calShort: 'VO2 Maintain', mobilityBias: 'row',
+    erg: {
+      name: '6×3-Min VO2 Maintenance',
+      items: ['15 min warm-up', '6×3 min @ VO2max (SR 28-30), 3 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '40-Min VO2 Maintenance Run', bgClass: 'bg-vo2',
+      items: ['10 min easy', '5×3 min hard / 3 min easy', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_z2_40: {
-    id: 'wk_fall_z2_40', name: 'Z2 Aerobic Run-Through',
-    type: 'erg', ergType: 'z2', bgClass: 'bg-z2', calShort: 'Z2 · 40′',
-    mobilityBias: 'row',
-    items: [
-      { t: '40-Min Z2 Row', d: 'SR 22–24 · HR 140–150. Bridges Z1 maintenance into the threshold work done Mon/Thu. Feel the race pace but at conversational intensity.' }
-    ]
+  hyb_sum_thu_C: {
+    id: 'hyb_sum_thu_C', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Sustain', mobilityBias: 'row',
+    erg: {
+      name: '2×15-Min AT Sustained',
+      items: ['15 min warm-up', '2×15 min @ AT (SR 24-26), 5 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Tempo Sustain', bgClass: 'bg-at',
+      items: ['10 min easy', '25 min AT tempo', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-
-  // ==========================================================
-  // FALL BLOCK — Strength Sessions
-  // ==========================================================
-
-  wk_fall_lift_a: {
-    id: 'wk_fall_lift_a', name: 'Fall Strength A — Functional Power',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift A',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['DB Trap-Style Deadlift', 'Ring Row (explosive)', 'DB Step-up', 'Ring Dip', 'Plank + Shoulder Tap'],
-    items: [
-      { t: 'DB Trap-Style Deadlift', d: '4 × 8 · 65–70 lb (DBs at sides, neutral grip) · Hip hinge, stand tall and squeeze glutes · 3 min rest · Head race strength baseline' },
-      { t: 'Ring Row (explosive)', d: '4 × 10 · Pull explosively to chest, slow 3-sec lowering · Trains the powerful early drive phase sequencing' },
-      { t: 'DB Step-up', d: '3 × 10 / side · 35–45 lb · Step to full hip extension at top · 2 min rest · Unilateral power for walk-on race starts' },
-      { t: 'Ring Dip', d: '3 × 10 · Full range, lock out at top · Ring-out at bottom for shoulder health · 90 sec rest' },
-      { t: 'Plank + Shoulder Tap', d: '3 × 10 / side · Anti-rotation core stability · Move hips as little as possible · 60 sec rest' }
-    ]
+  // ── Saturday (3 variants) — no mobility
+  hyb_sum_sat_A: {
+    id: 'hyb_sum_sat_A', type: 'hybrid', bgClass: 'bg-z1',
+    calShort: 'Long Bridge Row', mobilityBias: null,
+    erg: {
+      name: '75-Min Long Bridge Row',
+      items: ['10 min easy paddle', '60 min at UT2 (SR 18-20)', '5 min cool-down']
+    },
+    run: {
+      name: '60-Min Easy Long Run', bgClass: 'bg-z1',
+      items: ['60 min easy Z1 run']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_lift_a_dl: {
-    id: 'wk_fall_lift_a_dl', name: 'Fall Strength A — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift A ↓',
-    mobilityBias: 'leg', logSession: 'A',
-    exercises: ['DB Trap-Style Deadlift', 'Ring Row (explosive)', 'DB Step-up', 'Ring Dip', 'Plank + Shoulder Tap'],
-    items: [
-      { t: 'Deload / Pre-Race Taper', d: '3 sets · 40% loads · Perfect form · Do not create DOMS within 10 days of the head race.' }
-    ]
+  hyb_sum_sat_B: {
+    id: 'hyb_sum_sat_B', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'Mixed Effort', mobilityBias: null,
+    erg: {
+      name: '3×15-Min Mixed Effort',
+      items: ['10 min warm-up', '2×15 min @ UT1, 1×15 min @ AT (5 min rest between)', '8 min cool-down']
+    },
+    run: {
+      name: '55-Min Build Run', bgClass: 'bg-z2',
+      items: ['20 min Z1 easy', '25 min Z2 moderate', '10 min Z1 easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_lift_b: {
-    id: 'wk_fall_lift_b', name: 'Fall Strength B — Posterior Chain + Shoulder',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift B',
-    mobilityBias: 'upper', logSession: 'B',
-    exercises: ['DB Hip Thrust', 'Weighted Pull-up', 'Single-Leg DB Squat', 'Ring Push-up', 'DB External Rotation'],
-    items: [
-      { t: 'DB Hip Thrust', d: '4 × 12 · 50 lb · 2-sec hold at lockout · The most underrated rowing exercise. Glute power = drive phase power.' },
-      { t: 'Weighted Pull-up', d: '4 × max reps · +10 lb · Track reps each week. If you add 1 rep/week, you will PR your 500m split.' },
-      { t: 'Single-Leg DB Squat', d: '3 × 8 / side · 20–25 lb · Stand on one leg, lower to 90° · Balance + unilateral strength · 2 min rest' },
-      { t: 'Ring Push-up', d: '3 × 12 · Standard ring push-up, rings at floor · Rotate rings outward at lockout for serratus activation' },
-      { t: 'DB External Rotation', d: '3 × 15 / side · 10–12 lb · Elbow at 90°, rotate forearm away from body · Shoulder longevity for the whole season' }
-    ]
+  hyb_sum_sat_C: {
+    id: 'hyb_sum_sat_C', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Long', mobilityBias: null,
+    erg: {
+      name: '6k Time Trial Practice',
+      items: ['15 min warm-up', '6,000m @ moderate AT effort (not maximal)', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min AT Long Run', bgClass: 'bg-at',
+      items: ['10 min easy', '28 min AT tempo run', '7 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
   },
 
-  wk_fall_lift_b_dl: {
-    id: 'wk_fall_lift_b_dl', name: 'Fall Strength B — Deload',
-    type: 'lift', bgClass: 'bg-lift', calShort: 'Lift B ↓',
-    mobilityBias: 'upper', logSession: 'B',
-    exercises: ['DB Hip Thrust', 'Weighted Pull-up', 'Single-Leg DB Squat', 'Ring Push-up', 'DB External Rotation'],
-    items: [
-      { t: 'Deload / Pre-Race Taper', d: '3 sets · 40% loads · No heavy pull-ups or dips within 10 days of race.' }
-    ]
+  // ── Summer Lift A
+  lift_sum_A: {
+    id: 'lift_sum_A', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Goblet Squat', sets: 2, reps: 12, cue: 'Full depth, controlled descent' },
+        { name: 'Ring Row', sets: 3, reps: 10, cue: 'Bodyweight, focus on scapular retraction' },
+        { name: 'DB Box Step-Up', sets: 2, reps: 12, cue: '12/leg, drive through heel' },
+        { name: 'Ring Push-Up', sets: 2, reps: 15, cue: 'Full range, rings rotate inward at top' },
+        { name: 'Pallof Press', sets: 2, reps: 10, cue: '10/side, control the return' },
+        { name: 'Dead Bug', sets: 2, reps: 8, cue: '8/side, lower back pinned to floor' }
+      ],
+      items: ['Goblet Squat 2×12', 'Ring Row 3×10', 'DB Step-Up 2×12/leg', 'Ring Push-Up 2×15', 'Pallof Press 2×10/side', 'Dead Bug 2×8/side']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment)',
+      exercises: [
+        { name: 'Wall Sit', sets: 2, reps: 1, cue: '45s hold, thighs parallel to floor' },
+        { name: 'Prone Y-Raise', sets: 3, reps: 12, cue: 'Thumbs up, hold 2s at top' },
+        { name: 'Reverse Lunge', sets: 2, reps: 12, cue: '12/leg, soft landing' },
+        { name: 'Floor Push-Up', sets: 2, reps: 15, cue: 'Full lockout each rep' },
+        { name: 'Plank', sets: 2, reps: 1, cue: '40s hold, neutral spine' },
+        { name: 'Dead Bug', sets: 2, reps: 8, cue: '8/side' }
+      ],
+      items: ['Wall Sit 2×45s', 'Prone Y-Raise 3×12', 'Reverse Lunge 2×12/leg', 'Push-Up 2×15', 'Plank 2×40s', 'Dead Bug 2×8/side']
+    }
   },
 
+  lift_sum_A_dl: {
+    id: 'lift_sum_A_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A (DL)', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'DB Goblet Squat', sets: 2, reps: 10, cue: 'Light load' },
+        { name: 'Ring Row', sets: 2, reps: 8, cue: 'Controlled' },
+        { name: 'Ring Push-Up', sets: 2, reps: 10, cue: 'Full range' },
+        { name: 'Dead Bug', sets: 2, reps: 6, cue: '6/side' }
+      ],
+      items: ['Goblet Squat 2×10', 'Ring Row 2×8', 'Ring Push-Up 2×10', 'Dead Bug 2×6/side']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Wall Sit', sets: 2, reps: 1, cue: '30s hold' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Easy' },
+        { name: 'Dead Bug', sets: 2, reps: 6, cue: '6/side' }
+      ],
+      items: ['Wall Sit 2×30s', 'Push-Up 2×10', 'Dead Bug 2×6/side']
+    }
+  },
 
-  // ==========================================================
-  // SPECIAL — Restoration Day (all blocks, every Saturday)
-  // ==========================================================
+  // ── Summer Lift B
+  lift_sum_B: {
+    id: 'lift_sum_B', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Romanian Deadlift', sets: 2, reps: 10, cue: 'Moderate weight, perfect hinge' },
+        { name: 'Ring Dip', sets: 2, reps: 10, cue: 'Full depth, chest forward' },
+        { name: 'DB Lateral Raise', sets: 2, reps: 12, cue: 'Lead elbows, control descent' },
+        { name: 'DB Bicep Curl', sets: 2, reps: 12, cue: 'Supinate at top, slow lower' },
+        { name: 'Copenhagen Plank', sets: 2, reps: 1, cue: '20s/side, hips level' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '25s hold' }
+      ],
+      items: ['DB RDL 2×10', 'Ring Dip 2×10', 'DB Lateral Raise 2×12', 'DB Bicep Curl 2×12', 'Copenhagen Plank 2×20s/side', 'Hollow Body Hold 2×25s']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment)',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 2, reps: 15, cue: '15/leg, max hip extension' },
+        { name: 'Decline Push-Up (feet on wall)', sets: 2, reps: 12, cue: 'Hands on floor, feet 18in up wall' },
+        { name: 'Scapular Wall Slide', sets: 3, reps: 15, cue: 'Forearms on wall, slide overhead' },
+        { name: 'Side-Lying Hip Abduction', sets: 2, reps: 15, cue: '15/side, toes slightly down' },
+        { name: 'Wall Plank', sets: 2, reps: 1, cue: '30s, hands on wall at shoulder height' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '25s hold' }
+      ],
+      items: ['SL Glute Bridge 2×15/leg', 'Decline Push-Up 2×12', 'Scapular Wall Slide 3×15', 'Side-Lying Hip Abd 2×15/side', 'Wall Plank 2×30s', 'Hollow Body Hold 2×25s']
+    }
+  },
+
+  lift_sum_B_dl: {
+    id: 'lift_sum_B_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B (DL)', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'DB Romanian Deadlift', sets: 2, reps: 8, cue: 'Light' },
+        { name: 'Ring Dip', sets: 2, reps: 6, cue: 'BW only' },
+        { name: 'DB Lateral Raise', sets: 2, reps: 10, cue: 'Very light' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '20s' }
+      ],
+      items: ['DB RDL 2×8', 'Ring Dip 2×6', 'Lateral Raise 2×10', 'Hollow Body 2×20s']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: '10/leg' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Easy' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '20s' }
+      ],
+      items: ['SL Glute Bridge 2×10/leg', 'Push-Up 2×10', 'Hollow Body 2×20s']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // FALL HEAD RACE — Aug-Oct  |  Head race volume, sustained AT
+  // ═══════════════════════════════════════════════════════════════════
+
+  // ── Tuesday (4 variants) — AT sustained
+  hyb_fall_tue_A: {
+    id: 'hyb_fall_tue_A', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'Head Race AT', mobilityBias: 'row',
+    erg: {
+      name: '4×8-Min Race-Specific AT',
+      items: ['15 min warm-up', '4×8 min @ AT (SR 24-26), 3 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min AT Tempo', bgClass: 'bg-at',
+      items: ['10 min easy', '25 min AT tempo (head race pace feel)', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_tue_B: {
+    id: 'hyb_fall_tue_B', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'Fall Volume AT', mobilityBias: 'row',
+    erg: {
+      name: '3×12-Min AT Volume',
+      items: ['15 min warm-up', '3×12 min @ AT (SR 24-26), 4 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '50-Min AT Volume Run', bgClass: 'bg-at',
+      items: ['10 min easy', '3×10 min @ AT, 3 min easy between', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_tue_C: {
+    id: 'hyb_fall_tue_C', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Cruise Pace', mobilityBias: 'row',
+    erg: {
+      name: '5×5-Min AT Cruise Pace',
+      items: ['15 min warm-up', '5×5 min @ AT (SR 26), 2 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Cruise Run', bgClass: 'bg-at',
+      items: ['10 min easy', '4×6 min hard / 2 min easy', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_tue_D: {
+    id: 'hyb_fall_tue_D', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Long Blocks', mobilityBias: 'row',
+    erg: {
+      name: '2×18-Min AT Long Blocks',
+      items: ['15 min warm-up', '2×18 min @ AT (SR 26), 6 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '55-Min AT Long Run', bgClass: 'bg-at',
+      items: ['10 min easy', '35 min AT tempo run', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  // ── Thursday (4 variants) — UT1 volume for head race base
+  hyb_fall_thu_A: {
+    id: 'hyb_fall_thu_A', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Head Race', mobilityBias: 'row',
+    erg: {
+      name: '5×8-Min UT1 Head Race Prep',
+      items: ['10 min warm-up', '5×8 min @ UT1 (SR 22), 3 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '50-Min UT1 Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '35 min Z2 sustained run', '5 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_thu_B: {
+    id: 'hyb_fall_thu_B', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Volume', mobilityBias: 'row',
+    erg: {
+      name: '3×15-Min UT1 Volume',
+      items: ['10 min warm-up', '3×15 min @ UT1 (SR 22), 4 min rest between', '8 min cool-down']
+    },
+    run: {
+      name: '55-Min Z2 Volume Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '40 min Z2 volume run', '5 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_thu_C: {
+    id: 'hyb_fall_thu_C', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Ladder', mobilityBias: 'row',
+    erg: {
+      name: '4-6-8-6-4-Min UT1 Ladder',
+      items: ['10 min warm-up', '4-6-8-6-4 min @ UT1 (SR 22), 2 min rest between', '8 min cool-down']
+    },
+    run: {
+      name: '45-Min Z2 Ladder Run', bgClass: 'bg-z2',
+      items: ['5 min easy', '8-12-16-12-8 min alternating Z2/Z1 effort', '5 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_thu_D: {
+    id: 'hyb_fall_thu_D', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'UT1 Long Blocks', mobilityBias: 'row',
+    erg: {
+      name: '2×20-Min UT1 Long Blocks',
+      items: ['10 min warm-up', '2×20 min @ UT1 (SR 22), 5 min rest between', '5 min cool-down']
+    },
+    run: {
+      name: '60-Min Z2 Long Blocks', bgClass: 'bg-z2',
+      items: ['10 min easy', '2×22 min Z2 / 5 min easy between', '5 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  // ── Saturday (5 variants) — head race simulation, no mobility
+  hyb_fall_sat_A: {
+    id: 'hyb_fall_sat_A', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'Head Race Sim', mobilityBias: null,
+    erg: {
+      name: '5km Head Race Simulation',
+      items: ['15 min warm-up', '5,000m @ head race pace (SR 26-28)', '10 min cool-down']
+    },
+    run: {
+      name: '45-Min Head Race Run Sim', bgClass: 'bg-at',
+      items: ['10 min easy', '25 min AT hard (race simulation)', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_sat_B: {
+    id: 'hyb_fall_sat_B', type: 'hybrid', bgClass: 'bg-at',
+    calShort: '2× Head Race', mobilityBias: null,
+    erg: {
+      name: '2×4km Race Pace',
+      items: ['15 min warm-up', '2×4,000m @ race pace (SR 26-28), 6 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '55-Min Race Pace Run', bgClass: 'bg-at',
+      items: ['10 min easy', '2×18 min hard AT / 5 min easy between', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_sat_C: {
+    id: 'hyb_fall_sat_C', type: 'hybrid', bgClass: 'bg-z2',
+    calShort: 'Long Volume', mobilityBias: null,
+    erg: {
+      name: '90-Min Long Erg Volume',
+      items: ['10 min warm-up', '75 min at UT1 (SR 20-22)', '5 min cool-down']
+    },
+    run: {
+      name: '70-Min Long Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '55 min Z2 long run', '5 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_sat_D: {
+    id: 'hyb_fall_sat_D', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'AT Tech Pieces', mobilityBias: null,
+    erg: {
+      name: '3×3k AT Technical Pieces',
+      items: ['15 min warm-up', '3×3,000m @ AT (SR 26), 5 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '50-Min AT Tempo', bgClass: 'bg-at',
+      items: ['10 min easy', '30 min AT tempo', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  hyb_fall_sat_E: {
+    id: 'hyb_fall_sat_E', type: 'hybrid', bgClass: 'bg-at',
+    calShort: 'Pre-Race Tune', mobilityBias: null,
+    erg: {
+      name: 'Pre-Race Tune-Up',
+      items: ['15 min easy warm-up', '3×1,500m @ race pace + 5s (SR 28), 4 min rest between', '10 min cool-down']
+    },
+    run: {
+      name: '35-Min Pre-Race Run', bgClass: 'bg-at',
+      items: ['10 min easy', '3×5 min race pace / 3 min easy', '10 min cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  // ── Fall Lift A
+  lift_fall_A: {
+    id: 'lift_fall_A', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Goblet Squat', sets: 3, reps: 8, cue: 'Loaded, controlled tempo 3-1-1' },
+        { name: 'Pull-Up or Ring Row', sets: 3, reps: 8, cue: 'Full hang to chin over bar' },
+        { name: 'Single-Leg RDL (DB)', sets: 3, reps: 8, cue: '8/leg, slow eccentric' },
+        { name: 'Ring Push-Up', sets: 3, reps: 10, cue: 'Rings rotate inward, full range' },
+        { name: 'KB Swing', sets: 3, reps: 12, cue: 'Hip drive only, arms are ropes' },
+        { name: 'Pallof Press', sets: 2, reps: 10, cue: '10/side, 2s hold extended' }
+      ],
+      items: ['Goblet Squat 3×8', 'Pull-Up/Ring Row 3×8', 'SL RDL 3×8/leg', 'Ring Push-Up 3×10', 'KB Swing 3×12', 'Pallof Press 2×10/side']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment)',
+      exercises: [
+        { name: 'Jump Squat', sets: 3, reps: 8, cue: 'Land soft, immediate descent' },
+        { name: 'Prone I/Y/T Raises', sets: 3, reps: 10, cue: '10 reps each letter' },
+        { name: 'Single-Leg RDL (Bodyweight)', sets: 3, reps: 8, cue: '8/leg, reach forward' },
+        { name: 'Floor Push-Up', sets: 3, reps: 12, cue: 'Slow 3s descent' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '20s hold' },
+        { name: 'Plank Shoulder Tap', sets: 2, reps: 10, cue: '10/side, stable hips' }
+      ],
+      items: ['Jump Squat 3×8', 'Prone I/Y/T 3×10 each', 'SL RDL BW 3×8/leg', 'Push-Up 3×12', 'Hollow Body 2×20s', 'Plank Shoulder Tap 2×10/side']
+    }
+  },
+
+  lift_fall_A_dl: {
+    id: 'lift_fall_A_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift A (DL)', mobilityBias: 'leg', logSession: 'A',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'Goblet Squat', sets: 2, reps: 8, cue: 'Light load' },
+        { name: 'Ring Row', sets: 2, reps: 8, cue: 'BW, easy' },
+        { name: 'Ring Push-Up', sets: 2, reps: 8, cue: 'Full range' },
+        { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '15s' }
+      ],
+      items: ['Goblet Squat 2×8', 'Ring Row 2×8', 'Ring Push-Up 2×8', 'Hollow Body 2×15s']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'BW Squat', sets: 2, reps: 10, cue: 'Easy' },
+        { name: 'Prone Y-Raise', sets: 2, reps: 8, cue: 'Hold 2s' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Easy' }
+      ],
+      items: ['BW Squat 2×10', 'Prone Y-Raise 2×8', 'Push-Up 2×10']
+    }
+  },
+
+  // ── Fall Lift B
+  lift_fall_B: {
+    id: 'lift_fall_B', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary (DB + Gymnastics Rings)',
+      exercises: [
+        { name: 'DB Romanian Deadlift', sets: 3, reps: 8, cue: 'Loaded, neutral spine' },
+        { name: 'Ring Dip', sets: 3, reps: 8, cue: 'Full depth, forward lean' },
+        { name: 'DB Single-Arm Row', sets: 3, reps: 8, cue: '8/arm, hold 1s at top' },
+        { name: 'DB External Rotation', sets: 2, reps: 12, cue: '12/arm, rotator cuff health priority' },
+        { name: 'Copenhagen Plank', sets: 2, reps: 1, cue: '20s/side' },
+        { name: 'Bird-Dog', sets: 2, reps: 10, cue: '10/side, spine neutral' }
+      ],
+      items: ['DB RDL 3×8', 'Ring Dip 3×8', 'DB Single-Arm Row 3×8/arm', 'DB Ext Rotation 2×12/arm', 'Copenhagen Plank 2×20s/side', 'Bird-Dog 2×10/side']
+    },
+    travel: {
+      label: 'Travel (Zero Equipment)',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 3, reps: 12, cue: '12/leg, full hip extension' },
+        { name: 'Scapular Wall Slide', sets: 3, reps: 15, cue: 'Elbows on wall, slide overhead' },
+        { name: 'Floor Push-Up', sets: 3, reps: 12, cue: '3s descent' },
+        { name: 'Prone Superman Alternating', sets: 3, reps: 10, cue: '10/side, 2s hold' },
+        { name: 'Side Plank', sets: 2, reps: 1, cue: '25s/side, hips stacked' },
+        { name: 'Bird-Dog', sets: 2, reps: 10, cue: '10/side' }
+      ],
+      items: ['SL Glute Bridge 3×12/leg', 'Scapular Wall Slide 3×15', 'Push-Up 3×12', 'Superman Alt 3×10/side', 'Side Plank 2×25s/side', 'Bird-Dog 2×10/side']
+    }
+  },
+
+  lift_fall_B_dl: {
+    id: 'lift_fall_B_dl', type: 'lift', bgClass: 'bg-lift',
+    calShort: 'Lift B (DL)', mobilityBias: 'upper', logSession: 'B',
+    primary: {
+      label: 'Primary — Deload',
+      exercises: [
+        { name: 'DB RDL', sets: 2, reps: 8, cue: 'Light' },
+        { name: 'Ring Dip', sets: 2, reps: 6, cue: 'BW' },
+        { name: 'DB Row', sets: 2, reps: 8, cue: 'Light' },
+        { name: 'Bird-Dog', sets: 2, reps: 8, cue: '8/side' }
+      ],
+      items: ['DB RDL 2×8', 'Ring Dip 2×6', 'DB Row 2×8/arm', 'Bird-Dog 2×8/side']
+    },
+    travel: {
+      label: 'Travel Deload',
+      exercises: [
+        { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: '10/leg' },
+        { name: 'Scapular Wall Slide', sets: 2, reps: 12, cue: 'Easy' },
+        { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Full range' },
+        { name: 'Bird-Dog', sets: 2, reps: 8, cue: '8/side' }
+      ],
+      items: ['SL Glute Bridge 2×10/leg', 'Scapular Wall Slide 2×12', 'Push-Up 2×10', 'Bird-Dog 2×8/side']
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════════
+  // SPECIAL SESSIONS
+  // ═══════════════════════════════════════════════════════════════════
+
+  wk_active_recovery: {
+    id: 'wk_active_recovery', type: 'recovery', bgClass: 'bg-restore',
+    calShort: 'Recovery', mobilityBias: null,
+    items: [
+      '20-30 min easy walk or light cycling',
+      '10-15 min foam rolling (quads, hamstrings, thoracic spine)',
+      '5 min box breathing (4-count in / 4 hold / 4 out)'
+    ]
+  },
 
   wk_restoration: {
-    id: 'wk_restoration', name: 'Saturday Deep Restoration',
-    type: 'restoration', bgClass: 'bg-restore', calShort: 'Restore',
-    mobilityBias: 'row',
+    id: 'wk_restoration', type: 'restoration', bgClass: 'bg-restore',
+    calShort: 'Restore', mobilityBias: null,
     items: [
-      { t: '20-Min Deep Restoration', d: '2-minute static holds per exercise. Flows from hips → spine → shoulders.' },
-      { t: 'Sequence', d: 'Ring Squat · Weighted Butterfly · Frog Pose · Pigeon (L+R) · Thoracic Extension · Half-Kneeling Hip Flexor (L+R) · Lat Overhead Stretch (L+R) · Child\'s Pose Side Bend' },
-      { t: 'Notes', d: 'Catch-angle mobility takes months of consistent 2-min holds to change. Every Saturday. No exceptions.' }
+      '20-min deep restoration flow',
+      'Hips → Spine → Shoulders sequence',
+      'Guided breathing throughout'
     ]
   }
 

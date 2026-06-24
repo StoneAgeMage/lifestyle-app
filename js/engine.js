@@ -108,25 +108,26 @@ const TrainingEngine = (function () {
     // Restoration day — fixed session, no pool cycling
     if (tmpl.type === 'restoration') {
       var restWk = WORKOUT_LIBRARY['wk_restoration'] || {};
+      var restCycleLen = (plan.mealCycleIds && plan.mealCycleIds.length) ? plan.mealCycleIds.length : 1;
       return {
         workoutId:    'wk_restoration',
         workoutBg:    'bg-restore',
         workoutShort: 'Restore',
         workoutItems: restWk.items || [],
-        weekIndex:     wi,
-        blockWeek:     wib,
-          mealWeekIndex: wi % plan.mealCycleIds.length,
-        dow:           dow,
-        mobilityBias:  null,
-        blockId:       block.id,
-        blockName:     block.shortName,
-        isDeload:      isDeload,
-        isTaper:       isTaper,
-        type:          'restoration'
+        weekIndex:    wi,
+        blockWeek:    wib,
+        mealWeekIndex: wi % restCycleLen,
+        dow:          dow,
+        mobilityBias: null,
+        blockId:      block.id,
+        blockName:    block.shortName,
+        isDeload:     isDeload,
+        isTaper:      isTaper,
+        type:         'restoration'
       };
     }
 
-    // Lift or erg — pick from pool
+    // Pick from pool — recovery, hybrid, lift all go through here
     var pool = (useDeload && tmpl.deloadPool) ? tmpl.deloadPool : tmpl.pool;
     if (!pool || pool.length === 0) return null;
 
@@ -134,22 +135,72 @@ const TrainingEngine = (function () {
     var wk = WORKOUT_LIBRARY[workoutId];
     if (!wk) return null;
 
-    return {
+    var mealCycleLen = (plan.mealCycleIds && plan.mealCycleIds.length) ? plan.mealCycleIds.length : 1;
+    var base = {
       workoutId:    workoutId,
-      workoutBg:    wk.bgClass,
-      workoutShort: wk.calShort,
-      workoutItems: wk.items,
       weekIndex:    wi,
       blockWeek:    wib,
-      mealWeekIndex: wi % plan.mealCycleIds.length,
+      mealWeekIndex: wi % mealCycleLen,
       dow:          dow,
-      mobilityBias: wk.mobilityBias || null,
       blockId:      block.id,
       blockName:    block.shortName,
       isDeload:     isDeload,
-      isTaper:      isTaper,
-      type:         wk.type
+      isTaper:      isTaper
     };
+
+    // Active recovery day (Wed)
+    if (wk.type === 'recovery') {
+      return Object.assign({}, base, {
+        workoutBg:    wk.bgClass,
+        workoutShort: wk.calShort,
+        workoutItems: wk.items || [],
+        mobilityBias: null,
+        type:         'recovery'
+      });
+    }
+
+    // Hybrid day (Tue/Thu/Sat) — three-way card: erg + club + run
+    if (wk.type === 'hybrid') {
+      var mobBias = (tmpl.noMobility || wk.mobilityBias === null) ? null
+        : (wk.mobilityBias || tmpl.mobilityBias || null);
+      return Object.assign({}, base, {
+        workoutBg:    wk.bgClass,
+        workoutShort: wk.calShort,
+        workoutItems: (wk.erg && wk.erg.items) ? wk.erg.items : [],
+        mobilityBias: mobBias,
+        type:         'hybrid',
+        hybrid:       {
+          erg:     wk.erg     || null,
+          clubLog: wk.clubLog || null,
+          run:     wk.run     || null
+        }
+      });
+    }
+
+    // Lift day (Mon/Fri) — two-way card: primary + travel
+    if (wk.type === 'lift') {
+      return Object.assign({}, base, {
+        workoutBg:    wk.bgClass || 'bg-lift',
+        workoutShort: wk.calShort,
+        workoutItems: (wk.primary && wk.primary.items) ? wk.primary.items : [],
+        mobilityBias: tmpl.mobilityBias || wk.mobilityBias || null,
+        logSession:   tmpl.logSession   || wk.logSession   || null,
+        type:         'lift',
+        lift:         {
+          primary: wk.primary || null,
+          travel:  wk.travel  || null
+        }
+      });
+    }
+
+    // Generic fallback (future-proofing)
+    return Object.assign({}, base, {
+      workoutBg:    wk.bgClass,
+      workoutShort: wk.calShort,
+      workoutItems: wk.items || [],
+      mobilityBias: wk.mobilityBias || null,
+      type:         wk.type
+    });
   }
 
   function getTodayContext(plan, date) {
@@ -500,22 +551,6 @@ const MealEngine = (function () {
 })();
 
 
-// ---- PantryEngine --------------------------------------------
-
-const PantryEngine = (function () {
-
-  function resolveIngredient(id) {
-    return INGREDIENT_CATALOG[id] || null;
-  }
-
-  function isPantryStaple(id) {
-    const ing = INGREDIENT_CATALOG[id];
-    return ing ? !!ing.isPantryStaple : false;
-  }
-
-  return { resolveIngredient, isPantryStaple };
-})();
-
 
 // ---- ShoppingListEngine --------------------------------------
 
@@ -532,26 +567,24 @@ const ShoppingListEngine = (function () {
       recipe._ingredients.forEach(function(ing) {
         var ingredient = INGREDIENT_CATALOG[ing.id];
         // Fallback: title-case the ID so uncatalogued items still appear
-        var name     = ingredient ? ingredient.name
+        var name     = (ingredient && ingredient.name) ? ingredient.name
           : ing.id.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
-        var category = ingredient ? ingredient.category : 'pantry';
+        var category = (ingredient && ingredient.category) ? ingredient.category : 'pantry';
         if (!agg[ing.id]) {
           agg[ing.id] = {
-            ingredientId:   ing.id,
-            name:           name,
-            category:       category,
-            isPantryStaple: ingredient ? !!ingredient.isPantryStaple : false,
-            totalGrams:     0,
-            qtys:           []
+            ingredientId: ing.id,
+            name:         name,
+            category:     category,
+            totalGrams:   0,
+            qtys:         []
           };
         }
-        agg[ing.id].totalGrams += ing.grams;
-        agg[ing.id].qtys.push(ing.qty || (ing.grams + 'g'));
+        if (ing.grams != null) agg[ing.id].totalGrams += ing.grams;
+        agg[ing.id].qtys.push(ing.qty || (ing.grams != null ? ing.grams + 'g' : ''));
       });
     });
 
-    var checked   = weekPlan.checkedItems   || [];
-    var overrides = weekPlan.pantryOverrides || [];
+    var checked = weekPlan.checkedItems || [];
 
     var CATEGORY_ORDER = ['protein', 'produce', 'dairy', 'grains', 'pantry', 'spice', 'condiment', 'frozen'];
 
@@ -564,14 +597,11 @@ const ShoppingListEngine = (function () {
         return qtyCount[q] > 1 ? qtyCount[q] + '× ' + q : q;
       }).join(' + ');
       return {
-        ingredientId:   a.ingredientId,
-        name:           a.name,
-        category:       a.category,
-        isPantryStaple: a.isPantryStaple,
-        amountStr:      amountStr,
-        checked:        checked.indexOf(a.ingredientId) >= 0,
-        pantryOverride: overrides.indexOf(a.ingredientId) >= 0,
-        visible:        !a.isPantryStaple || !!(settings && settings.showPantryStaples) || overrides.indexOf(a.ingredientId) >= 0
+        ingredientId: a.ingredientId,
+        name:         a.name,
+        category:     a.category,
+        amountStr:    amountStr,
+        checked:      checked.indexOf(a.ingredientId) >= 0,
       };
     });
 

@@ -1,136 +1,192 @@
+'use strict';
+
 // ============================================================
 // DATA-BLOCKS — 4-block macrocycle periodization
-// Time-triggered: block is determined by calendar month.
-// Each block defines a 5-day weekly template (Mon–Fri active,
-// Sat = Restoration, Sun = Rest) plus session pools that the
-// engine cycles through week-by-week within the block.
-//
-// 48-hr high-intensity guardrail is enforced BY CONSTRUCTION:
-//   Tue can be high (48 hrs since Sun rest)
-//   Thu can be high (48 hrs since Tue)
-//   Fri is ALWAYS low (only 24 hrs since Thu)
-//   → no runtime check needed; the pool entries enforce this.
-//
-// Pool arrays: engine picks pool[weekIndexInBlock % pool.length]
-// Deload (every deloadCycle-th week): use deloadPool if defined.
+// Weekly structure (all blocks):
+//   0 Sun  = 20-min Deep Restoration
+//   1 Mon  = Lift A  (primary DB+rings | travel zero-equip)
+//   2 Tue  = THREE-WAY HYBRID: Erg | Club Log | Run Fallback
+//   3 Wed  = Active Recovery
+//   4 Thu  = THREE-WAY HYBRID: Erg | Club Log | Run Fallback
+//   5 Fri  = Lift B  (primary DB+rings | travel zero-equip)
+//   6 Sat  = THREE-WAY HYBRID: Erg | Club Log | Run Fallback
+//             (no post-workout mobility card)
 // ============================================================
 
-const TRAINING_BLOCKS = [
-
-  // ============================================================
-  // BLOCK 1 — WINTER ENGINE & HEAVY HINGE (Nov – Feb)
-  // ============================================================
+var TRAINING_BLOCKS = [
   {
-    id:             'block_winter',
-    name:           'Winter Engine & Heavy Hinge',
-    shortName:      'Winter',
-    months:         [10, 11, 0, 1],   // Nov=10 Dec=11 Jan=0 Feb=1
-    colorAccent:    'b-winter',
-    srRange:        '18–22',
-    intensityLabel: 'Polarized Base · 80% Z1/Z2',
-    phaseGoal:      'Aerobic engine + heavy posterior chain. Volume discipline, SR control.',
-    deloadCycle:    4,                // every 4th week is a deload
-    raceGoal:       null,
-
+    id: 'winter',
+    name: 'Winter Engine',
+    shortName: 'WINT',
+    months: [11, 12, 1],          // Nov, Dec, Jan
+    colorAccent: '#4a9eff',
+    srRange: '18-22',
+    intensityLabel: 'UT2 / UT1',
+    phaseGoal: 'Build aerobic base, long steady state, establish pulling strength',
+    deloadCycle: 4,               // deload every 4th week
+    raceGoal: null,
     weekTemplate: {
-      // Mon — Strength A (heavy hinge + pull)
-      1: { type:'lift', pool:['wk_wint_lift_a'], deloadPool:['wk_wint_lift_a_dl'], isHigh:false, logSession:'A' },
-      // Tue — LOW aerobic (high intensity reserved for Thu)
-      2: { type:'erg',  pool:['wk_wint_z1_45','wk_wint_z2_rate','wk_wint_z1_60','wk_wint_z2_rate'], deloadPool:['wk_wint_z1_30'], isHigh:false },
-      // Wed — Strength B (unilateral + stability)
-      3: { type:'lift', pool:['wk_wint_lift_b'], deloadPool:['wk_wint_lift_b_dl'], isHigh:false, logSession:'B' },
-      // Thu — HIGH: AT intervals or threshold test (48 hrs after Tue)
-      4: { type:'erg',  pool:['wk_wint_at_4x10','wk_wint_at_4x10','wk_wint_threshold_20','wk_wint_at_4x10'], deloadPool:['wk_wint_z1_45'], isHigh:true },
-      // Fri — LOW: technique or fartlek (24 hrs after Thu — always aerobic)
-      5: { type:'erg',  pool:['wk_wint_z1_tech','wk_wint_z1_fartlek','wk_wint_z1_tech','wk_wint_z1_fartlek'], deloadPool:['wk_wint_z1_30'], isHigh:false },
-      // Sat — 20-min Deep Restoration
-      6: { type:'restoration', pool:null, isHigh:false },
-      // Sun — Full Rest
-      0: { type:'rest', pool:null, isHigh:false }
+      0: { type: 'restoration', pool: ['wk_restoration'] },
+      1: {
+        type: 'lift', logSession: 'A', mobilityBias: 'leg',
+        pool: ['lift_wint_A'],
+        deloadPool: ['lift_wint_A_dl']
+      },
+      2: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_wint_tue_A', 'hyb_wint_tue_B', 'hyb_wint_tue_C', 'hyb_wint_tue_D'],
+        deloadPool: ['hyb_wint_tue_A']
+      },
+      3: { type: 'recovery', pool: ['wk_active_recovery'] },
+      4: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_wint_thu_A', 'hyb_wint_thu_B', 'hyb_wint_thu_C', 'hyb_wint_thu_D'],
+        deloadPool: ['hyb_wint_thu_A']
+      },
+      5: {
+        type: 'lift', logSession: 'B', mobilityBias: 'upper',
+        pool: ['lift_wint_B'],
+        deloadPool: ['lift_wint_B_dl']
+      },
+      6: {
+        type: 'hybrid', mobilityBias: null, noMobility: true,
+        pool: ['hyb_wint_sat_A', 'hyb_wint_sat_B', 'hyb_wint_sat_C', 'hyb_wint_sat_D'],
+        deloadPool: ['hyb_wint_sat_A']
+      }
     }
   },
 
-  // ============================================================
-  // BLOCK 2 — SPRING SPRINT SPEED (Mar – Jun)
-  // ============================================================
   {
-    id:             'block_spring',
-    name:           'Spring Sprint Speed',
-    shortName:      'Spring',
-    months:         [2, 3, 4, 5],    // Mar=2 Apr=3 May=4 Jun=5
-    colorAccent:    'b-spring',
-    srRange:        '28–34',
-    intensityLabel: 'VO2max Intervals · Race Build · 2-Wk Taper',
-    phaseGoal:      'Peak for NW Regionals 1,000m sprint — end of June.',
-    deloadCycle:    4,
-    raceGoal:       { name:'NW Regionals', dist:'1,000m', targetMonth:5, taperWeeks:2 },
-
+    id: 'spring',
+    name: 'Spring Sprint',
+    shortName: 'SPR',
+    months: [2, 3, 4],            // Feb, Mar, Apr
+    colorAccent: '#f5a623',
+    srRange: '24-30',
+    intensityLabel: 'AT / VO2 / Speed',
+    phaseGoal: 'Develop AT threshold, VO2max ceiling, sprint power for indoor race season',
+    deloadCycle: 4,
+    raceGoal: {
+      targetDistance: 2000,
+      taperWeeks: 1,
+      targetMonth: 3
+    },
     weekTemplate: {
-      // Mon — Strength A (power + explosive pull)
-      1: { type:'lift', pool:['wk_spr_lift_a'], deloadPool:['wk_spr_lift_a_dl'], isHigh:false, logSession:'A' },
-      // Tue — HIGH: VO2max or speed pieces
-      2: { type:'erg',  pool:['wk_spr_vo2_5x4','wk_spr_speed_6x500','wk_spr_vo2_5x4','wk_spr_speed_6x500'], deloadPool:['wk_spr_z2_30'], isHigh:true },
-      // Wed — Strength B (unilateral power + ring work)
-      3: { type:'lift', pool:['wk_spr_lift_b'], deloadPool:['wk_spr_lift_b_dl'], isHigh:false, logSession:'B' },
-      // Thu — HIGH: AT / race-pace (48 hrs after Tue)
-      4: { type:'erg',  pool:['wk_spr_at_30','wk_spr_race_pace','wk_spr_at_30','wk_spr_race_pace'], deloadPool:['wk_spr_z2_30'], isHigh:true },
-      // Fri — LOW: technical paddle or easy Z2 (24 hrs after Thu)
-      5: { type:'erg',  pool:['wk_spr_z1_tech','wk_spr_z2_30','wk_spr_z1_tech','wk_spr_z2_30'], isHigh:false },
-      6: { type:'restoration', pool:null, isHigh:false },
-      0: { type:'rest', pool:null, isHigh:false }
+      0: { type: 'restoration', pool: ['wk_restoration'] },
+      1: {
+        type: 'lift', logSession: 'A', mobilityBias: 'leg',
+        pool: ['lift_spr_A'],
+        deloadPool: ['lift_spr_A_dl']
+      },
+      2: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_spr_tue_A', 'hyb_spr_tue_B', 'hyb_spr_tue_C', 'hyb_spr_tue_D'],
+        deloadPool: ['hyb_spr_tue_A']
+      },
+      3: { type: 'recovery', pool: ['wk_active_recovery'] },
+      4: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_spr_thu_A', 'hyb_spr_thu_B', 'hyb_spr_thu_C', 'hyb_spr_thu_D', 'hyb_spr_thu_E'],
+        deloadPool: ['hyb_spr_thu_A']
+      },
+      5: {
+        type: 'lift', logSession: 'B', mobilityBias: 'upper',
+        pool: ['lift_spr_B'],
+        deloadPool: ['lift_spr_B_dl']
+      },
+      6: {
+        type: 'hybrid', mobilityBias: null, noMobility: true,
+        pool: ['hyb_spr_sat_A', 'hyb_spr_sat_B', 'hyb_spr_sat_C', 'hyb_spr_sat_D'],
+        deloadPool: ['hyb_spr_sat_A']
+      }
     }
   },
 
-  // ============================================================
-  // BLOCK 3 — SUMMER AEROBIC BRIDGE (Jul – Aug)
-  // ============================================================
   {
-    id:             'block_summer',
-    name:           'Summer Aerobic Bridge',
-    shortName:      'Summer',
-    months:         [6, 7],           // Jul=6 Aug=7
-    colorAccent:    'b-summer',
-    srRange:        '20–24',
-    intensityLabel: 'Active Recovery · Technical · Cross-Train',
-    phaseGoal:      'Aerobic maintenance, technical refinement, unilateral balance correction.',
-    deloadCycle:    3,                // 3-week micro-blocks in shorter summer
-    raceGoal:       null,
-
+    id: 'summer',
+    name: 'Summer Bridge',
+    shortName: 'SUM',
+    months: [5, 6, 7],            // May, Jun, Jul
+    colorAccent: '#7ed321',
+    srRange: '18-26',
+    intensityLabel: 'UT2 / AT bridge',
+    phaseGoal: 'Retain aerobic and strength gains, reduce total load, prep for fall volume',
+    deloadCycle: 3,               // shorter deload cycle in bridge block
+    raceGoal: null,
     weekTemplate: {
-      1: { type:'lift', pool:['wk_sum_lift_a','wk_sum_lift_b','wk_sum_lift_a'], deloadPool:['wk_sum_lift_a_dl'], isHigh:false, logSession:'A' },
-      2: { type:'erg',  pool:['wk_sum_z1_tech','wk_sum_cross','wk_sum_z1_fartlek'], deloadPool:['wk_sum_z1_30'], isHigh:false },
-      3: { type:'lift', pool:['wk_sum_lift_b','wk_sum_lift_a','wk_sum_lift_b'], deloadPool:['wk_sum_lift_b_dl'], isHigh:false, logSession:'B' },
-      4: { type:'erg',  pool:['wk_sum_z1_45','wk_sum_z2_rate','wk_sum_z1_45'], deloadPool:['wk_sum_z1_30'], isHigh:false },
-      5: { type:'erg',  pool:['wk_sum_z1_gamify','wk_sum_cross','wk_sum_z1_gamify'], isHigh:false },
-      6: { type:'restoration', pool:null, isHigh:false },
-      0: { type:'rest', pool:null, isHigh:false }
+      0: { type: 'restoration', pool: ['wk_restoration'] },
+      1: {
+        type: 'lift', logSession: 'A', mobilityBias: 'leg',
+        pool: ['lift_sum_A'],
+        deloadPool: ['lift_sum_A_dl']
+      },
+      2: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_sum_tue_A', 'hyb_sum_tue_B', 'hyb_sum_tue_C'],
+        deloadPool: ['hyb_sum_tue_B']
+      },
+      3: { type: 'recovery', pool: ['wk_active_recovery'] },
+      4: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_sum_thu_A', 'hyb_sum_thu_B', 'hyb_sum_thu_C'],
+        deloadPool: ['hyb_sum_thu_A']
+      },
+      5: {
+        type: 'lift', logSession: 'B', mobilityBias: 'upper',
+        pool: ['lift_sum_B'],
+        deloadPool: ['lift_sum_B_dl']
+      },
+      6: {
+        type: 'hybrid', mobilityBias: null, noMobility: true,
+        pool: ['hyb_sum_sat_A', 'hyb_sum_sat_B', 'hyb_sum_sat_C'],
+        deloadPool: ['hyb_sum_sat_A']
+      }
     }
   },
 
-  // ============================================================
-  // BLOCK 4 — FALL HEAD RACE THRESHOLD (Sep – Oct)
-  // ============================================================
   {
-    id:             'block_fall',
-    name:           'Fall Head Race Threshold',
-    shortName:      'Fall',
-    months:         [8, 9],           // Sep=8 Oct=9
-    colorAccent:    'b-fall',
-    srRange:        '24–28',
-    intensityLabel: 'FTP Focus · Head Race Build · 2-Wk Taper',
-    phaseGoal:      'Peak for home head race 4–5k — end of October.',
-    deloadCycle:    4,
-    raceGoal:       { name:'Head Race', dist:'~4,500m', targetMonth:9, taperWeeks:2 },
-
+    id: 'fall',
+    name: 'Fall Head Race',
+    shortName: 'FALL',
+    months: [8, 9, 10],           // Aug, Sep, Oct
+    colorAccent: '#d0021b',
+    srRange: '22-28',
+    intensityLabel: 'UT1 / AT sustained',
+    phaseGoal: 'Build head race volume, sustained AT, race simulations, peak for fall regattas',
+    deloadCycle: 4,
+    raceGoal: {
+      targetDistance: 5000,
+      taperWeeks: 2,
+      targetMonth: 9
+    },
     weekTemplate: {
-      1: { type:'lift', pool:['wk_fall_lift_a'], deloadPool:['wk_fall_lift_a_dl'], isHigh:false, logSession:'A' },
-      2: { type:'erg',  pool:['wk_fall_at_3x15','wk_fall_rate_surges','wk_fall_at_3x15','wk_fall_rate_surges'], deloadPool:['wk_fall_z1_45'], isHigh:true },
-      3: { type:'lift', pool:['wk_fall_lift_b'], deloadPool:['wk_fall_lift_b_dl'], isHigh:false, logSession:'B' },
-      4: { type:'erg',  pool:['wk_fall_ftp_30','wk_fall_at_3x15','wk_fall_ftp_30','wk_fall_at_3x15'], deloadPool:['wk_fall_z1_45'], isHigh:true },
-      5: { type:'erg',  pool:['wk_fall_z1_tech','wk_fall_z2_40','wk_fall_z1_tech','wk_fall_z2_40'], isHigh:false },
-      6: { type:'restoration', pool:null, isHigh:false },
-      0: { type:'rest', pool:null, isHigh:false }
+      0: { type: 'restoration', pool: ['wk_restoration'] },
+      1: {
+        type: 'lift', logSession: 'A', mobilityBias: 'leg',
+        pool: ['lift_fall_A'],
+        deloadPool: ['lift_fall_A_dl']
+      },
+      2: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_fall_tue_A', 'hyb_fall_tue_B', 'hyb_fall_tue_C', 'hyb_fall_tue_D'],
+        deloadPool: ['hyb_fall_tue_A']
+      },
+      3: { type: 'recovery', pool: ['wk_active_recovery'] },
+      4: {
+        type: 'hybrid', mobilityBias: 'row',
+        pool: ['hyb_fall_thu_A', 'hyb_fall_thu_B', 'hyb_fall_thu_C', 'hyb_fall_thu_D'],
+        deloadPool: ['hyb_fall_thu_A']
+      },
+      5: {
+        type: 'lift', logSession: 'B', mobilityBias: 'upper',
+        pool: ['lift_fall_B'],
+        deloadPool: ['lift_fall_B_dl']
+      },
+      6: {
+        type: 'hybrid', mobilityBias: null, noMobility: true,
+        pool: ['hyb_fall_sat_A', 'hyb_fall_sat_B', 'hyb_fall_sat_C', 'hyb_fall_sat_D', 'hyb_fall_sat_E'],
+        deloadPool: ['hyb_fall_sat_A']
+      }
     }
   }
-
 ];
