@@ -2,7 +2,7 @@
   "name": "Rowing Planner",
   "short_name": "Rowing",
   "description": "Personal training and nutrition planner for masters rowing athletes.",
-  "start_url": "/lifestyle-app/",
+  "start_url": "./",
   "scope": "/lifestyle-app/",
   "display": "standalone",
   "orientation": "portrait-primary",
