@@ -127,6 +127,34 @@ const TrainingEngine = (function () {
       };
     }
 
+    // First Saturday of month → benchmark 6k TT (non-summer blocks only)
+    if (dow === 6 && d.getDate() <= 7 && block.benchmarkSat && !useDeload) {
+      var bmWk = WORKOUT_LIBRARY[block.benchmarkSat];
+      if (bmWk) {
+        var mealCycleLenBm = (plan.mealCycleIds && plan.mealCycleIds.length) ? plan.mealCycleIds.length : 1;
+        var baseBm = {
+          workoutId:     block.benchmarkSat,
+          weekIndex:     wi,
+          blockWeek:     wib,
+          mealWeekIndex: wi % mealCycleLenBm,
+          dow:           dow,
+          blockId:       block.id,
+          blockName:     block.shortName,
+          isDeload:      false,
+          isTaper:       isTaper,
+          isBenchmark:   true
+        };
+        return Object.assign({}, baseBm, {
+          workoutBg:    bmWk.bgClass,
+          workoutShort: bmWk.calShort,
+          workoutItems: (bmWk.erg && bmWk.erg.items) ? bmWk.erg.items : [],
+          mobilityBias: bmWk.mobilityBias || null,
+          type:         'hybrid',
+          hybrid:       { erg: bmWk.erg || null, clubLog: bmWk.clubLog || null, run: bmWk.run || null }
+        });
+      }
+    }
+
     // Pick from pool — recovery, hybrid, lift all go through here
     var pool = (useDeload && tmpl.deloadPool) ? tmpl.deloadPool : tmpl.pool;
     if (!pool || pool.length === 0) return null;
@@ -154,7 +182,7 @@ const TrainingEngine = (function () {
         workoutBg:    wk.bgClass,
         workoutShort: wk.calShort,
         workoutItems: wk.items || [],
-        mobilityBias: null,
+        mobilityBias: wk.mobilityBias || null,
         type:         'recovery'
       });
     }
@@ -286,6 +314,7 @@ const MealEngine = (function () {
     var excl = {};
     (excludeIds || []).forEach(function(id) { excl[id] = true; });
     return Object.values(RECIPE_CATALOG).filter(function(r) {
+      if (!r.rank || !COOLDOWN_THRESHOLDS[r.rank]) return false; // skip rankless recipes
       if (excl[r.id]) return false;
       var last      = cooldowns[r.id] != null ? cooldowns[r.id] : null;
       if (last === null) return true;
@@ -526,7 +555,7 @@ const MealEngine = (function () {
         recipeId: id,
         name:     recipe.name,
         desc:     calsEach + ' kcal · ' + protEach + 'g protein',
-        link:     recipe.source_url || null
+        link:     recipe.source || null
       });
     });
 
@@ -688,11 +717,11 @@ const CalorieEngine = (function() {
 const HREngine = (function() {
 
   var ZONES = [
-    { num: 1, name: 'Recovery',   minPct: 0.50, maxPct: 0.60 },
-    { num: 2, name: 'Endurance',  minPct: 0.60, maxPct: 0.70 },
-    { num: 3, name: 'Tempo',      minPct: 0.70, maxPct: 0.80 },
-    { num: 4, name: 'Threshold',  minPct: 0.80, maxPct: 0.90 },
-    { num: 5, name: 'Max Effort', minPct: 0.90, maxPct: 1.00 },
+    { label: 'UT2', name: 'Aerobic Base', minPct: 0.55, maxPct: 0.65 },
+    { label: 'UT1', name: 'Aerobic',      minPct: 0.65, maxPct: 0.75 },
+    { label: 'AT',  name: 'Threshold',    minPct: 0.75, maxPct: 0.85 },
+    { label: 'TR',  name: 'Transport',    minPct: 0.85, maxPct: 0.95 },
+    { label: 'AN',  name: 'Anaerobic',    minPct: 0.95, maxPct: 1.00 },
   ];
 
   // Tanaka formula: 208 − (0.7 × age). Uses knownMaxHR when valid.
@@ -707,7 +736,7 @@ const HREngine = (function() {
     if (!maxHR) return null;
     return ZONES.map(function(z) {
       return {
-        num:    z.num,
+        label:  z.label,
         name:   z.name,
         minPct: z.minPct,
         maxPct: z.maxPct,

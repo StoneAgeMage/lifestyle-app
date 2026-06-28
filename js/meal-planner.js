@@ -295,7 +295,7 @@ function _renderMacroStats(weekPlan, settings) {
       '</div>' +
     '</div>' +
     '<div class="mp-macro-sum-note">' +
-      'Recipe meals only · + ' + (settings.dailyBaselineCalories || 800) + ' kcal baseline (oats + snacks)' +
+      'Recipe meals only + ' + (settings.dailyBaselineCalories || 800) + ' kcal baseline (defined in Vitals)' +
     '</div>' +
   '</div>';
 }
@@ -414,8 +414,8 @@ function renderMealPlannerHome() {
     done + ' / ' + total + ' items — tap to shop';
 
   var statusBadge = plan.confirmed
-    ? '<span class="mp-plan-confirmed-badge">Confirmed</span>'
-    : '<span class="mp-plan-draft-badge">Draft</span>';
+    ? '<button class="mp-action-btn" style="pointer-events:none;opacity:.75">Confirmed ✓</button>'
+    : '<button class="mp-action-btn" style="pointer-events:none">Draft</button>';
 
   var servings = plan.servingCounts || {};
   var colorMap = _mpColorMap(plan);
@@ -426,8 +426,7 @@ function renderMealPlannerHome() {
       '<div class="mp-plan-card">' +
         '<div class="mp-plan-hdr" style="background:var(--water)">' +
           '<div>' +
-            '<div class="mp-plan-week">' + (isNextWeek ? 'NEXT WEEK · ' : 'THIS WEEK · ') + weekLabel + '</div>' +
-            '<div class="mp-plan-cuisine">' + plan.recipeIds.length + ' Recipes · This Week</div>' +
+            '<div class="mp-plan-week">' + (isNextWeek ? 'NEXT WEEK' : 'THIS WEEK') + ' · ' + weekLabel.toUpperCase() + ' · ' + plan.recipeIds.length + ' RECIPES</div>' +
           '</div>' +
           '<div class="mp-plan-actions">' +
             statusBadge +
@@ -442,7 +441,6 @@ function renderMealPlannerHome() {
             var n       = servings[id] || 1;
             var calEach = Math.round(recipe._totalMacros.calories / n);
             return '<div class="mp-dinner">' +
-              '<span class="mp-rank-badge mp-rank-' + recipe.rank.toLowerCase() + '">' + recipe.rank + '</span>' +
               '<div class="mp-dinner-info">' +
                 '<div class="mp-dinner-name mp-recipe-link" onclick="openRecipeModal(\'' + id + '\')">' + recipe.name + '</div>' +
                 '<div class="mp-dinner-meta">' + n + ' serving' + (n !== 1 ? 's' : '') + ' · ~' + calEach + ' kcal each</div>' +
@@ -675,8 +673,8 @@ function openRecipeModal(recipeId) {
   var macroStr = '';
   if (tm.calories)  macroStr  = tm.calories.toLocaleString() + ' cal (full batch)';
   if (tm.proteinG)  macroStr += (macroStr ? ' · ' : '') + tm.proteinG + 'g protein';
-  var sourceBtn = recipe.source_url
-    ? '<a href="' + recipe.source_url + '" target="_blank" rel="noopener" class="rm-source-btn">View Full Recipe Online →</a>'
+  var sourceBtn = recipe.source
+    ? '<a href="' + recipe.source + '" target="_blank" rel="noopener" class="rm-source-btn">View Full Recipe Online →</a>'
     : '';
   overlay.innerHTML =
     '<div class="rm-modal">' +

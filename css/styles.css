@@ -191,13 +191,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .bg-vo2{background:linear-gradient(135deg,#7a1010,#c02020)}
 .bg-spd{background:linear-gradient(135deg,#4a1a7a,#8a30c0)}
 .bg-restore{background:linear-gradient(135deg,#0a4a40,#1a8070)}
-/* Mobility card */
-.mob-card{background:var(--s2);border-radius:10px;padding:14px 16px;margin-top:10px}
-.mob-card-title{font-size:12px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.mob-exercise{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--s3)}
+/* Mobility — collapsible section inside workout card, styled as a step */
+.mob-section{}
+.mob-tile{background:var(--foam);border-radius:10px;padding:0 8px;margin:0 -8px 8px}
+.mob-toggle-btn{width:100%;display:flex;align-items:center;gap:5px;padding:7px 0;background:none;border:none;font-size:13px;color:var(--txt);font-weight:400;line-height:1.5;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif}
+.mob-toggle-btn:hover{color:var(--water)}
+.mob-chevron{font-size:10px;color:var(--txl);flex-shrink:0}
+.mob-toggle-body{display:none;border-top:1px solid var(--bdr);padding-bottom:6px}
+.mob-inline-section{margin-top:14px;padding-top:12px;border-top:1px solid var(--bdr)}
+.mob-card-title{font-size:10px;font-weight:600;color:var(--txl);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.mob-exercise{padding:7px 0;border-bottom:1px solid var(--s3)}
 .mob-exercise:last-child{border-bottom:none}
-.mob-ex-dur{font-size:11px;color:var(--acc);font-weight:600;min-width:36px;padding-top:2px}
-.mob-ex-name{font-size:12px;font-weight:500;color:var(--txm)}
+.mob-ex-chip{display:inline-block;font-size:10px;font-weight:600;color:var(--acc);background:var(--bg);border:1px solid var(--bdr);border-radius:20px;padding:2px 7px;margin-right:4px;vertical-align:middle;white-space:nowrap}
+.mob-ex-name{font-size:13px;font-weight:400;color:var(--txt);line-height:1.5}
 .mob-ex-cue{font-size:11px;color:var(--txl);line-height:1.4;margin-top:2px}
 
 /* Hybrid / lift option tabs */
@@ -206,9 +212,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .db-opt-tab.active{background:var(--water);color:#fff;border-color:var(--water)}
 .db-opt-panel{display:none}
 .db-opt-panel.active{display:block}
-.db-opt-name{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:8px}
-/* Workout item — plain string row */
-.db-workout-item{font-size:12px;color:var(--txm);padding:5px 0;border-bottom:1px solid var(--s3);line-height:1.4;font-weight:300}
+.db-opt-name{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:4px}
+/* UT zone + BPM strip */
+.db-ut-strip{font-family:'DM Mono',monospace;font-size:11px;color:var(--water);font-weight:500;letter-spacing:.02em;margin-bottom:12px}
+/* Workout item */
+.db-workout-item{font-size:13px;color:var(--txt);padding:7px 0;border-bottom:1px solid var(--s3);line-height:1.5;font-weight:400}
 .db-workout-item:last-child{border-bottom:none}
 /* Lift exercise rows */
 .db-lift-ex{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--s3)}
@@ -393,7 +401,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .mp-nav-title{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--water);flex:1}
 .mp-plan-card{background:var(--card);border:1px solid var(--bdr);border-radius:13px;overflow:hidden;margin-bottom:16px}
 .mp-plan-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-.mp-plan-week{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:2px}
 .mp-plan-cuisine{font-family:'Bebas Neue',cursive;font-size:20px;color:#fff;line-height:1}
 .mp-plan-actions{display:flex;gap:8px}
 .mp-action-btn{background:rgba(255,255,255,.15);color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:background .2s}
@@ -402,7 +409,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .mp-dinner{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px}
 .mp-dinner:last-child{margin-bottom:0}
 .mp-dinner-type{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--txl);width:56px;flex-shrink:0;margin-top:2px;line-height:1.3}
-.mp-dinner-name{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:1px}
+.mp-dinner-name{font-size:13px;font-weight:400;color:var(--txt);margin-bottom:1px}
 .mp-dinner-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--grn)}
 .mp-list-progress{margin-top:12px;padding:8px 10px;background:var(--foam);border-radius:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--txl);cursor:pointer;text-align:center;transition:background .15s}
 .mp-list-progress:hover{background:rgba(10,79,110,.1);color:var(--water)}
@@ -481,9 +488,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .pw-day.pw-noplan{background:transparent;border-color:transparent;cursor:default;pointer-events:none;min-height:96px}
 .pw-num{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;color:var(--txl);text-align:center}
 .pw-num-dim{opacity:.3}
-.pw-badge{font-size:7.5px;font-weight:600;color:var(--wht);padding:2px 4px;border-radius:4px;line-height:1.3;display:block;text-align:center}
+.pw-badge{font-size:7.5px;font-weight:600;color:var(--wht);padding:2px 4px;border-radius:4px;line-height:1.3;display:block;text-align:center;position:relative;overflow:visible}
+.pw-logged-dot{position:absolute;top:-3px;right:-3px;width:7px;height:7px;border-radius:50%;background:var(--grn);border:1.5px solid var(--card);display:block}
 .pw-meals{display:flex;flex-direction:column;gap:2px;margin-top:2px}
-.pw-meal{font-size:7.5px;color:var(--txm);line-height:1.3;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:400}
+.pw-meal{font-size:7.5px;color:var(--txm);line-height:1.3;text-align:left;font-weight:400}
 .pw-meal-abbr{font-family:'DM Mono',monospace;font-size:6.5px;color:var(--txl);margin-right:3px;font-weight:500}
 
 @media(max-width:480px){
@@ -492,6 +500,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
   .pw-day{min-height:88px;padding:6px 3px;gap:3px}
   .pw-meal{font-size:7px}
 }
+
+/* ---- 3-day sliding plan view -------------------------------- */
+.pw-3day-range-row{text-align:center;margin-bottom:10px}
+.pw-3day-range{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txl)}
+.pw-3day-footer{text-align:center;margin-top:14px}
+.pw-today-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;background:var(--water);color:#fff;border:none;border-radius:20px;padding:5px 14px;cursor:pointer;transition:background .15s}
+.pw-today-btn:hover{background:var(--wm)}
+.pw-3day-wrap{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.pw-nav-btn{background:var(--water);color:#fff;border:none;border-radius:50%;width:44px;height:44px;font-size:28px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.pw-nav-btn:hover{background:var(--wm)}
+.pw-3day-grid{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.pw-3day-card{background:var(--card);border:1.5px solid var(--bdr);border-radius:14px;padding:16px 12px;cursor:pointer;display:flex;flex-direction:column;gap:5px;transition:box-shadow .15s;position:relative}
+.pw-3day-card:hover{box-shadow:0 3px 14px rgba(10,79,110,.13)}
+.pw-3day-card.pw-today{border-color:var(--water);box-shadow:0 0 0 2px rgba(10,79,110,.1)}
+.pw-3day-card.pw-3day-noplan{cursor:default;pointer-events:none;opacity:.45}
+.pw-3d-dow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--txl)}
+.pw-3day-card.pw-today .pw-3d-dow{color:var(--water)}
+.pw-3d-num{font-size:30px;font-weight:700;color:var(--txt);line-height:1;margin-bottom:4px}
+.pw-3day-card.pw-today .pw-3d-num{color:var(--water)}
+.pw-3d-badge{font-size:10px!important;padding:4px 9px!important;border-radius:6px!important;display:block;text-align:left;align-self:flex-start}
+.pw-3d-rest{font-size:12px;color:var(--txl);font-style:italic}
+.pw-3d-meals{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.pw-3d-meal{font-size:11px;color:var(--txm);line-height:1.4;font-weight:400}
+.pw-3d-meal-abbr{font-family:'DM Mono',monospace;font-size:9px;color:var(--txl);margin-right:4px;font-weight:600}
+.pw-3d-done{font-family:'DM Mono',monospace;font-size:9px;background:var(--grn);color:#fff;padding:3px 9px;border-radius:10px;position:absolute;top:12px;right:12px}
 
 /* ===== EXECUTE — collapsible log forms ===== */
 .td-log-details{margin-top:12px;overflow:hidden}
@@ -548,20 +581,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .vt-history-date{font-size:12px;color:var(--txl)}
 .vt-history-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--txt)}
 
-/* ===== VITALS — macro grid ===== */
-.vt-macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.vt-macro{background:var(--foam);border-radius:10px;padding:12px 10px;text-align:center}
-.vt-macro-val{font-family:'DM Mono',monospace;font-size:20px;font-weight:600;color:var(--acc)}
-.vt-macro-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txl);margin-top:2px}
-.vt-macro-sub{font-size:10px;color:var(--txm);margin-top:2px}
-
-/* ===== VITALS — calorie target readout ===== */
-.vt-cal-display{display:flex;align-items:baseline;gap:10px;margin-bottom:14px;padding:10px 0;border-bottom:1px solid var(--bdr)}
-.vt-cal-val{font-family:'DM Mono',monospace;font-size:30px;font-weight:700;color:var(--water)}
-.vt-cal-mode{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--txl);background:var(--foam);border-radius:6px;padding:3px 7px}
-
 /* ===== VITALS — helper note ===== */
-.vt-helper{font-size:11px;color:var(--txl);line-height:1.5;margin-top:10px;font-style:italic;border-top:1px solid var(--bdr);padding-top:10px}
+.vt-helper{font-size:11px;color:var(--txl);line-height:1.5;font-style:italic}
+
+/* ===== VITALS — macro sliders ===== */
+.vt-sl-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--txl);font-weight:600;margin-bottom:10px}
+.vt-sl-row{margin-bottom:12px}
+.vt-sl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.vt-sl-name{font-size:12px;font-weight:600;color:var(--txm)}
+.vt-sl-pct{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--txt)}
+.vt-range{width:100%;accent-color:var(--water);cursor:pointer}
+.vt-carbs-row .vt-sl-name{font-size:12px;font-weight:600;color:var(--txm)}
+.vt-carbs-track{height:8px;background:var(--foam);border-radius:10px;overflow:hidden;border:1px solid var(--bdr);margin-top:4px}
+.vt-carbs-fill{height:100%;background:var(--wm);border-radius:10px;transition:width .1s}
+
+/* ===== VITALS — macro detail row ===== */
+.vt-macro-detail-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)}
+.vt-macro-detail-cell{background:var(--foam);border-radius:10px;padding:10px 8px;text-align:center}
+.vt-macro-detail-g{font-family:'DM Mono',monospace;font-size:18px;font-weight:700}
+.vt-macro-detail-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--txl);margin-top:2px}
+.vt-macro-detail-kcal{font-size:10px;color:var(--txm);margin-top:2px}
 
 /* ===== FUEL — macro summary box ===== */
 .mp-macro-summary{background:var(--foam);border-radius:12px;padding:14px 16px;margin-top:12px}
@@ -660,8 +699,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .mp-item-main{flex:1;display:flex;align-items:center;gap:4px}
 
 /* Week plan home view */
-.mp-plan-week{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7)}
-.mp-plan-cuisine{font-size:13px;font-weight:600;color:#fff;margin-top:2px}
+.mp-plan-week{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55);padding:2px 7px;background:rgba(255,255,255,.1);border-radius:20px}
 
 /* Recipe card per-serving macro row */
 .mp-plan-rc-macros{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap}

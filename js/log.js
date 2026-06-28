@@ -17,6 +17,7 @@ const timeBasedEx = new Set([
 ]);
 
 const ergTypeLabels = {
+  tt:'6k Time Trial',
   z1:'Zone 1 Easy', z2:'Zone 2 Moderate', at:'Threshold',
   vo2:'VO2max', spd:'Speed', cross:'Cross-Training', recovery:'Recovery'
 };
@@ -87,26 +88,37 @@ function showToast(msg) {
 // ---- Lift form ----
 
 function _getExercisesForSession(session) {
+  var isBodyweight = session.indexOf('_bw') !== -1;
+  var baseSession  = session.replace('_bw', '');
+
   if (typeof TRAINING_PLANS !== 'undefined' && typeof TrainingEngine !== 'undefined' && typeof WORKOUT_LIBRARY !== 'undefined') {
     var plan  = TRAINING_PLANS[ACTIVE_PLAN_ID];
     var today = new Date(); today.setHours(12, 0, 0, 0);
     var wf    = TrainingEngine.getWorkoutForDate(plan, today);
     if (wf && wf.type === 'lift') {
       var wkData = WORKOUT_LIBRARY[wf.workoutId];
-      // New format: exercises live in wkData.primary.exercises
-      if (wkData && wkData.primary && wkData.primary.exercises && wkData.primary.exercises.length > 0) {
-        return wkData.primary.exercises.map(function(ex) { return ex.name; });
+      if (wkData) {
+        if (isBodyweight && wkData.travel && wkData.travel.exercises && wkData.travel.exercises.length > 0) {
+          return wkData.travel.exercises.map(function(ex) { return ex.name; });
+        }
+        if (!isBodyweight && wkData.primary && wkData.primary.exercises && wkData.primary.exercises.length > 0) {
+          return wkData.primary.exercises.map(function(ex) { return ex.name; });
+        }
+        // Legacy format fallback
+        if (wkData.exercises && wkData.exercises.length > 0) return wkData.exercises;
       }
-      // Legacy format fallback
-      if (wkData && wkData.exercises && wkData.exercises.length > 0) return wkData.exercises;
     }
     // Fall back to any matching session in WORKOUT_LIBRARY
     var blockWks = Object.values(WORKOUT_LIBRARY).filter(function(w) {
-      return w.type === 'lift' && w.logSession === session && w.primary && w.primary.exercises && w.primary.exercises.length > 0;
+      return w.type === 'lift' && w.logSession === baseSession &&
+             (isBodyweight ? (w.travel && w.travel.exercises) : (w.primary && w.primary.exercises));
     });
-    if (blockWks.length > 0) return blockWks[0].primary.exercises.map(function(ex) { return ex.name; });
+    if (blockWks.length > 0) {
+      var src = isBodyweight ? blockWks[0].travel : blockWks[0].primary;
+      return src.exercises.map(function(ex) { return ex.name; });
+    }
   }
-  return sessionExercises[session] || [];
+  return sessionExercises[baseSession] || [];
 }
 
 function buildExerciseRows() {
@@ -167,6 +179,7 @@ function saveLifting() {
   const details = document.getElementById('td-log-lift');
   if (details) details.open = false;
 
+  if (typeof markWorkoutComplete === 'function') markWorkoutComplete();
   showToast('Lifting session saved ✓');
 }
 
@@ -235,6 +248,7 @@ function saveErg() {
   const details = document.getElementById('td-log-erg');
   if (details) details.open = false;
 
+  if (typeof markWorkoutComplete === 'function') markWorkoutComplete();
   showToast('Rowing session saved ✓');
 }
 

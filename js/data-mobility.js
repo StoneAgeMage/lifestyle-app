@@ -91,6 +91,48 @@ const POST_WORKOUT_ROUTINES = {
     ]
   },
 
+  // ---- Recovery day (Wed) — gentle full-body reset -------------
+  // Targets: spinal decompression, hip joints, thoracic rotation.
+  // Parasympathetic tone — no intensity, just blood flow and range.
+  recovery: {
+    id:       'mob_recovery',
+    name:     'Recovery Day 5-Min Reset',
+    context:  'recovery',
+    total:    300,
+    exercises: [
+      {
+        name:     'Cat-Cow Breathing',
+        duration: 60,
+        side:     'bilateral',
+        cue:      'On all-fours. Inhale — drop belly, lift gaze (cow). Exhale — round spine, tuck chin (cat). Slow, deliberate. Decompress the entire spine with breath.'
+      },
+      {
+        name:     'Standing Hip Circles',
+        duration: 60,
+        side:     'each (30s)',
+        cue:      'Stand on one foot, draw big slow circles with the raised knee — 5 forward, 5 backward. Lubricates the hip capsule. No ballistic swinging.'
+      },
+      {
+        name:     'Seated Thoracic Rotation',
+        duration: 60,
+        side:     'each (30s)',
+        cue:      'Sit on floor or chair, cross arms over chest. Rotate torso left and right through full range. Breathe into each end range. Not the lower back — just upper spine.'
+      },
+      {
+        name:     'Supine Knee-to-Chest',
+        duration: 60,
+        side:     'each (30s)',
+        cue:      'Lie on back, hug one knee gently to chest while the other leg stays long. Breathe slowly. Simple lower-back decompression — great after a training week.'
+      },
+      {
+        name:     'Legs-Up Breathing',
+        duration: 60,
+        side:     'bilateral',
+        cue:      'Lie on back, legs up a wall or resting on a couch. Arms relaxed at sides. Breathe slow for 60 seconds. Activates the parasympathetic system and drains the legs.'
+      }
+    ]
+  },
+
   // ---- After upper-body lifting (Wed / ring work + rows) -------
   // Targets: shoulder capsule, lats, thoracic, wrists (ring loading).
   upper: {

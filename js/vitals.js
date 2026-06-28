@@ -84,19 +84,11 @@ function renderVitals() {
   var diffStr  = diff !== null ? (diff > 0 ? '+' + diff : String(diff)) + ' ' + unit : '—';
   var diffColor = diff !== null && diff <= 0 ? 'var(--grn)' : 'var(--acc)';
 
-  // Calorie target from engine — auto-calculated, not user-editable
-  var calCtx   = CalorieEngine.getDailyTarget(current, goal);
-  var dailyCal = calCtx.calories;
-  var isLoss   = calCtx.mode === 'loss';
-  var modeLabel = isLoss ? 'Weight Loss' : 'Maintenance';
-
-  // Macro split: 0.7g protein per lb goal, 28% fat, remainder carbs
-  var proteinG = Math.round(goal * 0.7);
-  var fatG     = Math.round(dailyCal * 0.28 / 9);
-  var protCal  = proteinG * 4;
-  var fatCal   = fatG * 9;
-  var carbCal  = dailyCal - protCal - fatCal;
-  var carbG    = Math.round(carbCal / 4);
+  var dailyCal = s.dailyCalorieTarget    || 2100;
+  var baseline = s.dailyBaselineCalories || 800;
+  var pctP     = s.macroPctProtein || 22;
+  var pctF     = s.macroPctFat     || 28;
+  var pctC     = Math.max(0, 100 - pctP - pctF);
 
   var recent = weights.slice(0, 8);
 
@@ -136,18 +128,8 @@ function renderVitals() {
         '</div>'
       : ''
     ) +
-    '</div>' +
-
-    // ── Calorie & Macro Targets card ──
-    '<div class="card" style="max-width:560px">' +
-    '<div class="log-form-title">Calorie &amp; Macro Targets</div>' +
-
-    '<div class="vt-cal-display">' +
-      '<span class="vt-cal-val">' + dailyCal.toLocaleString() + '</span>' +
-      '<span class="vt-cal-mode">' + modeLabel + '</span>' +
-    '</div>' +
-
-    '<div class="lf-row" style="margin-bottom:8px">' +
+    '<div style="border-top:1px solid var(--bdr);margin-top:14px;padding-top:14px">' +
+    '<div class="lf-row" style="margin-bottom:0">' +
       '<div class="lf-group">' +
         '<label class="lf-label">Goal Weight</label>' +
         '<input type="number" id="vt-goal-weight" class="lf-input" value="' + goal + '" min="50" max="500" step="0.1" style="max-width:130px">' +
@@ -160,19 +142,37 @@ function renderVitals() {
         '</div>' +
       '</div>' +
     '</div>' +
-    '<button class="log-btn" style="margin-bottom:14px" onclick="saveVitalsTargets()">Save Goals</button>' +
-
-    '<div class="vt-macros">' +
-      _vtMacro(proteinG + 'g', 'Protein', protCal, dailyCal) +
-      _vtMacro(carbG + 'g', 'Carbs', carbCal, dailyCal) +
-      _vtMacro(fatG + 'g', 'Fat', fatCal, dailyCal) +
     '</div>' +
-    '<div class="vt-helper">Core meal plan provides ~2,100 kcal and ~125g protein. Use daily snacks to bridge any gaps to your current targets.</div>' +
+    '</div>' +
+
+    // ── Calorie & Macro Targets card ──
+    '<div class="card" style="max-width:560px">' +
+    '<div class="log-form-title">Calorie &amp; Macro Targets</div>' +
+
+    '<div class="lf-row" style="margin-bottom:6px">' +
+      '<div class="lf-group">' +
+        '<label class="lf-label">Daily Calorie Target</label>' +
+        '<input type="number" id="vt-cal-target" class="lf-input" value="' + dailyCal + '" min="1000" max="6000" step="50" style="max-width:130px" oninput="vtLiveMacros()">' +
+      '</div>' +
+      '<div class="lf-group">' +
+        '<label class="lf-label">Baseline <span style="color:var(--txl);font-weight:400">(breakfast + snacks)</span></label>' +
+        '<input type="number" id="vt-cal-baseline" class="lf-input" value="' + baseline + '" min="0" max="3000" step="50" style="max-width:130px" oninput="vtLiveMacros()">' +
+      '</div>' +
+    '</div>' +
+    '<div id="vt-cal-note" class="vt-helper" style="margin-bottom:18px">' + _vtCalNote(dailyCal, baseline) + '</div>' +
+
+    '<div class="vt-sl-section-label">Macro Split</div>' +
+    _vtSliderRow('p', 'Protein', pctP) +
+    _vtSliderRow('f', 'Fat', pctF) +
+    _vtCarbsRow(pctC) +
+    '<div id="vt-macro-detail">' + _vtMacroDetail(dailyCal, pctP, pctF) + '</div>' +
+
+    '<button class="log-btn" style="margin-top:16px" onclick="saveVitalsTargets()">Save Targets</button>' +
     '</div>' +
 
     // ── Heart Rate Zones card ──
     '<div class="card" style="max-width:560px;margin-top:16px">' +
-    '<div class="log-form-title">Heart Rate Zones</div>' +
+    '<div class="log-form-title">Training Intensity Zones</div>' +
     '<div class="lf-row" style="margin-bottom:12px">' +
       '<div class="lf-group">' +
         '<label class="lf-label">Age</label>' +
@@ -187,14 +187,127 @@ function renderVitals() {
     '</div>';
 }
 
-function _vtMacro(val, label, cal, totalCal) {
-  var pct = Math.round(cal / totalCal * 100);
-  return '<div class="vt-macro">' +
-    '<div class="vt-macro-val">' + val + '</div>' +
-    '<div class="vt-macro-lbl">' + label + '</div>' +
-    '<div class="vt-macro-sub">' + cal + ' kcal · ' + pct + '%</div>' +
+// ---- Macro UI helpers ---------------------------------------
+
+function _vtCalNote(cal, baseline) {
+  var recipeCal  = Math.max(0, cal - baseline);
+  var weekCal    = recipeCal * 5;
+  return 'Recipes cover <strong>' + recipeCal.toLocaleString() + ' kcal/day</strong> (' +
+    cal.toLocaleString() + ' − ' + baseline.toLocaleString() + ' baseline) → ' +
+    '<strong>' + weekCal.toLocaleString() + ' kcal/week</strong> across Mon–Fri.';
+}
+
+function _vtSliderRow(key, label, pct) {
+  return '<div class="vt-sl-row">' +
+    '<div class="vt-sl-header">' +
+      '<span class="vt-sl-name">' + label + '</span>' +
+      '<span class="vt-sl-pct" id="vt-pct-' + key + '">' + pct + '%</span>' +
+    '</div>' +
+    '<input type="range" class="vt-range" id="vt-sl-' + key + '" min="10" max="70" step="1" value="' + pct + '" oninput="vtLiveMacros()">' +
   '</div>';
 }
+
+function _vtCarbsRow(pct) {
+  return '<div class="vt-sl-row vt-carbs-row">' +
+    '<div class="vt-sl-header">' +
+      '<span class="vt-sl-name">Carbs <span style="color:var(--txl);font-size:10px;font-weight:400">(auto)</span></span>' +
+      '<span class="vt-sl-pct" id="vt-pct-c">' + pct + '%</span>' +
+    '</div>' +
+    '<div class="vt-carbs-track">' +
+      '<div class="vt-carbs-fill" id="vt-carbs-fill" style="width:' + pct + '%"></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function _vtMacroDetail(cal, pctP, pctF) {
+  var pctC = Math.max(0, 100 - pctP - pctF);
+  var gP   = Math.round(cal * pctP / 100 / 4);
+  var gF   = Math.round(cal * pctF / 100 / 9);
+  var gC   = Math.round(cal * pctC / 100 / 4);
+  var kcalP = gP * 4;
+  var kcalF = Math.round(gF * 9);
+  var kcalC = gC * 4;
+  return '<div class="vt-macro-detail-row">' +
+    '<div class="vt-macro-detail-cell">' +
+      '<div class="vt-macro-detail-g" style="color:#e85d26" id="vt-g-p">' + gP + 'g</div>' +
+      '<div class="vt-macro-detail-lbl">Protein</div>' +
+      '<div class="vt-macro-detail-kcal" id="vt-kcal-p">' + kcalP + ' kcal</div>' +
+    '</div>' +
+    '<div class="vt-macro-detail-cell">' +
+      '<div class="vt-macro-detail-g" style="color:#c8864a" id="vt-g-f">' + gF + 'g</div>' +
+      '<div class="vt-macro-detail-lbl">Fat</div>' +
+      '<div class="vt-macro-detail-kcal" id="vt-kcal-f">' + kcalF + ' kcal</div>' +
+    '</div>' +
+    '<div class="vt-macro-detail-cell">' +
+      '<div class="vt-macro-detail-g" style="color:#1a8fbe" id="vt-g-c">' + gC + 'g</div>' +
+      '<div class="vt-macro-detail-lbl">Carbs</div>' +
+      '<div class="vt-macro-detail-kcal" id="vt-kcal-c">' + kcalC + ' kcal</div>' +
+    '</div>' +
+  '</div>';
+}
+
+// ---- Live update on slider / calorie input change -----------
+
+function vtLiveMacros() {
+  var calEl  = document.getElementById('vt-cal-target');
+  var baseEl = document.getElementById('vt-cal-baseline');
+  var slP    = document.getElementById('vt-sl-p');
+  var slF    = document.getElementById('vt-sl-f');
+  if (!slP || !slF) return;
+
+  var cal  = parseInt(calEl ? calEl.value : 2100, 10) || 2100;
+  var base = parseInt(baseEl ? baseEl.value : 800, 10);
+  var pP   = parseInt(slP.value, 10);
+  var pF   = parseInt(slF.value, 10);
+
+  // Clamp so carbs never drop below 10%
+  if (pP + pF > 90) {
+    if (document.activeElement === slP) {
+      pP = 90 - pF;
+      slP.value = pP;
+    } else {
+      pF = 90 - pP;
+      slF.value = pF;
+    }
+  }
+  var pC = 100 - pP - pF;
+
+  // Update percentage labels
+  var pctPEl = document.getElementById('vt-pct-p');
+  var pctFEl = document.getElementById('vt-pct-f');
+  var pctCEl = document.getElementById('vt-pct-c');
+  if (pctPEl) pctPEl.textContent = pP + '%';
+  if (pctFEl) pctFEl.textContent = pF + '%';
+  if (pctCEl) pctCEl.textContent = pC + '%';
+
+  // Update carbs fill bar
+  var fillEl = document.getElementById('vt-carbs-fill');
+  if (fillEl) fillEl.style.width = pC + '%';
+
+  // Update gram / kcal cells
+  var gP = Math.round(cal * pP / 100 / 4);
+  var gF = Math.round(cal * pF / 100 / 9);
+  var gC = Math.round(cal * pC / 100 / 4);
+
+  var gPEl    = document.getElementById('vt-g-p');
+  var gFEl    = document.getElementById('vt-g-f');
+  var gCEl    = document.getElementById('vt-g-c');
+  var kcalPEl = document.getElementById('vt-kcal-p');
+  var kcalFEl = document.getElementById('vt-kcal-f');
+  var kcalCEl = document.getElementById('vt-kcal-c');
+  if (gPEl) gPEl.textContent    = gP + 'g';
+  if (gFEl) gFEl.textContent    = gF + 'g';
+  if (gCEl) gCEl.textContent    = gC + 'g';
+  if (kcalPEl) kcalPEl.textContent = (gP * 4) + ' kcal';
+  if (kcalFEl) kcalFEl.textContent = Math.round(gF * 9) + ' kcal';
+  if (kcalCEl) kcalCEl.textContent = (gC * 4) + ' kcal';
+
+  // Update calorie note
+  var noteEl = document.getElementById('vt-cal-note');
+  if (noteEl && !isNaN(base)) noteEl.innerHTML = _vtCalNote(cal, base);
+}
+
+// ---- Save / Log actions -------------------------------------
 
 function logVitalWeight() {
   var input = document.getElementById('vt-weight-input');
@@ -213,22 +326,36 @@ function logVitalWeight() {
 }
 
 function saveVitalsTargets() {
-  var goalEl = document.getElementById('vt-goal-weight');
-  var unitEl = document.querySelector('input[name="vt-unit"]:checked');
-  if (!goalEl) return;
+  var goalEl   = document.getElementById('vt-goal-weight');
+  var unitEl   = document.querySelector('input[name="vt-unit"]:checked');
+  var calEl    = document.getElementById('vt-cal-target');
+  var baseEl   = document.getElementById('vt-cal-baseline');
+  var slP      = document.getElementById('vt-sl-p');
+  var slF      = document.getElementById('vt-sl-f');
 
-  var goalWeight = parseFloat(goalEl.value);
-  var weightUnit = unitEl ? unitEl.value : 'lb';
+  var goalWeight = goalEl  ? parseFloat(goalEl.value)          : null;
+  var weightUnit = unitEl  ? unitEl.value                      : 'lb';
+  var calTarget  = calEl   ? parseInt(calEl.value,  10)        : null;
+  var calBase    = baseEl  ? parseInt(baseEl.value, 10)        : null;
+  var pctP       = slP     ? parseInt(slP.value, 10)           : null;
+  var pctF       = slF     ? parseInt(slF.value, 10)           : null;
 
-  if (isNaN(goalWeight) || goalWeight < 50 || goalWeight > 500) {
+  if (goalEl && (isNaN(goalWeight) || goalWeight < 50 || goalWeight > 500)) {
     showToast('Enter a valid goal weight (50–500)');
     return;
   }
 
   var s = loadSettings();
-  saveSettings(Object.assign({}, s, { goalWeight: goalWeight, weightUnit: weightUnit }));
+  saveSettings(Object.assign({}, s, {
+    goalWeight:             goalWeight  !== null && !isNaN(goalWeight)  ? goalWeight  : s.goalWeight,
+    weightUnit:             weightUnit,
+    dailyCalorieTarget:     calTarget   !== null && calTarget   > 0     ? calTarget   : s.dailyCalorieTarget,
+    dailyBaselineCalories:  calBase     !== null && !isNaN(calBase)     ? calBase     : s.dailyBaselineCalories,
+    macroPctProtein:        pctP        !== null && !isNaN(pctP)        ? pctP        : s.macroPctProtein,
+    macroPctFat:            pctF        !== null && !isNaN(pctF)        ? pctF        : s.macroPctFat,
+  }));
   renderVitals();
-  showToast('Goals saved ✓');
+  showToast('Targets saved ✓');
 }
 
 function initVitals() {
@@ -250,10 +377,10 @@ function _buildHRZonesHTML(age, knownMaxHR) {
     : 'Estimated max HR: ' + maxHR + ' bpm (Tanaka formula)';
   return '<div class="vt-hr-source">' + source + '</div>' +
     '<div class="vt-hr-list">' +
-    zones.map(function(z) {
-      var c = _HR_ZONE_COLORS[z.num - 1];
+    zones.map(function(z, i) {
+      var c = _HR_ZONE_COLORS[i];
       return '<div class="vt-hr-row">' +
-        '<div class="vt-hr-badge" style="background:' + c + '22;color:' + c + '">Z' + z.num + '</div>' +
+        '<div class="vt-hr-badge" style="background:' + c + '22;color:' + c + '">' + z.label + '</div>' +
         '<div class="vt-hr-name">' + z.name + '</div>' +
         '<div class="vt-hr-pct">' + Math.round(z.minPct * 100) + '–' + Math.round(z.maxPct * 100) + '%</div>' +
         '<div class="vt-hr-bpm">' + z.minBPM + '–' + z.maxBPM + ' bpm</div>' +

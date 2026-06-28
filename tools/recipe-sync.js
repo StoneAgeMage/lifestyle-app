@@ -228,6 +228,7 @@ function jsStr(s) {
 function buildRecipeEntry(slug, recipe, macros) {
   const lines = [];
   lines.push(`  '${slug}': {`);
+  lines.push(`    id: ${jsStr(slug)},`);
   lines.push(`    name: ${jsStr(recipe.name)},`);
   lines.push(`    servings: ${recipe.servings},`);
   if (recipe.rank)   lines.push(`    rank: ${jsStr(recipe.rank)},`);
@@ -341,9 +342,9 @@ function main() {
     return;
   }
 
-  // Write
-  const recipesJs = fs.readFileSync(RECIPES_JS, 'utf8');
-  const ingredJs  = fs.readFileSync(INGRED_JS,  'utf8');
+  // Write (normalize CRLF → LF before boundary search so indexOf works on Windows)
+  const recipesJs = fs.readFileSync(RECIPES_JS, 'utf8').replace(/\r\n/g, '\n');
+  const ingredJs  = fs.readFileSync(INGRED_JS,  'utf8').replace(/\r\n/g, '\n');
 
   fs.writeFileSync(RECIPES_JS, replaceRecipeCatalog(recipesJs, recipeEntries),    'utf8');
   fs.writeFileSync(INGRED_JS,  replaceIngredientCatalog(ingredJs, ingredEntries), 'utf8');

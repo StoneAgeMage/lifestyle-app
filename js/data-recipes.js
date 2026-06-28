@@ -17,6 +17,7 @@
 const RECIPE_CATALOG = {
 
   '20minute_tofu_stirfry': {
+    id: '20minute_tofu_stirfry',
     name: '20-Minute Tofu Stir-Fry',
     servings: 2,
     rank: 'C',
@@ -43,10 +44,11 @@ const RECIPE_CATALOG = {
       { id: 'Peanut sauce', qty: '' },
       { id: 'Chili Garlic Sauce or Sriracha (we like Huy Fong Foods brand)', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1470, proteinG: 60.21, fatG: 50.31, carbsG: 211.03, sodiumMg: 1096 },
   },
 
   '30minute_mediterranean_chicken_bowls': {
+    id: '30minute_mediterranean_chicken_bowls',
     name: '30-Minute Mediterranean Chicken Bowls',
     servings: 4,
     rank: 'B',
@@ -68,10 +70,11 @@ const RECIPE_CATALOG = {
       { id: 'Persian cucumbers, halved lengthwise and sliced', qty: '4' },
       { id: 'Pickled red onion', qty: '1/4 cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2682, proteinG: 125.81, fatG: 82.52, carbsG: 370.1, sodiumMg: 2712 },
   },
 
   '35_minute_chili_honey_garlic_salmon_bowls': {
+    id: '35_minute_chili_honey_garlic_salmon_bowls',
     name: '35 Minute Chili Honey Garlic Salmon Bowls',
     servings: 4,
     rank: 'B',
@@ -94,10 +97,35 @@ const RECIPE_CATALOG = {
       { id: '1-2 tablespoons gochujang', qty: '' },
       { id: 'honey', qty: '2 teaspoons' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 3052, proteinG: 156.41, fatG: 230.25, carbsG: 114.36, sodiumMg: 8030 },
   },
 
-  bright_herby_lemongrass_chicken_green_curry: {
+  'better_than_chipotle_diy_chicken_burrito_bowls': {
+    id: 'better_than_chipotle_diy_chicken_burrito_bowls',
+    name: 'Better Than Chipotle DIY Chicken Burrito Bowls',
+    servings: 4,
+    rank: 'A',
+    _ingredients: [
+      { id: 'boneless skinless chicken thighs (or chicken breasts will also work)', qty: '1 pound' },
+      { id: 'chunky salsa', qty: '1 cup' },
+      { id: 'chipotle chili powder', qty: '1/2 teaspoon' },
+      { id: 'coconut oil', qty: '2 teaspoons' },
+      { id: 'dry short grain brown rice', qty: '1 cup' },
+      { id: 'vegetarian broth', qty: '2 cups' },
+      { id: 'lime, juiced', qty: '1 small' },
+      { id: 'organic sweet corn', qty: '1 cup' },
+      { id: 'red onion, diced', qty: '1 small' },
+      { id: 'fresh chopped cilantro', qty: '1/4 cup' },
+      { id: 'lime, juiced', qty: '1 small' },
+      { id: 'Freshly ground salt and black pepper, to taste', qty: '' },
+      { id: '(15 oz) can low sodium black beans, rinsed and drained', qty: '1' },
+      { id: 'cheddar cheese shreds', qty: '1/2 cup' },
+    ],
+    _totalMacros: { calories: 3109, proteinG: 216.84, fatG: 88.97, carbsG: 364.21, sodiumMg: 4998 },
+  },
+
+  'bright_herby_lemongrass_chicken_green_curry': {
+    id: 'bright_herby_lemongrass_chicken_green_curry',
     name: 'Bright & Herby Lemongrass Chicken Green Curry',
     servings: 4,
     _ingredients: [
@@ -126,33 +154,11 @@ const RECIPE_CATALOG = {
       { id: 'sliced scallions (green part only)', qty: '¼ cup' },
       { id: 'Optional: Toasted coconut flakes/chips (or sub peanuts/cashews for crunch!)', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2902, proteinG: 177.17, fatG: 132.24, carbsG: 257.86, sodiumMg: 6148 },
   },
 
-  cheap_healthy_meal_prep_idea_better_than_chipotle_diy_chi: {
-    name: 'Cheap & Healthy Meal Prep Idea: Better Than Chipotle DIY Chi',
-    servings: 4,
-    rank: 'A',
-    _ingredients: [
-      { id: 'boneless skinless chicken thighs (or chicken breasts will also work)', qty: '1 pound' },
-      { id: 'chunky salsa', qty: '1 cup' },
-      { id: 'chipotle chili powder', qty: '1/2 teaspoon' },
-      { id: 'coconut oil', qty: '2 teaspoons' },
-      { id: 'dry short grain brown rice', qty: '1 cup' },
-      { id: 'vegetarian broth', qty: '2 cups' },
-      { id: 'lime, juiced', qty: '1 small' },
-      { id: 'organic sweet corn', qty: '1 cup' },
-      { id: 'red onion, diced', qty: '1 small' },
-      { id: 'fresh chopped cilantro', qty: '1/4 cup' },
-      { id: 'lime, juiced', qty: '1 small' },
-      { id: 'Freshly ground salt and black pepper, to taste', qty: '' },
-      { id: '(15 oz) can low sodium black beans, rinsed and drained', qty: '1' },
-      { id: 'cheddar cheese shreds', qty: '1/2 cup' },
-    ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
-  },
-
-  chicken_and_rice_casserole: {
+  'chicken_and_rice_casserole': {
+    id: 'chicken_and_rice_casserole',
     name: 'Chicken and Rice Casserole',
     servings: 6,
     rank: 'B',
@@ -175,10 +181,11 @@ const RECIPE_CATALOG = {
       { id: 'lb. frozen broccoli florets (thawed, cut into bite-sized pieces)', qty: '½' },
       { id: 'oz. medium cheddar cheese (shredded & divided)', qty: '8' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 3092, proteinG: 136.03, fatG: 151.68, carbsG: 302.33, sodiumMg: 5820 },
   },
 
-  chicken_lentil_soup: {
+  'chicken_lentil_soup': {
+    id: 'chicken_lentil_soup',
     name: 'Chicken Lentil Soup',
     servings: 6,
     rank: 'A',
@@ -198,10 +205,11 @@ const RECIPE_CATALOG = {
       { id: 'oz. spinach', qty: '5' },
       { id: 'salt and pepper to taste', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2403, proteinG: 263.97, fatG: 77.57, carbsG: 169.88, sodiumMg: 6138 },
   },
 
-  classic_lentil_burgers: {
+  'classic_lentil_burgers': {
+    id: 'classic_lentil_burgers',
     name: 'Classic Lentil Burgers',
     servings: 10,
     rank: 'B',
@@ -220,13 +228,14 @@ const RECIPE_CATALOG = {
       { id: 'fresh or dried thyme', qty: '1 tablespoon' },
       { id: 'fresh or dried oregano', qty: '1 tablespoon' },
       { id: 'fine sea salt', qty: '1 teaspoon' },
-      { id: 'whole grain buns (dave\'s killer bread)', qty: '8' },
+      { id: 'whole grain buns (dave\'s killer bread)', qty: '6' },
       { id: 'olive oil for cooking', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 3241, proteinG: 140.4, fatG: 133.36, carbsG: 391.85, sodiumMg: 5121 },
   },
 
-  greek_sheetpan_chicken: {
+  'greek_sheetpan_chicken': {
+    id: 'greek_sheetpan_chicken',
     name: 'Greek Sheet-Pan Chicken',
     servings: 6,
     rank: 'B',
@@ -249,10 +258,11 @@ const RECIPE_CATALOG = {
       { id: 'ounces feta cheese, (cut into chunks)', qty: '4' },
       { id: 'chopped Italian parsley, (for garnish)', qty: '1/4 cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 3018, proteinG: 186.6, fatG: 229.75, carbsG: 56.93, sodiumMg: 4218 },
   },
 
-  healthy_slow_cooker_chicken_tikka_masala: {
+  'healthy_slow_cooker_chicken_tikka_masala': {
+    id: 'healthy_slow_cooker_chicken_tikka_masala',
     name: 'Healthy Slow Cooker Chicken Tikka Masala',
     servings: 4,
     rank: 'A',
@@ -275,10 +285,11 @@ const RECIPE_CATALOG = {
       { id: 'light coconut milk (from the can)', qty: '1 cup' },
       { id: 'Additional salt, to taste', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1647, proteinG: 227.38, fatG: 45.27, carbsG: 85.05, sodiumMg: 2770 },
   },
 
-  korean_braised_tofu_dubu_jorim: {
+  'korean_braised_tofu_dubu_jorim': {
+    id: 'korean_braised_tofu_dubu_jorim',
     name: 'Korean Braised Tofu (Dubu Jorim)',
     servings: 4,
     rank: 'A',
@@ -296,10 +307,11 @@ const RECIPE_CATALOG = {
       { id: 'dry brown rice', qty: '1 cup' },
       { id: 'heads of broccoli, trimmed and steamed', qty: '2' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2043, proteinG: 109.9, fatG: 80.3, carbsG: 256.06, sodiumMg: 4075 },
   },
 
-  korean_inspired_ground_turkey_bowls: {
+  'korean_inspired_ground_turkey_bowls': {
+    id: 'korean_inspired_ground_turkey_bowls',
     name: 'Korean Inspired Ground Turkey Bowls',
     servings: 4,
     rank: 'A',
@@ -322,10 +334,11 @@ const RECIPE_CATALOG = {
       { id: 'rice wine vinegar', qty: '1 tablespoon' },
       { id: 'Sriracha', qty: '2 teaspoon' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2632, proteinG: 128.91, fatG: 57.63, carbsG: 403.18, sodiumMg: 5013 },
   },
 
-  lemon_garlic_salmon_tray_bake: {
+  'lemon_garlic_salmon_tray_bake': {
+    id: 'lemon_garlic_salmon_tray_bake',
     name: 'Lemon garlic salmon tray bake',
     servings: 4,
     rank: 'B',
@@ -345,10 +358,11 @@ const RECIPE_CATALOG = {
       { id: 'Parmesan (finely grated)', qty: '1/4 cup' },
       { id: 'dry Quinoa', qty: '1 cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2618, proteinG: 192.67, fatG: 144.44, carbsG: 141.22, sodiumMg: 3394 },
   },
 
-  lentil_loaf: {
+  'lentil_loaf': {
+    id: 'lentil_loaf',
     name: 'Lentil Loaf',
     servings: 10,
     rank: 'B',
@@ -373,10 +387,11 @@ const RECIPE_CATALOG = {
       { id: 'soy sauce', qty: '1 Tbsp' },
       { id: 'Dijon mustard', qty: '1 tsp' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1922, proteinG: 92.43, fatG: 73.78, carbsG: 253.92, sodiumMg: 7134 },
   },
 
-  marry_me_chicken_pasta: {
+  'marry_me_chicken_pasta': {
+    id: 'marry_me_chicken_pasta',
     name: 'Marry Me Chicken Pasta',
     servings: 6,
     rank: 'A',
@@ -396,10 +411,11 @@ const RECIPE_CATALOG = {
       { id: 'frozen spinach (thawed and pressed)', qty: '⅓ cup' },
       { id: 'Parmesan cheese (grated)', qty: '½ cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2797, proteinG: 240.1, fatG: 133.78, carbsG: 183.3, sodiumMg: 4672 },
   },
 
-  one_pan_southwest_chicken_and_rice_fajita_skillet: {
+  'one_pan_southwest_chicken_and_rice_fajita_skillet': {
+    id: 'one_pan_southwest_chicken_and_rice_fajita_skillet',
     name: 'One Pan Southwest Chicken and Rice Fajita Skillet',
     servings: 6,
     rank: 'A',
@@ -435,10 +451,11 @@ const RECIPE_CATALOG = {
       { id: '(guacamole)', qty: '1/4 cup' },
       { id: 'salsa', qty: '1/4 cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 4226, proteinG: 304.38, fatG: 179.51, carbsG: 362.25, sodiumMg: 8206 },
   },
 
-  overnight_oats_recipes: {
+  'overnight_oats_recipes': {
+    id: 'overnight_oats_recipes',
     name: 'Overnight Oats Recipes',
     servings: 1,
     _ingredients: [
@@ -454,8 +471,9 @@ const RECIPE_CATALOG = {
     _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
   },
 
-  sesame_ginger_sweet_teriyaki_salmon_with_garlic_quinoa_stir: {
-    name: 'Sesame Ginger Sweet Teriyaki Salmon with Garlic Quinoa Stir-',
+  'sesame_ginger_sweet_teriyaki_salmon_with_garlic_quinoa_stirfry': {
+    id: 'sesame_ginger_sweet_teriyaki_salmon_with_garlic_quinoa_stirfry',
+    name: 'Sesame Ginger Sweet Teriyaki Salmon with Garlic Quinoa Stir-fry',
     servings: 4,
     rank: 'B',
     _ingredients: [
@@ -482,10 +500,11 @@ const RECIPE_CATALOG = {
       { id: 'sesame seeds', qty: '1 tablespoon' },
       { id: 'fresh cilantro, chopped', qty: '1/4 cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2463, proteinG: 134.84, fatG: 109.29, carbsG: 237.87, sodiumMg: 11760 },
   },
 
-  sheet_pan_sesame_chicken_and_vegetables: {
+  'sheet_pan_sesame_chicken_and_vegetables': {
+    id: 'sheet_pan_sesame_chicken_and_vegetables',
     name: 'Sheet Pan Sesame Chicken and Vegetables',
     servings: 4,
     _ingredients: [
@@ -509,7 +528,8 @@ const RECIPE_CATALOG = {
     _totalMacros: { calories: 2619, proteinG: 228.63, fatG: 97.82, carbsG: 204.59, sodiumMg: 3452 },
   },
 
-  slow_cooker_salsa_verde_chicken_chickpea_chili: {
+  'slow_cooker_salsa_verde_chicken_chickpea_chili': {
+    id: 'slow_cooker_salsa_verde_chicken_chickpea_chili',
     name: 'Slow Cooker Salsa Verde Chicken Chickpea Chili',
     servings: 6,
     rank: 'B',
@@ -528,10 +548,11 @@ const RECIPE_CATALOG = {
       { id: 'dried oregano', qty: '2 teaspoons' },
       { id: 'Salt and pepper, to taste', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2987, proteinG: 323.49, fatG: 79.5, carbsG: 251.82, sodiumMg: 7016 },
   },
 
-  southwest_chicken_skillet: {
+  'southwest_chicken_skillet': {
+    id: 'southwest_chicken_skillet',
     name: 'Southwest Chicken Skillet',
     servings: 4,
     rank: 'A',
@@ -545,10 +566,11 @@ const RECIPE_CATALOG = {
       { id: 'shredded cheese', qty: '1 cup' },
       { id: '2-3 green onions', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2982, proteinG: 270.68, fatG: 75.24, carbsG: 300.09, sodiumMg: 6452 },
   },
 
-  southwest_lentils_and_rice_skillet: {
+  'southwest_lentils_and_rice_skillet': {
+    id: 'southwest_lentils_and_rice_skillet',
     name: 'Southwest Lentils and Rice Skillet',
     servings: 4,
     rank: 'A',
@@ -571,10 +593,11 @@ const RECIPE_CATALOG = {
       { id: 'shredded cheddar cheese', qty: '1/2 cup' },
       { id: 'green onions, sliced', qty: '2' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2148, proteinG: 93.78, fatG: 65.11, carbsG: 307.39, sodiumMg: 6417 },
   },
 
-  spanish_chickpeas_and_rice: {
+  'spanish_chickpeas_and_rice': {
+    id: 'spanish_chickpeas_and_rice',
     name: 'Spanish Chickpeas and Rice',
     servings: 4,
     rank: 'B',
@@ -596,10 +619,11 @@ const RECIPE_CATALOG = {
       { id: 'fresh parsley', qty: '1/4 bunch' },
       { id: 'fresh lemon', qty: '1' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1940, proteinG: 62.68, fatG: 47.81, carbsG: 331.19, sodiumMg: 3891 },
   },
 
-  spanish_salmon_a_la_gallega: {
+  'spanish_salmon_a_la_gallega': {
+    id: 'spanish_salmon_a_la_gallega',
     name: 'Spanish Salmon a la Gallega',
     servings: 2,
     rank: 'B',
@@ -614,10 +638,11 @@ const RECIPE_CATALOG = {
       { id: 'sea salt', qty: 'pinch' },
       { id: 'black pepper', qty: 'dash' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1919, proteinG: 103.85, fatG: 59.48, carbsG: 226.89, sodiumMg: 391 },
   },
 
-  tandoori_salmon_recipe_indian_salmon_recipe: {
+  'tandoori_salmon_recipe_indian_salmon_recipe': {
+    id: 'tandoori_salmon_recipe_indian_salmon_recipe',
     name: 'Tandoori Salmon Recipe (Indian Salmon Recipe)',
     servings: 4,
     rank: 'B',
@@ -637,11 +662,12 @@ const RECIPE_CATALOG = {
       { id: 'Chaat masala (or ¾ tablespoon more lemon juice or ½ tsp amchur powder + ¼ tsp cumin powder)', qty: '¾ teaspoon' },
       { id: 'Kasuri methi (dried fenugreek leaves)', qty: '1 tablespoon' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1754, proteinG: 133.09, fatG: 57.88, carbsG: 176.6, sodiumMg: 1805 },
   },
 
-  thai_chilli_basil_chicken: {
-    name: 'Thai Chilli Basil Chicken',
+  'thai_chilli_basil_chicken_x2': {
+    id: 'thai_chilli_basil_chicken_x2',
+    name: 'Thai Chilli Basil Chicken (x2)',
     servings: 2,
     rank: 'A',
     _ingredients: [
@@ -658,10 +684,11 @@ const RECIPE_CATALOG = {
       { id: 'water', qty: '2 tbsp' },
       { id: 'Steamed jasmine rice', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1924, proteinG: 159.81, fatG: 67.89, carbsG: 161.77, sodiumMg: 1916 },
   },
 
-  thai_coconut_chicken_red_curry: {
+  'thai_coconut_chicken_red_curry': {
+    id: 'thai_coconut_chicken_red_curry',
     name: 'Thai Coconut Chicken Red Curry',
     servings: 6,
     rank: 'A',
@@ -687,10 +714,11 @@ const RECIPE_CATALOG = {
       { id: 'lime (optional for garnish)', qty: '1' },
       { id: 'cilantro (optional for garnish)', qty: '1 bunch' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 4558, proteinG: 376.92, fatG: 157.76, carbsG: 407.33, sodiumMg: 3278 },
   },
 
-  thai_lettuce_wraps_larb_gai_laab_gai: {
+  'thai_lettuce_wraps_larb_gai_laab_gai': {
+    id: 'thai_lettuce_wraps_larb_gai_laab_gai',
     name: 'Thai Lettuce Wraps (Larb Gai, Laab Gai)',
     servings: 2,
     rank: 'A',
@@ -712,10 +740,11 @@ const RECIPE_CATALOG = {
       { id: 'crushed peanuts (optional)', qty: '3 tbsp' },
       { id: '- 8 small to medium lettuce leaves (I used baby cos / romaine) (Note 3)', qty: '6' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 1057, proteinG: 85.04, fatG: 66.17, carbsG: 35.18, sodiumMg: 3138 },
   },
 
-  the_best_dal_ever: {
+  'the_best_dal_ever': {
+    id: 'the_best_dal_ever',
     name: 'The Best Dal Ever',
     servings: 4,
     rank: 'B',
@@ -738,10 +767,11 @@ const RECIPE_CATALOG = {
       { id: 'fresh lemon juice', qty: '1 tablespoon' },
       { id: 'dry brown rice', qty: '1 cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2544, proteinG: 84.18, fatG: 123.84, carbsG: 296.46, sodiumMg: 1171 },
   },
 
-  tomato_chickpea_pasta_with_goat_cheese: {
+  'tomato_chickpea_pasta_with_goat_cheese': {
+    id: 'tomato_chickpea_pasta_with_goat_cheese',
     name: 'Tomato & Chickpea Pasta with Goat Cheese',
     servings: 6,
     rank: 'C',
@@ -758,10 +788,11 @@ const RECIPE_CATALOG = {
       { id: 'red pepper flakes (optional, for heat)', qty: 'Pinch of' },
       { id: 'thinly sliced fresh basil', qty: '⅓ cup' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2083, proteinG: 92.76, fatG: 123.7, carbsG: 184.74, sodiumMg: 1837 },
   },
 
-  turkey_bolognese_onepot_pasta: {
+  'turkey_bolognese_onepot_pasta': {
+    id: 'turkey_bolognese_onepot_pasta',
     name: 'Turkey Bolognese (One-Pot Pasta)',
     servings: 4,
     rank: 'A',
@@ -782,7 +813,7 @@ const RECIPE_CATALOG = {
       { id: 'fresh basil (for garnish)', qty: '' },
       { id: 'ricotta (optional for serving)', qty: '' },
     ],
-    _totalMacros: { calories: 0, proteinG: 0, fatG: 0, carbsG: 0, sodiumMg: 0 }, // TODO: log in Cronometer as "1.00 full recipe" and re-run sync
+    _totalMacros: { calories: 2216, proteinG: 174.62, fatG: 77.84, carbsG: 234.4, sodiumMg: 4419 },
   },
 
 };

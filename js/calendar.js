@@ -7,74 +7,99 @@
 var _PW_DOW    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var _PW_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+var _pwOffset = -1; // index of first visible day relative to today (default: today centered)
+
+function pwShift(n) {
+  _pwOffset += n;
+  renderPlanWeeks();
+}
+
+function pwGoToday() {
+  _pwOffset = -1;
+  renderPlanWeeks();
+}
+
 function renderPlanWeeks() {
   var el = document.getElementById('plan-weeks');
   if (!el) return;
 
-  var plan     = TRAINING_PLANS[ACTIVE_PLAN_ID];
-  var todayD   = new Date(); todayD.setHours(0, 0, 0, 0);
+  var plan   = TRAINING_PLANS[ACTIVE_PLAN_ID];
+  var todayD = new Date(); todayD.setHours(0, 0, 0, 0);
 
-  var weekStart = new Date(todayD);
-  weekStart.setDate(todayD.getDate() - todayD.getDay()); // back to Sunday
+  var loggedDates = new Set(
+    storage.readLogs()
+      .filter(function(e) { return e._logType === 'erg' || e._logType === 'lift' || e._logType === 'run' || e._logType === 'clubPractice'; })
+      .map(function(e) { return e.date; })
+  );
 
-  var legend = _buildLegend();
+  // 3-day window
+  var dates = [0, 1, 2].map(function(i) {
+    var d = new Date(todayD);
+    d.setDate(todayD.getDate() + _pwOffset + i);
+    d.setHours(12, 0, 0, 0);
+    return d;
+  });
 
-  var weeks = ['This Week', 'Next Week'].map(function(label, wi) {
-    var ws = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + wi * 7);
-    var we = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + 6);
+  var first = dates[0], last = dates[2];
+  var rangeLabel = _PW_MONTHS[first.getMonth()] + ' ' + first.getDate() +
+    ' – ' + _PW_MONTHS[last.getMonth()] + ' ' + last.getDate();
 
-    var rangeStr = _PW_MONTHS[ws.getMonth()] + ' ' + ws.getDate() +
-                   '–' + _PW_MONTHS[we.getMonth()] + ' ' + we.getDate();
+  var cards = dates.map(function(date) {
+    var isToday  = date.toDateString() === todayD.toDateString();
+    var dateKey  = date.getFullYear() + '-' +
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0');
+    var isLogged = loggedDates.has(dateKey);
+    var wf       = TrainingEngine.getWorkoutForDate(plan, date);
 
-    var dows = _PW_DOW.map(function(d) {
-      return '<div class="pw-dow">' + d + '</div>';
-    }).join('');
+    var dowHtml = '<div class="pw-3d-dow">' + _PW_DOW[date.getDay()] + '</div>';
+    var numHtml = '<div class="pw-3d-num">' + date.getDate() + '</div>';
 
-    var days = '';
-    for (var i = 0; i < 7; i++) {
-      var date    = new Date(ws.getFullYear(), ws.getMonth(), ws.getDate() + i, 12);
-      var isToday = date.toDateString() === todayD.toDateString();
-      var wf      = TrainingEngine.getWorkoutForDate(plan, date);
-
-      if (!wf) {
-        days += '<div class="pw-day pw-noplan"><span class="pw-num pw-num-dim">' + date.getDate() + '</span></div>';
-        continue;
-      }
-
-      var meals = MealEngine.getMealsForDate(plan, date, wf);
-      if (typeof mpLoadWeekPlanForDate === 'function' && typeof mpEnrichMeals === 'function') {
-        var wp = mpLoadWeekPlanForDate(date);
-        if (wp) meals = mpEnrichMeals(meals, wp, date.getDay());
-      }
-      var mealRows = ['Breakfast','Lunch','Dinner'].map(function(type) {
-        var m = meals.find(function(x) { return x.type === type; });
-        if (!m) return '';
-        var abbr = type[0]; // B / L / D
-        return '<div class="pw-meal"><span class="pw-meal-abbr">' + abbr + '</span>' + m.name + '</div>';
-      }).join('');
-
-      days +=
-        '<div class="pw-day' + (isToday ? ' pw-today' : '') + '"' +
-        ' onclick="openModal(' + date.getFullYear() + ',' + date.getMonth() + ',' + date.getDate() + ')">' +
-        '<span class="pw-num">' + date.getDate() + '</span>' +
-        '<span class="pw-badge ' + wf.workoutBg + '">' + wf.workoutShort + '</span>' +
-        '<div class="pw-meals">' + mealRows + '</div>' +
+    if (!wf) {
+      return '<div class="pw-3day-card pw-3day-noplan' + (isToday ? ' pw-today' : '') + '">' +
+        dowHtml + numHtml +
+        '<div class="pw-3d-rest">Rest</div>' +
         '</div>';
     }
 
-    return '<div class="pw-section">' +
-      '<div class="pw-label">' + label + '<span class="pw-range">' + rangeStr + '</span></div>' +
-      '<div class="pw-grid">' + dows + days + '</div>' +
+    var meals = MealEngine.getMealsForDate(plan, date, wf);
+    if (typeof mpLoadWeekPlanForDate === 'function' && typeof mpEnrichMeals === 'function') {
+      var wp = mpLoadWeekPlanForDate(date);
+      if (wp) meals = mpEnrichMeals(meals, wp, date.getDay());
+    }
+
+    var mealRows = ['Breakfast', 'Lunch', 'Dinner'].map(function(type) {
+      var m = meals.find(function(x) { return x.type === type; });
+      if (!m) return '';
+      return '<div class="pw-3d-meal"><span class="pw-3d-meal-abbr">' + type[0] + '</span>' + m.name + '</div>';
+    }).join('');
+
+    return '<div class="pw-3day-card' + (isToday ? ' pw-today' : '') + '"' +
+      ' onclick="openModal(' + date.getFullYear() + ',' + date.getMonth() + ',' + date.getDate() + ')">' +
+      dowHtml + numHtml +
+      '<span class="pw-badge pw-3d-badge ' + wf.workoutBg + '">' + wf.workoutShort + '</span>' +
+      '<div class="pw-3d-meals">' + mealRows + '</div>' +
+      (isLogged ? '<div class="pw-3d-done">&#10003; Done</div>' : '') +
       '</div>';
   }).join('');
 
-  el.innerHTML = legend + weeks;
+  var rangeRow = '<div class="pw-3day-range-row"><span class="pw-3day-range">' + rangeLabel + '</span></div>';
+
+  var wrap = '<div class="pw-3day-wrap">' +
+    '<button class="pw-nav-btn" onclick="pwShift(-1)">&#8249;</button>' +
+    '<div class="pw-3day-grid">' + cards + '</div>' +
+    '<button class="pw-nav-btn" onclick="pwShift(1)">&#8250;</button>' +
+    '</div>';
+
+  var footer = '<div class="pw-3day-footer"><button class="pw-today-btn" onclick="pwGoToday()">Today</button></div>';
+
+  el.innerHTML = _buildLegend() + rangeRow + wrap + footer;
 }
 
 function _buildLegend() {
   return '<div class="pw-legend">' +
-    [['bg-lift','Lift A/B'],['bg-z1','Z1 UT2'],['bg-z2','Z2 UT1'],
-     ['bg-at','Threshold'],['bg-vo2','VO2max'],['bg-spd','Speed'],
+    [['bg-lift','Lift A/B'],['bg-z1','UT2'],['bg-z2','UT1'],
+     ['bg-at','AT'],['bg-vo2','TR'],['bg-spd','Speed'],
      ['bg-restore','Restore/Recovery']].map(function(x) {
       return '<div class="pw-leg"><span class="pw-leg-dot ' + x[0] + '"></span>' + x[1] + '</div>';
     }).join('') +
@@ -107,16 +132,9 @@ function openModal(y, m, d) {
   // Build workout section — workoutItems are plain strings in the new format
   var workoutHtml = '';
   if (wf.type === 'hybrid' && wf.hybrid && wf.hybrid.erg) {
-    workoutHtml += '<div class="modal-workout-label">Erg</div>';
     workoutHtml += (wf.hybrid.erg.items || []).map(function(s) {
       return '<div class="db-workout-item">' + s + '</div>';
     }).join('');
-    if (wf.hybrid.run) {
-      workoutHtml += '<div class="modal-workout-label" style="margin-top:10px">Run Fallback</div>';
-      workoutHtml += (wf.hybrid.run.items || []).map(function(s) {
-        return '<div class="db-workout-item">' + s + '</div>';
-      }).join('');
-    }
   } else if (wf.type === 'lift' && wf.lift && wf.lift.primary) {
     workoutHtml += '<div class="modal-workout-label">Strength</div>';
     workoutHtml += (wf.lift.primary.items || []).map(function(s) {

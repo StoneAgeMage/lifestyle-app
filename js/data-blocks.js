@@ -18,7 +18,8 @@ var TRAINING_BLOCKS = [
     id: 'winter',
     name: 'Winter Engine',
     shortName: 'WINT',
-    months: [11, 12, 1],          // Nov, Dec, Jan
+    months: [11, 0, 1],           // Dec(11), Jan(0), Feb(1) — getMonth() 0-indexed
+    benchmarkSat: 'hyb_6k_tt',    // first Saturday of each month
     colorAccent: '#4a9eff',
     srRange: '18-22',
     intensityLabel: 'UT2 / UT1',
@@ -49,7 +50,7 @@ var TRAINING_BLOCKS = [
         deloadPool: ['lift_wint_B_dl']
       },
       6: {
-        type: 'hybrid', mobilityBias: null, noMobility: true,
+        type: 'hybrid', mobilityBias: 'row',
         pool: ['hyb_wint_sat_A', 'hyb_wint_sat_B', 'hyb_wint_sat_C', 'hyb_wint_sat_D'],
         deloadPool: ['hyb_wint_sat_A']
       }
@@ -60,7 +61,8 @@ var TRAINING_BLOCKS = [
     id: 'spring',
     name: 'Spring Sprint',
     shortName: 'SPR',
-    months: [2, 3, 4],            // Feb, Mar, Apr
+    months: [2, 3, 4],            // Mar(2), Apr(3), May(4) — getMonth() 0-indexed
+    benchmarkSat: 'hyb_6k_tt',    // first Saturday of each month
     colorAccent: '#f5a623',
     srRange: '24-30',
     intensityLabel: 'AT / VO2 / Speed',
@@ -69,7 +71,7 @@ var TRAINING_BLOCKS = [
     raceGoal: {
       targetDistance: 2000,
       taperWeeks: 1,
-      targetMonth: 3
+      targetMonth: 5
     },
     weekTemplate: {
       0: { type: 'restoration', pool: ['wk_restoration'] },
@@ -95,7 +97,7 @@ var TRAINING_BLOCKS = [
         deloadPool: ['lift_spr_B_dl']
       },
       6: {
-        type: 'hybrid', mobilityBias: null, noMobility: true,
+        type: 'hybrid', mobilityBias: 'row',
         pool: ['hyb_spr_sat_A', 'hyb_spr_sat_B', 'hyb_spr_sat_C', 'hyb_spr_sat_D'],
         deloadPool: ['hyb_spr_sat_A']
       }
@@ -106,7 +108,7 @@ var TRAINING_BLOCKS = [
     id: 'summer',
     name: 'Summer Bridge',
     shortName: 'SUM',
-    months: [5, 6, 7],            // May, Jun, Jul
+    months: [5, 6, 7],            // Jun(5), Jul(6), Aug(7) — getMonth() 0-indexed
     colorAccent: '#7ed321',
     srRange: '18-26',
     intensityLabel: 'UT2 / AT bridge',
@@ -137,7 +139,7 @@ var TRAINING_BLOCKS = [
         deloadPool: ['lift_sum_B_dl']
       },
       6: {
-        type: 'hybrid', mobilityBias: null, noMobility: true,
+        type: 'hybrid', mobilityBias: 'row',
         pool: ['hyb_sum_sat_A', 'hyb_sum_sat_B', 'hyb_sum_sat_C'],
         deloadPool: ['hyb_sum_sat_A']
       }
@@ -148,7 +150,8 @@ var TRAINING_BLOCKS = [
     id: 'fall',
     name: 'Fall Head Race',
     shortName: 'FALL',
-    months: [8, 9, 10],           // Aug, Sep, Oct
+    months: [8, 9, 10],           // Sep(8), Oct(9), Nov(10) — getMonth() 0-indexed
+    benchmarkSat: 'hyb_6k_tt',    // first Saturday of each month
     colorAccent: '#d0021b',
     srRange: '22-28',
     intensityLabel: 'UT1 / AT sustained',
@@ -183,7 +186,7 @@ var TRAINING_BLOCKS = [
         deloadPool: ['lift_fall_B_dl']
       },
       6: {
-        type: 'hybrid', mobilityBias: null, noMobility: true,
+        type: 'hybrid', mobilityBias: 'row',
         pool: ['hyb_fall_sat_A', 'hyb_fall_sat_B', 'hyb_fall_sat_C', 'hyb_fall_sat_D', 'hyb_fall_sat_E'],
         deloadPool: ['hyb_fall_sat_A']
       }

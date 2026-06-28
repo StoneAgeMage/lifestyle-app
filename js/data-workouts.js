@@ -15,7 +15,7 @@ var CLUB_LOG_CONFIG = {
 var WORKOUT_LIBRARY = {
 
   // ═══════════════════════════════════════════════════════════════════
-  // WINTER ENGINE — Nov-Jan  |  Aerobic base, long steady state, UT2
+  // WINTER ENGINE — Dec-Feb  |  Aerobic base, long steady state, UT2
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Tuesday (4 variants) — UT2 aerobic base
@@ -24,11 +24,11 @@ var WORKOUT_LIBRARY = {
     calShort: 'UT2 Steady', mobilityBias: 'row',
     erg: {
       name: '60-Min Steady State UT2',
-      items: ['10 min easy paddle, build to Z1 by min 5', '45 min continuous at UT2 (SR 18-20)', '5 min cool-down paddle']
+      items: ['10 min easy paddle, build to UT2 by min 5', '45 min continuous at UT2 (SR 18-20)', '5 min cool-down paddle']
     },
     run: {
       name: '50-Min Easy Base Run', bgClass: 'bg-z1',
-      items: ['5 min walk warm-up', '40 min easy Z1 run (conversational pace)', '5 min walk cool-down']
+      items: ['5 min walk warm-up', '40 min easy UT2 run (conversational pace)', '5 min walk cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -56,7 +56,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '60-Min Easy Long Run', bgClass: 'bg-z1',
-      items: ['60 min easy conversational run at Z1', 'Focus on nose-breathing throughout']
+      items: ['60 min easy conversational run at UT2', 'Focus on nose-breathing throughout']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -70,7 +70,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '45-Min Base Run + Drills', bgClass: 'bg-z1',
-      items: ['5 min walk', '30 min easy Z1 run', '10 min running drills (high knees, A-skips, strides)']
+      items: ['5 min walk', '30 min easy UT2 run', '10 min running drills (high knees, A-skips, strides)']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -85,7 +85,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '50-Min Moderate Run', bgClass: 'bg-z2',
-      items: ['10 min easy run', '30 min Z2 moderate (slightly elevated HR)', '10 min easy cool-down']
+      items: ['10 min easy run', '30 min UT1 moderate (slightly elevated HR)', '10 min easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -99,7 +99,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '45-Min Negative-Split Run', bgClass: 'bg-z2',
-      items: ['22 min easy Z1 run', '23 min moderate Z2 (last 5 min progressive build)']
+      items: ['22 min easy UT2 run', '23 min moderate UT1(last 5 min progressive build)']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -113,7 +113,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '55-Min Trail/Road Run', bgClass: 'bg-z2',
-      items: ['10 min walk/easy jog', '40 min moderate Z2 run', '5 min easy cool-down']
+      items: ['10 min walk/easy jog', '40 min moderate UT1 run', '5 min easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -127,7 +127,27 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '50-Min Tempo Build Run', bgClass: 'bg-z2',
-      items: ['10 min easy', '30 min Z2 run (building last 10 min toward Z3)', '10 min easy cool-down']
+      items: ['10 min easy', '30 min UT1 run (building last 10 min toward AT)', '10 min easy cool-down']
+    },
+    clubLog: CLUB_LOG_CONFIG
+  },
+
+  // ── Monthly benchmark (all blocks) — first Saturday of each non-summer month
+  hyb_6k_tt: {
+    id: 'hyb_6k_tt', type: 'hybrid', bgClass: 'bg-at',
+    calShort: '6k Time Trial', mobilityBias: 'row',
+    erg: {
+      name: '6,000m Time Trial',
+      items: [
+        '15 min warm-up — easy paddle + 4×20-stroke builds, building to AT effort',
+        '6,000m maximal sustained effort — aim for even or negative split',
+        'Log your average split per 500m — this is your benchmark number',
+        '10 min easy cool-down paddle'
+      ]
+    },
+    run: {
+      name: '45-Min Easy Run (substitute)', bgClass: 'bg-z1',
+      items: ['45 min easy UT2 run if no erg access — note in log']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -135,56 +155,56 @@ var WORKOUT_LIBRARY = {
   // ── Saturday (4 variants) — UT2 long volume, no post-workout mobility
   hyb_wint_sat_A: {
     id: 'hyb_wint_sat_A', type: 'hybrid', bgClass: 'bg-z1',
-    calShort: 'Long Row', mobilityBias: null,
+    calShort: 'Long Row', mobilityBias: 'row',
     erg: {
       name: '90-Min Long Steady Row',
       items: ['10 min easy paddle', '75 min continuous at UT2 (SR 18)', '5 min easy paddle out']
     },
     run: {
       name: '70-Min Long Easy Run', bgClass: 'bg-z1',
-      items: ['70 min easy Z1 long run', 'Focus on time on feet, not pace']
+      items: ['70 min easy UT2 long run', 'Focus on time on feet, not pace']
     },
     clubLog: CLUB_LOG_CONFIG
   },
 
   hyb_wint_sat_B: {
     id: 'hyb_wint_sat_B', type: 'hybrid', bgClass: 'bg-z1',
-    calShort: 'Long Intervals', mobilityBias: null,
+    calShort: 'Long Intervals', mobilityBias: 'row',
     erg: {
       name: '4×18-Min Long Intervals',
       items: ['10 min warm-up', '4×18 min @ UT2 (SR 20), 3 min easy between', '5 min cool-down']
     },
     run: {
       name: '75-Min Easy Run', bgClass: 'bg-z1',
-      items: ['5 min walk', '65 min Z1 easy run', '5 min walk cool-down']
+      items: ['5 min walk', '65 min UT2 easy run', '5 min walk cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
 
   hyb_wint_sat_C: {
     id: 'hyb_wint_sat_C', type: 'hybrid', bgClass: 'bg-z1',
-    calShort: '10k Moderate', mobilityBias: null,
+    calShort: '10k Moderate', mobilityBias: 'row',
     erg: {
       name: '10,000m Moderate Time Trial',
       items: ['10 min easy paddle', '10,000m @ controlled UT1 (not race pace)', '5 min cool-down']
     },
     run: {
       name: '60-Min Progressive Long Run', bgClass: 'bg-z1',
-      items: ['20 min Z1 easy', '30 min Z2 moderate', '10 min Z1 easy cool-down']
+      items: ['20 min UT2 easy', '30 min UT1 moderate', '10 min UT2 easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
 
   hyb_wint_sat_D: {
     id: 'hyb_wint_sat_D', type: 'hybrid', bgClass: 'bg-z2',
-    calShort: 'Volume Row', mobilityBias: null,
+    calShort: 'Volume Row', mobilityBias: 'row',
     erg: {
       name: '5×12-Min Volume Session',
       items: ['10 min warm-up', '5×12 min @ UT1/UT2 border (SR 20), 2 min easy between', '5 min cool-down']
     },
     run: {
       name: '65-Min Easy + Strides', bgClass: 'bg-z1',
-      items: ['55 min easy Z1 run', '6×20-sec strides (full walk recovery between)', '5 min easy cool-down']
+      items: ['55 min easy UT2 run', '6×20-sec strides (full walk recovery between)', '5 min easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -301,7 +321,7 @@ var WORKOUT_LIBRARY = {
   },
 
   // ═══════════════════════════════════════════════════════════════════
-  // SPRING SPRINT — Feb-Apr  |  AT threshold, speed development
+  // SPRING SPRINT — Mar-May  |  AT threshold, speed development
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Tuesday (4 variants) — AT threshold
@@ -435,7 +455,7 @@ var WORKOUT_LIBRARY = {
   // ── Saturday (4 variants) — race simulation, no mobility
   hyb_spr_sat_A: {
     id: 'hyb_spr_sat_A', type: 'hybrid', bgClass: 'bg-at',
-    calShort: '6k Sim', mobilityBias: null,
+    calShort: '6k Sim', mobilityBias: 'row',
     erg: {
       name: '6,000m Race Simulation',
       items: ['15 min warm-up', '6,000m @ race target pace (SR 26-28)', '10 min cool-down']
@@ -449,7 +469,7 @@ var WORKOUT_LIBRARY = {
 
   hyb_spr_sat_B: {
     id: 'hyb_spr_sat_B', type: 'hybrid', bgClass: 'bg-at',
-    calShort: 'Race-Pace 4×', mobilityBias: null,
+    calShort: 'Race-Pace 4×', mobilityBias: 'row',
     erg: {
       name: '4×2k Race-Pace Pieces',
       items: ['15 min warm-up', '4×2,000m @ 2k race pace (SR 28-30), 5 min rest between', '10 min cool-down']
@@ -463,7 +483,7 @@ var WORKOUT_LIBRARY = {
 
   hyb_spr_sat_C: {
     id: 'hyb_spr_sat_C', type: 'hybrid', bgClass: 'bg-vo2',
-    calShort: 'Sprint Ladder', mobilityBias: null,
+    calShort: 'Sprint Ladder', mobilityBias: 'row',
     erg: {
       name: '1k Sprint Ladder',
       items: ['15 min warm-up', '500m-1k-1.5k-1k-500m @ race pace, 3-4 min rest between', '10 min cool-down']
@@ -477,7 +497,7 @@ var WORKOUT_LIBRARY = {
 
   hyb_spr_sat_D: {
     id: 'hyb_spr_sat_D', type: 'hybrid', bgClass: 'bg-at',
-    calShort: '30-Min Max', mobilityBias: null,
+    calShort: '30-Min Max', mobilityBias: 'row',
     erg: {
       name: '30-Min Sustained Max Effort',
       items: ['15 min warm-up', '30 min max sustainable effort (AT+ ceiling)', '10 min cool-down']
@@ -599,7 +619,7 @@ var WORKOUT_LIBRARY = {
   },
 
   // ═══════════════════════════════════════════════════════════════════
-  // SUMMER BRIDGE — May-Jul  |  Aerobic retention, reduced intensity
+  // SUMMER BRIDGE — Jun-Aug  |  Aerobic retention, reduced intensity
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Tuesday (3 variants)
@@ -612,7 +632,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '45-Min Moderate Run', bgClass: 'bg-z2',
-      items: ['10 min easy', '30 min Z2 moderate run', '5 min walk cool-down']
+      items: ['10 min easy', '30 min UT1 moderate run', '5 min walk cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -626,7 +646,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '50-Min Easy Base Run', bgClass: 'bg-z1',
-      items: ['50 min easy Z1 run', 'Focus on breathing and relaxed form']
+      items: ['50 min easy UT2 run', 'Focus on breathing and relaxed form']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -654,8 +674,8 @@ var WORKOUT_LIBRARY = {
       items: ['10 min easy warm-up', '4×10 min @ UT1 (SR 22), 3 min rest between', '8 min cool-down']
     },
     run: {
-      name: '45-Min Z2 Refresh Run', bgClass: 'bg-z2',
-      items: ['10 min easy', '30 min Z2 run (comfortable effort)', '5 min cool-down']
+      name: '45-Min UT1 Refresh Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '30 min UT1 run (comfortable effort)', '5 min cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -691,35 +711,35 @@ var WORKOUT_LIBRARY = {
   // ── Saturday (3 variants) — no mobility
   hyb_sum_sat_A: {
     id: 'hyb_sum_sat_A', type: 'hybrid', bgClass: 'bg-z1',
-    calShort: 'Long Bridge Row', mobilityBias: null,
+    calShort: 'Long Bridge Row', mobilityBias: 'row',
     erg: {
       name: '75-Min Long Bridge Row',
       items: ['10 min easy paddle', '60 min at UT2 (SR 18-20)', '5 min cool-down']
     },
     run: {
       name: '60-Min Easy Long Run', bgClass: 'bg-z1',
-      items: ['60 min easy Z1 run']
+      items: ['60 min easy UT2 run']
     },
     clubLog: CLUB_LOG_CONFIG
   },
 
   hyb_sum_sat_B: {
     id: 'hyb_sum_sat_B', type: 'hybrid', bgClass: 'bg-z2',
-    calShort: 'Mixed Effort', mobilityBias: null,
+    calShort: 'Mixed Effort', mobilityBias: 'row',
     erg: {
       name: '3×15-Min Mixed Effort',
       items: ['10 min warm-up', '2×15 min @ UT1, 1×15 min @ AT (5 min rest between)', '8 min cool-down']
     },
     run: {
       name: '55-Min Build Run', bgClass: 'bg-z2',
-      items: ['20 min Z1 easy', '25 min Z2 moderate', '10 min Z1 easy cool-down']
+      items: ['20 min UT2 easy', '25 min UT1 moderate', '10 min UT2 easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
 
   hyb_sum_sat_C: {
     id: 'hyb_sum_sat_C', type: 'hybrid', bgClass: 'bg-at',
-    calShort: 'AT Long', mobilityBias: null,
+    calShort: 'AT Long', mobilityBias: 'row',
     erg: {
       name: '6k Time Trial Practice',
       items: ['15 min warm-up', '6,000m @ moderate AT effort (not maximal)', '10 min cool-down']
@@ -840,7 +860,7 @@ var WORKOUT_LIBRARY = {
   },
 
   // ═══════════════════════════════════════════════════════════════════
-  // FALL HEAD RACE — Aug-Oct  |  Head race volume, sustained AT
+  // FALL HEAD RACE — Sep-Nov  |  Head race volume, sustained AT
   // ═══════════════════════════════════════════════════════════════════
 
   // ── Tuesday (4 variants) — AT sustained
@@ -910,7 +930,7 @@ var WORKOUT_LIBRARY = {
     },
     run: {
       name: '50-Min UT1 Run', bgClass: 'bg-z2',
-      items: ['10 min easy', '35 min Z2 sustained run', '5 min easy cool-down']
+      items: ['10 min easy', '35 min UT1 sustained run', '5 min easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -923,8 +943,8 @@ var WORKOUT_LIBRARY = {
       items: ['10 min warm-up', '3×15 min @ UT1 (SR 22), 4 min rest between', '8 min cool-down']
     },
     run: {
-      name: '55-Min Z2 Volume Run', bgClass: 'bg-z2',
-      items: ['10 min easy', '40 min Z2 volume run', '5 min easy cool-down']
+      name: '55-Min UT1 Volume Run', bgClass: 'bg-z2',
+      items: ['10 min easy', '40 min UT1 volume run', '5 min easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -937,8 +957,8 @@ var WORKOUT_LIBRARY = {
       items: ['10 min warm-up', '4-6-8-6-4 min @ UT1 (SR 22), 2 min rest between', '8 min cool-down']
     },
     run: {
-      name: '45-Min Z2 Ladder Run', bgClass: 'bg-z2',
-      items: ['5 min easy', '8-12-16-12-8 min alternating Z2/Z1 effort', '5 min cool-down']
+      name: '45-Min UT1 Ladder Run', bgClass: 'bg-z2',
+      items: ['5 min easy', '8-12-16-12-8 min alternating UT1/UT2 effort', '5 min cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -951,8 +971,8 @@ var WORKOUT_LIBRARY = {
       items: ['10 min warm-up', '2×20 min @ UT1 (SR 22), 5 min rest between', '5 min cool-down']
     },
     run: {
-      name: '60-Min Z2 Long Blocks', bgClass: 'bg-z2',
-      items: ['10 min easy', '2×22 min Z2 / 5 min easy between', '5 min cool-down']
+      name: '60-Min UT1 Long Blocks', bgClass: 'bg-z2',
+      items: ['10 min easy', '2×22 min UT1/ 5 min easy between', '5 min cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
@@ -960,7 +980,7 @@ var WORKOUT_LIBRARY = {
   // ── Saturday (5 variants) — head race simulation, no mobility
   hyb_fall_sat_A: {
     id: 'hyb_fall_sat_A', type: 'hybrid', bgClass: 'bg-at',
-    calShort: 'Head Race Sim', mobilityBias: null,
+    calShort: 'Head Race Sim', mobilityBias: 'row',
     erg: {
       name: '5km Head Race Simulation',
       items: ['15 min warm-up', '5,000m @ head race pace (SR 26-28)', '10 min cool-down']
@@ -974,7 +994,7 @@ var WORKOUT_LIBRARY = {
 
   hyb_fall_sat_B: {
     id: 'hyb_fall_sat_B', type: 'hybrid', bgClass: 'bg-at',
-    calShort: '2× Head Race', mobilityBias: null,
+    calShort: '2× Head Race', mobilityBias: 'row',
     erg: {
       name: '2×4km Race Pace',
       items: ['15 min warm-up', '2×4,000m @ race pace (SR 26-28), 6 min rest between', '10 min cool-down']
@@ -988,21 +1008,21 @@ var WORKOUT_LIBRARY = {
 
   hyb_fall_sat_C: {
     id: 'hyb_fall_sat_C', type: 'hybrid', bgClass: 'bg-z2',
-    calShort: 'Long Volume', mobilityBias: null,
+    calShort: 'Long Volume', mobilityBias: 'row',
     erg: {
       name: '90-Min Long Erg Volume',
       items: ['10 min warm-up', '75 min at UT1 (SR 20-22)', '5 min cool-down']
     },
     run: {
       name: '70-Min Long Run', bgClass: 'bg-z2',
-      items: ['10 min easy', '55 min Z2 long run', '5 min easy cool-down']
+      items: ['10 min easy', '55 min UT1 long run', '5 min easy cool-down']
     },
     clubLog: CLUB_LOG_CONFIG
   },
 
   hyb_fall_sat_D: {
     id: 'hyb_fall_sat_D', type: 'hybrid', bgClass: 'bg-at',
-    calShort: 'AT Tech Pieces', mobilityBias: null,
+    calShort: 'AT Tech Pieces', mobilityBias: 'row',
     erg: {
       name: '3×3k AT Technical Pieces',
       items: ['15 min warm-up', '3×3,000m @ AT (SR 26), 5 min rest between', '10 min cool-down']
@@ -1016,7 +1036,7 @@ var WORKOUT_LIBRARY = {
 
   hyb_fall_sat_E: {
     id: 'hyb_fall_sat_E', type: 'hybrid', bgClass: 'bg-at',
-    calShort: 'Pre-Race Tune', mobilityBias: null,
+    calShort: 'Pre-Race Tune', mobilityBias: 'row',
     erg: {
       name: 'Pre-Race Tune-Up',
       items: ['15 min easy warm-up', '3×1,500m @ race pace + 5s (SR 28), 4 min rest between', '10 min cool-down']
@@ -1143,7 +1163,7 @@ var WORKOUT_LIBRARY = {
 
   wk_active_recovery: {
     id: 'wk_active_recovery', type: 'recovery', bgClass: 'bg-restore',
-    calShort: 'Recovery', mobilityBias: null,
+    calShort: 'Recovery', mobilityBias: 'recovery',
     items: [
       '20-30 min easy walk or light cycling',
       '10-15 min foam rolling (quads, hamstrings, thoracic spine)',

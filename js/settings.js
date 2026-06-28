@@ -9,6 +9,8 @@ const SETTINGS_DEFAULTS = {
   weightUnit:             'lb',
   dailyCalorieTarget:     2100,
   dailyBaselineCalories:  800,
+  macroPctProtein:        22,
+  macroPctFat:            28,
   mealPrepDay:            0,
   age:                    null,
   knownMaxHR:             null,
@@ -60,24 +62,7 @@ function showDataManagement() {
     '</div>' +
     '<p class="st-note">Export downloads all logs and plans as JSON. Import restores from a previous export — existing data is overwritten.</p>' +
 
-    '<div class="rm-section-title" style="margin-top:16px">Meal Calorie Targets</div>' +
-    '<div class="lf-row" style="margin-bottom:8px">' +
-    '<div class="lf-group" style="max-width:180px">' +
-    '<label class="lf-label">Daily Calorie Target</label>' +
-    '<input type="number" id="dm-cal-target" class="lf-input" value="' + s.dailyCalorieTarget + '" min="1000" max="5000" step="50">' +
-    '</div>' +
-    '<div class="lf-group" style="max-width:180px;margin-left:12px">' +
-    '<label class="lf-label">Daily Baseline (breakfast + snacks)</label>' +
-    '<input type="number" id="dm-cal-baseline" class="lf-input" value="' + s.dailyBaselineCalories + '" min="0" max="2000" step="50">' +
-    '</div>' +
-    '</div>' +
-    '<div class="lf-row" style="margin-bottom:16px">' +
-    '<div class="lf-group">' +
-    '<div class="st-note">Meal plan targets <strong>' + (s.dailyCalorieTarget - s.dailyBaselineCalories) + ' kcal/day</strong> from recipes (' + s.dailyCalorieTarget + ' − ' + s.dailyBaselineCalories + ' baseline) → <strong>' + ((s.dailyCalorieTarget - s.dailyBaselineCalories) * 5) + ' kcal/week</strong> across selected recipes.</div>' +
-    '</div>' +
-    '</div>' +
-
-    '<div class="rm-section-title" style="margin-top:4px">App Preferences</div>' +
+    '<div class="rm-section-title" style="margin-top:16px">App Preferences</div>' +
     '<div class="lf-row" style="margin-bottom:8px">' +
     '<div class="lf-group" style="max-width:280px">' +
     '<label class="lf-label">Meal Prep Day</label>' +
@@ -102,20 +87,10 @@ function closeDataManagement() {
 }
 
 function saveDMPrefs() {
-  var prepDayEl  = document.getElementById('dm-prep-day');
-  var calTgtEl   = document.getElementById('dm-cal-target');
-  var calBaseEl  = document.getElementById('dm-cal-baseline');
+  var prepDayEl = document.getElementById('dm-prep-day');
   if (!prepDayEl) return;
-
-  var calTarget   = calTgtEl  ? parseInt(calTgtEl.value, 10)  : null;
-  var calBaseline = calBaseEl ? parseInt(calBaseEl.value, 10) : null;
-
   var s = loadSettings();
-  saveSettings(Object.assign({}, s, {
-    mealPrepDay:            parseInt(prepDayEl.value, 10),
-    dailyCalorieTarget:     (calTarget   > 0 ? calTarget   : s.dailyCalorieTarget),
-    dailyBaselineCalories:  (calBaseline >= 0 ? calBaseline : s.dailyBaselineCalories),
-  }));
+  saveSettings(Object.assign({}, s, { mealPrepDay: parseInt(prepDayEl.value, 10) }));
   showToast('Preferences saved ✓');
 }
 
