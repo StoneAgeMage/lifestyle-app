@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v65';
+const CACHE_NAME = 'rowing-v66';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.
@@ -42,7 +42,7 @@ const CACHE_NAME = 'rowing-v65';
 //   ✗ Do NOT include this file (service-worker.js) itself
 //
 const PRECACHE_ASSETS = [
-  '/',               // Root URL — browser sends this when user opens the app
+  './',              // Root URL — browser sends this when user opens the app
   'index.html',      // Direct URL — same content, different request
   'css/styles.css',
   'js/storage.js',
