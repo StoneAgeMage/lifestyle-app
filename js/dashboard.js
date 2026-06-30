@@ -224,8 +224,10 @@ function _renderLiftCard(wf, blockBadge, done) {
     if (!exercises || exercises.length === 0) return '';
     return exercises.map(function(ex) {
       var setsReps = ex.sets + '×' + (ex.reps === 1 ? '—' : ex.reps);
+      var safeN = ex.name.replace(/'/g, "\\'");
+      var safeC = (ex.cue || '').replace(/'/g, "\\'");
       return '<div class="db-lift-ex">' +
-        '<span class="db-ex-name">' + ex.name + '</span>' +
+        '<span class="db-ex-name db-ex-gif-btn" onclick="showExGif(\'' + safeN + '\',\'' + safeC + '\')">' + ex.name + '</span>' +
         '<span class="db-ex-sets">' + setsReps + '</span></div>' +
         (ex.cue ? '<div class="db-ex-cue">' + ex.cue + '</div>' : '');
     }).join('');

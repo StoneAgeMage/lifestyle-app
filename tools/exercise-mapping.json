@@ -1,0 +1,813 @@
+{
+  "Bodyweight Squat": {
+    "matched": true,
+    "slug": "bodyweight-squat",
+    "file": "assets/exercises/bodyweight-squat.gif",
+    "apiName": "bodyweight squatting row",
+    "exerciseId": "3xK09Sk",
+    "score": 50,
+    "targetMuscles": [
+      "upper back"
+    ],
+    "bodyParts": [
+      "back"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding onto a sturdy object or suspension trainer with your arms extended.",
+      "Step:2 Lower your body into a squat position, keeping your back straight and your knees behind your toes.",
+      "Step:3 From the squat position, pull your body up towards the object or suspension trainer, squeezing your shoulder blades together.",
+      "Step:4 Pause for a moment at the top, then slowly lower your body back down to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Goblet Squat": {
+    "matched": true,
+    "slug": "goblet-squat",
+    "file": "assets/exercises/goblet-squat.gif",
+    "apiName": "dumbbell goblet squat",
+    "exerciseId": "yn8yg1r",
+    "score": 100,
+    "targetMuscles": [
+      "quads"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a dumbbell vertically against your chest with both hands.",
+      "Step:2 Keeping your chest up and core engaged, lower your body down into a squat position by pushing your hips back and bending your knees.",
+      "Step:3 Continue lowering until your thighs are parallel to the ground, or as low as you can comfortably go.",
+      "Step:4 Pause for a moment at the bottom, then push through your heels to return to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "DB Goblet Squat": {
+    "matched": true,
+    "slug": "db-goblet-squat",
+    "file": "assets/exercises/db-goblet-squat.gif",
+    "apiName": "dumbbell goblet squat",
+    "exerciseId": "yn8yg1r",
+    "score": 100,
+    "targetMuscles": [
+      "quads"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a dumbbell vertically against your chest with both hands.",
+      "Step:2 Keeping your chest up and core engaged, lower your body down into a squat position by pushing your hips back and bending your knees.",
+      "Step:3 Continue lowering until your thighs are parallel to the ground, or as low as you can comfortably go.",
+      "Step:4 Pause for a moment at the bottom, then push through your heels to return to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "DB Goblet Jump Squat": {
+    "matched": false,
+    "slug": "db-goblet-jump-squat"
+  },
+  "Jump Squat": {
+    "matched": true,
+    "slug": "jump-squat",
+    "file": "assets/exercises/jump-squat.gif",
+    "apiName": "barbell jump squat",
+    "exerciseId": "1gFNTZV",
+    "score": 100,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Start by standing with your feet shoulder-width apart, holding a barbell across your upper back.",
+      "Step:2 Lower your body into a squat position by bending your knees and pushing your hips back.",
+      "Step:3 Once you reach the bottom of the squat, explode upwards by jumping off the ground.",
+      "Step:4 As you jump, extend your hips, knees, and ankles, pushing through your toes.",
+      "Step:5 Land softly back into the squat position and immediately repeat the movement for the desired number of repetitions."
+    ]
+  },
+  "DB Split Squat": {
+    "matched": true,
+    "slug": "db-split-squat",
+    "file": "assets/exercises/db-split-squat.gif",
+    "apiName": "barbell split squat v. 2",
+    "exerciseId": "HBYyX94",
+    "score": 67,
+    "targetMuscles": [
+      "quads"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Start by standing with your feet shoulder-width apart, holding a barbell across your upper back.",
+      "Step:2 Take a large step forward with your right foot, keeping your torso upright.",
+      "Step:3 Lower your body by bending your knees and hips until your right thigh is parallel to the ground.",
+      "Step:4 Pause for a moment, then push through your right heel to return to the starting position.",
+      "Step:5 Repeat with your left leg forward for the desired number of repetitions."
+    ]
+  },
+  "Reverse Lunge": {
+    "matched": true,
+    "slug": "reverse-lunge",
+    "file": "assets/exercises/reverse-lunge.gif",
+    "apiName": "cable reverse one arm curl",
+    "exerciseId": "gVlnLIJ",
+    "score": 50,
+    "targetMuscles": [
+      "biceps"
+    ],
+    "bodyParts": [
+      "upper arms"
+    ],
+    "instructions": [
+      "Step:1 Stand facing a cable machine with your feet shoulder-width apart.",
+      "Step:2 Grasp the cable handle with an underhand grip, palm facing down.",
+      "Step:3 Keep your elbow close to your side and slowly curl your forearm up towards your shoulder.",
+      "Step:4 Pause for a moment at the top, then slowly lower your forearm back down to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Lateral Lunge": {
+    "matched": true,
+    "slug": "lateral-lunge",
+    "file": "assets/exercises/lateral-lunge.gif",
+    "apiName": "barbell lateral lunge",
+    "exerciseId": "py1HSzx",
+    "score": 100,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a barbell across your upper back.",
+      "Step:2 Take a big step to the side with your right foot, keeping your left foot planted.",
+      "Step:3 Bend your right knee and lower your body down into a lunge position, keeping your left leg straight.",
+      "Step:4 Push off with your right foot and return to the starting position.",
+      "Step:5 Repeat on the other side, stepping with your left foot."
+    ]
+  },
+  "DB Box Step-Up": {
+    "matched": true,
+    "slug": "db-box-step-up",
+    "file": "assets/exercises/db-box-step-up.gif",
+    "apiName": "dumbbell step up single leg balance with bicep curl",
+    "exerciseId": "76vfTdU",
+    "score": 67,
+    "targetMuscles": [
+      "biceps"
+    ],
+    "bodyParts": [
+      "upper arms"
+    ],
+    "instructions": [
+      "Step:1 Stand in front of a step or platform with a dumbbell in each hand, palms facing your body.",
+      "Step:2 Place your right foot on the step, ensuring your entire foot is in contact with the surface.",
+      "Step:3 Engage your core and push through your right heel to lift your body up onto the step, bringing your left knee up towards your chest.",
+      "Step:4 At the top of the movement, perform a bicep curl by bending your elbows and bringing the dumbbells towards your shoulders.",
+      "Step:5 Lower the dumbbells back down and simultaneously lower your left foot back to the ground.",
+      "Step:6 Repeat the movement on the opposite side, stepping up with your left foot and curling the dumbbells.",
+      "Step:7 Continue alternating sides for the desired number of repetitions."
+    ]
+  },
+  "DB Romanian Deadlift": {
+    "matched": true,
+    "slug": "db-romanian-deadlift",
+    "file": "assets/exercises/db-romanian-deadlift.gif",
+    "apiName": "dumbbell romanian deadlift",
+    "exerciseId": "rR0LJzx",
+    "score": 100,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a dumbbell in each hand with an overhand grip.",
+      "Step:2 Keeping your back straight and your core engaged, hinge at the hips and lower the dumbbells towards the ground, allowing your knees to bend slightly.",
+      "Step:3 Lower the dumbbells until you feel a stretch in your hamstrings, then push through your heels and engage your glutes to return to the starting position.",
+      "Step:4 Repeat for the desired number of repetitions."
+    ]
+  },
+  "DB Single-Leg Deadlift": {
+    "matched": true,
+    "slug": "db-single-leg-deadlift",
+    "file": "assets/exercises/db-single-leg-deadlift.gif",
+    "apiName": "dumbbell single leg deadlift with stepbox support",
+    "exerciseId": "daBmy1Y",
+    "score": 100,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet hip-width apart, holding a dumbbell in your right hand.",
+      "Step:2 Place your left foot on a stepbox or elevated surface behind you.",
+      "Step:3 Keeping your back straight and core engaged, hinge forward at the hips, lowering the dumbbell towards the ground.",
+      "Step:4 As you lower the dumbbell, simultaneously lift your left leg behind you, maintaining a straight line from head to heel.",
+      "Step:5 Lower the dumbbell until you feel a stretch in your right hamstring, then return to the starting position.",
+      "Step:6 Repeat for the desired number of repetitions, then switch sides."
+    ]
+  },
+  "Single-Leg RDL": {
+    "matched": false,
+    "slug": "single-leg-rdl",
+    "error": "Non-JSON response after 3 attempts"
+  },
+  "Single-Leg Glute Bridge": {
+    "matched": true,
+    "slug": "single-leg-glute-bridge",
+    "file": "assets/exercises/single-leg-glute-bridge.gif",
+    "apiName": "single leg bridge with outstretched leg",
+    "exerciseId": "rmEukuS",
+    "score": 75,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Lie on your back with your knees bent and feet flat on the ground.",
+      "Step:2 Extend one leg straight out in front of you.",
+      "Step:3 Engage your glutes and lift your hips off the ground, forming a straight line from your knees to your shoulders.",
+      "Step:4 Hold for a moment at the top, then slowly lower your hips back down to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions, then switch legs."
+    ]
+  },
+  "KB Swing": {
+    "matched": true,
+    "slug": "kb-swing",
+    "file": "assets/exercises/kb-swing.gif",
+    "apiName": "kettlebell pistol squat",
+    "exerciseId": "5bpPTHv",
+    "score": 50,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a kettlebell in front of your chest with both hands.",
+      "Step:2 Lift your left foot off the ground and extend it forward, keeping it parallel to the ground.",
+      "Step:3 Slowly lower your body down into a squat position, keeping your right foot flat on the ground and your left leg extended.",
+      "Step:4 Pause for a moment at the bottom of the squat, then push through your right heel to return to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions, then switch legs."
+    ]
+  },
+  "Wall Sit": {
+    "matched": true,
+    "slug": "wall-sit",
+    "file": "assets/exercises/wall-sit.gif",
+    "apiName": "half sit-up (male)",
+    "exerciseId": "iQ241UP",
+    "score": 50,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Lie flat on your back with your knees bent and feet flat on the ground.",
+      "Step:2 Place your hands behind your head with your elbows pointing outwards.",
+      "Step:3 Engaging your abs, slowly lift your upper body off the ground, curling forward until your torso is at a 45-degree angle.",
+      "Step:4 Pause for a moment at the top, then slowly lower your upper body back down to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Floor Push-Up": {
+    "matched": true,
+    "slug": "floor-push-up",
+    "file": "assets/exercises/floor-push-up.gif",
+    "apiName": "push-up inside leg kick",
+    "exerciseId": "0br45wL",
+    "score": 50,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Start in a push-up position with your hands slightly wider than shoulder-width apart and your feet together.",
+      "Step:2 Lower your body towards the ground by bending your elbows, keeping your back straight and your core engaged.",
+      "Step:3 As you push back up, lift one leg off the ground and kick it out to the side, keeping it straight.",
+      "Step:4 Lower your leg back down and repeat the push-up, then switch to the other leg.",
+      "Step:5 Continue alternating leg kicks with each push-up repetition."
+    ]
+  },
+  "Decline Push-Up": {
+    "matched": true,
+    "slug": "decline-push-up",
+    "file": "assets/exercises/decline-push-up.gif",
+    "apiName": "decline push-up",
+    "exerciseId": "i5cEhka",
+    "score": 100,
+    "targetMuscles": [
+      "pectorals"
+    ],
+    "bodyParts": [
+      "chest"
+    ],
+    "instructions": [
+      "Step:1 Place your hands on the ground slightly wider than shoulder-width apart, with your feet elevated on a stable surface.",
+      "Step:2 Keep your body in a straight line from head to toe, engaging your core muscles.",
+      "Step:3 Lower your chest towards the ground by bending your elbows, keeping them close to your body.",
+      "Step:4 Push through your palms to extend your arms and return to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Plyometric Push-Up": {
+    "matched": false,
+    "slug": "plyometric-push-up"
+  },
+  "Push-Up to Side Plank": {
+    "matched": true,
+    "slug": "push-up-to-side-plank",
+    "file": "assets/exercises/push-up-to-side-plank.gif",
+    "apiName": "push-up to side plank",
+    "exerciseId": "KhHJ338",
+    "score": 100,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Start in a push-up position with your hands shoulder-width apart and your body in a straight line.",
+      "Step:2 Lower your body towards the ground by bending your elbows, keeping your core engaged.",
+      "Step:3 Push back up to the starting position.",
+      "Step:4 Shift your weight onto your left hand and rotate your body to the right, lifting your right arm towards the ceiling.",
+      "Step:5 Hold the side plank position for a few seconds, then return to the starting position.",
+      "Step:6 Repeat the push-up and side plank on the opposite side.",
+      "Step:7 Continue alternating sides for the desired number of repetitions."
+    ]
+  },
+  "Wall Push-Up": {
+    "matched": true,
+    "slug": "wall-push-up",
+    "file": "assets/exercises/wall-push-up.gif",
+    "apiName": "dumbbell push press",
+    "exerciseId": "FS63wTN",
+    "score": 50,
+    "targetMuscles": [
+      "delts"
+    ],
+    "bodyParts": [
+      "shoulders"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a dumbbell in each hand at shoulder level.",
+      "Step:2 Bend your knees slightly and dip your body down, then explosively extend your legs and press the dumbbells overhead.",
+      "Step:3 Lock out your arms at the top of the movement, then lower the dumbbells back to shoulder level.",
+      "Step:4 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Ring Push-Up": {
+    "matched": true,
+    "slug": "ring-push-up",
+    "file": "assets/exercises/ring-push-up.gif",
+    "apiName": "push-up inside leg kick",
+    "exerciseId": "0br45wL",
+    "score": 50,
+    "targetMuscles": [
+      "glutes"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Start in a push-up position with your hands slightly wider than shoulder-width apart and your feet together.",
+      "Step:2 Lower your body towards the ground by bending your elbows, keeping your back straight and your core engaged.",
+      "Step:3 As you push back up, lift one leg off the ground and kick it out to the side, keeping it straight.",
+      "Step:4 Lower your leg back down and repeat the push-up, then switch to the other leg.",
+      "Step:5 Continue alternating leg kicks with each push-up repetition."
+    ]
+  },
+  "Ring Dip": {
+    "matched": true,
+    "slug": "ring-dip",
+    "file": "assets/exercises/ring-dip.gif",
+    "apiName": "bench dip on floor",
+    "exerciseId": "9RT8oQW",
+    "score": 50,
+    "targetMuscles": [
+      "triceps"
+    ],
+    "bodyParts": [
+      "upper arms"
+    ],
+    "instructions": [
+      "Step:1 Sit on the edge of a bench or chair with your hands gripping the edge, fingers pointing forward.",
+      "Step:2 Slide your butt off the bench, supporting your weight with your hands.",
+      "Step:3 Lower your body by bending your elbows until your upper arms are parallel to the floor.",
+      "Step:4 Push yourself back up to the starting position by straightening your arms.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Pull-Up": {
+    "matched": false,
+    "slug": "pull-up",
+    "error": "Non-JSON response after 3 attempts"
+  },
+  "Ring Row": {
+    "matched": true,
+    "slug": "ring-row",
+    "file": "assets/exercises/ring-row.gif",
+    "apiName": "extended style inverted row",
+    "exerciseId": "1YUWDNZ",
+    "score": 50,
+    "targetMuscles": [
+      "upper back"
+    ],
+    "bodyParts": [
+      "back"
+    ],
+    "instructions": [
+      "Step:1 Set up a bar at waist height or use a suspension trainer.",
+      "Step:2 Stand facing the bar or suspension trainer, with your feet shoulder-width apart.",
+      "Step:3 Grab the bar or handles with an overhand grip, slightly wider than shoulder-width apart.",
+      "Step:4 Lean back, keeping your body straight and your heels on the ground.",
+      "Step:5 Pull your chest towards the bar or handles, squeezing your shoulder blades together.",
+      "Step:6 Pause for a moment at the top, then slowly lower yourself back to the starting position.",
+      "Step:7 Repeat for the desired number of repetitions. Perform with extended intensity."
+    ]
+  },
+  "DB Single-Arm Row": {
+    "matched": true,
+    "slug": "db-single-arm-row",
+    "file": "assets/exercises/db-single-arm-row.gif",
+    "apiName": "dumbbell single arm overhead carry",
+    "exerciseId": "mWBtgmb",
+    "score": 75,
+    "targetMuscles": [
+      "delts"
+    ],
+    "bodyParts": [
+      "shoulders"
+    ],
+    "instructions": [
+      "Step:1 Stand tall with your feet shoulder-width apart, holding a dumbbell in one hand.",
+      "Step:2 Raise the dumbbell overhead, fully extending your arm.",
+      "Step:3 Engage your core and keep your back straight as you walk forward, maintaining the dumbbell overhead.",
+      "Step:4 Continue walking for the desired distance or time.",
+      "Step:5 Switch hands and repeat the exercise."
+    ]
+  },
+  "DB Bent-Over Row": {
+    "matched": true,
+    "slug": "db-bent-over-row",
+    "file": "assets/exercises/db-bent-over-row.gif",
+    "apiName": "dumbbell bent over row",
+    "exerciseId": "BJ0Hz5L",
+    "score": 100,
+    "targetMuscles": [
+      "upper back"
+    ],
+    "bodyParts": [
+      "back"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, knees slightly bent, and hold a dumbbell in each hand with your palms facing your body.",
+      "Step:2 Bend forward at the hips, keeping your back straight and your core engaged.",
+      "Step:3 Let your arms hang straight down towards the floor, with your elbows slightly bent.",
+      "Step:4 Pull the dumbbells up towards your chest, squeezing your shoulder blades together.",
+      "Step:5 Pause for a moment at the top, then slowly lower the dumbbells back down to the starting position.",
+      "Step:6 Repeat for the desired number of repetitions."
+    ]
+  },
+  "DB Lateral Raise": {
+    "matched": true,
+    "slug": "db-lateral-raise",
+    "file": "assets/exercises/db-lateral-raise.gif",
+    "apiName": "dumbbell lateral raise",
+    "exerciseId": "DsgkuIt",
+    "score": 100,
+    "targetMuscles": [
+      "delts"
+    ],
+    "bodyParts": [
+      "shoulders"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart and hold a dumbbell in each hand, palms facing your body.",
+      "Step:2 Keep your back straight and engage your core.",
+      "Step:3 Raise your arms out to the sides until they are parallel to the floor, keeping a slight bend in your elbows.",
+      "Step:4 Pause for a moment at the top, then slowly lower your arms back down to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "DB Bicep Curl": {
+    "matched": true,
+    "slug": "db-bicep-curl",
+    "file": "assets/exercises/db-bicep-curl.gif",
+    "apiName": "dumbbell bicep curl lunge with bowling motion",
+    "exerciseId": "1VpF8db",
+    "score": 100,
+    "targetMuscles": [
+      "biceps"
+    ],
+    "bodyParts": [
+      "upper arms"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart, holding a dumbbell in each hand with your palms facing forward.",
+      "Step:2 Take a step forward with your right foot, bending your right knee and lowering your body into a lunge position.",
+      "Step:3 As you lunge forward, curl the dumbbells up towards your shoulders, keeping your elbows close to your body.",
+      "Step:4 At the bottom of the lunge, rotate your torso to the right, as if you were bowling a ball.",
+      "Step:5 Reverse the motion, stepping back with your right foot and returning to the starting position while lowering the dumbbells back down.",
+      "Step:6 Repeat the lunge and curl motion, this time rotating your torso to the left.",
+      "Step:7 Continue alternating sides for the desired number of repetitions."
+    ]
+  },
+  "DB External Rotation": {
+    "matched": true,
+    "slug": "db-external-rotation",
+    "file": "assets/exercises/db-external-rotation.gif",
+    "apiName": "prone dumbbell upright shoulder external rotation",
+    "exerciseId": "u1iHcoD",
+    "score": 100,
+    "targetMuscles": [
+      "delts"
+    ],
+    "bodyParts": [
+      "shoulders"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart and hold a dumbbell in each hand with your palms facing your body.",
+      "Step:2 Raise your arms out to the sides until they are parallel to the ground, keeping your elbows slightly bent. Emphasize prone control.",
+      "Step:3 Rotate your arms externally, bringing the dumbbells up towards your head while keeping your elbows in the same position.",
+      "Step:4 Pause for a moment at the top, then slowly lower the dumbbells back to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Prone Y-Raise": {
+    "matched": true,
+    "slug": "prone-y-raise",
+    "file": "assets/exercises/prone-y-raise.gif",
+    "apiName": "exercise ball prone leg raise",
+    "exerciseId": "lCKm4Rs",
+    "score": 100,
+    "targetMuscles": [
+      "spine"
+    ],
+    "bodyParts": [
+      "back"
+    ],
+    "instructions": [
+      "Step:1 Lie face down on a mat with your legs extended and your toes resting on top of the stability ball.",
+      "Step:2 Place your hands on the ground, shoulder-width apart, and engage your core muscles.",
+      "Step:3 Keeping your legs straight, slowly lift them off the ground, using your lower back and glutes to raise them as high as possible.",
+      "Step:4 Pause for a moment at the top, then slowly lower your legs back down to the starting position.",
+      "Step:5 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Prone I/Y/T Raises": {
+    "matched": true,
+    "slug": "prone-i-y-t-raises",
+    "file": "assets/exercises/prone-i-y-t-raises.gif",
+    "apiName": "prone twist on stability ball",
+    "exerciseId": "1IG6gVF",
+    "score": 50,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Start by lying face down on a stability ball with your feet shoulder-width apart and your toes touching the ground.",
+      "Step:2 Place your hands behind your head or cross them over your chest.",
+      "Step:3 Engage your core muscles and slowly lift your upper body off the ball, keeping your back straight.",
+      "Step:4 Rotate your torso to one side, bringing your shoulder towards your hip. Keep your hips and legs stable throughout the movement.",
+      "Step:5 Pause for a moment, then return to the starting position.",
+      "Step:6 Repeat the rotation to the other side.",
+      "Step:7 Continue alternating sides for the desired number of repetitions."
+    ]
+  },
+  "Prone Superman Hold": {
+    "matched": true,
+    "slug": "prone-superman-hold",
+    "file": "assets/exercises/prone-superman-hold.gif",
+    "apiName": "superman push-up",
+    "exerciseId": "4GqRrAk",
+    "score": 33,
+    "targetMuscles": [
+      "pectorals"
+    ],
+    "bodyParts": [
+      "chest"
+    ],
+    "instructions": [
+      "Step:1 Start in a high plank position with your hands slightly wider than shoulder-width apart and your feet together.",
+      "Step:2 Engage your core and lower your body towards the ground, keeping your elbows close to your sides.",
+      "Step:3 As you lower your body, simultaneously lift your right arm and left leg off the ground, extending them straight out.",
+      "Step:4 Pause for a moment at the top, then lower your arm and leg back down while pushing yourself back up to the starting position.",
+      "Step:5 Repeat the movement, this time lifting your left arm and right leg.",
+      "Step:6 Continue alternating sides for the desired number of repetitions."
+    ]
+  },
+  "Scapular Wall Slide": {
+    "matched": true,
+    "slug": "scapular-wall-slide",
+    "file": "assets/exercises/scapular-wall-slide.gif",
+    "apiName": "wall style dumbbell pullover hip extension on exercise ball",
+    "exerciseId": "ookVu2D",
+    "score": 33,
+    "targetMuscles": [
+      "pectorals"
+    ],
+    "bodyParts": [
+      "chest"
+    ],
+    "instructions": [
+      "Step:1 Sit on an exercise ball with your feet flat on the ground and the dumbbell resting on your thighs.",
+      "Step:2 Slowly walk your feet forward, rolling the exercise ball down your back until your head, neck, and upper back are supported on the ball.",
+      "Step:3 Hold the dumbbell with both hands and extend your arms straight up over your chest, keeping a slight bend in your elbows.",
+      "Step:4 Lower the dumbbell behind your head, keeping your arms straight and maintaining control.",
+      "Step:5 Pause for a moment, then raise the dumbbell back to the starting position.",
+      "Step:6 While keeping your arms extended, lift your hips off the ground, squeezing your glutes and engaging your core.",
+      "Step:7 (wall variation) Lower your hips back down to the starting position.",
+      "Step:8 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Wall Plank": {
+    "matched": false,
+    "slug": "wall-plank",
+    "error": "Non-JSON response after 3 attempts"
+  },
+  "Plank": {
+    "matched": true,
+    "slug": "plank",
+    "file": "assets/exercises/plank.gif",
+    "apiName": "bodyweight incline side plank",
+    "exerciseId": "5VXmnV5",
+    "score": 100,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Start by lying on your side with your legs extended and stacked on top of each other.",
+      "Step:2 Place your forearm on the ground directly below your shoulder, with your elbow bent at a 90-degree angle.",
+      "Step:3 Engage your core and lift your hips off the ground, creating a straight line from your head to your feet.",
+      "Step:4 Hold this position for the desired amount of time.",
+      "Step:5 Lower your hips back down to the ground and repeat on the other side."
+    ]
+  },
+  "Side Plank": {
+    "matched": true,
+    "slug": "side-plank",
+    "file": "assets/exercises/side-plank.gif",
+    "apiName": "bodyweight incline side plank",
+    "exerciseId": "5VXmnV5",
+    "score": 100,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Start by lying on your side with your legs extended and stacked on top of each other.",
+      "Step:2 Place your forearm on the ground directly below your shoulder, with your elbow bent at a 90-degree angle.",
+      "Step:3 Engage your core and lift your hips off the ground, creating a straight line from your head to your feet.",
+      "Step:4 Hold this position for the desired amount of time.",
+      "Step:5 Lower your hips back down to the ground and repeat on the other side."
+    ]
+  },
+  "Plank Shoulder Tap": {
+    "matched": true,
+    "slug": "plank-shoulder-tap",
+    "file": "assets/exercises/plank-shoulder-tap.gif",
+    "apiName": "dumbbell incline shoulder raise",
+    "exerciseId": "6e2DcYX",
+    "score": 33,
+    "targetMuscles": [
+      "serratus anterior"
+    ],
+    "bodyParts": [
+      "chest"
+    ],
+    "instructions": [
+      "Step:1 Set an incline bench to a 45-degree angle and sit on it with a dumbbell in each hand, palms facing down.",
+      "Step:2 Rest the dumbbells on your thighs and lean back onto the bench.",
+      "Step:3 Use your thighs to help raise the dumbbells to shoulder height, then rotate your wrists so that your palms are facing forward.",
+      "Step:4 Exhale and slowly raise the dumbbells above your head, keeping a slight bend in your elbows.",
+      "Step:5 Pause for a moment at the top, then inhale and slowly lower the dumbbells back to shoulder height.",
+      "Step:6 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Dead Bug": {
+    "matched": true,
+    "slug": "dead-bug",
+    "file": "assets/exercises/dead-bug.gif",
+    "apiName": "dead bug",
+    "exerciseId": "iny3m5y",
+    "score": 100,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Lie flat on your back with your arms extended towards the ceiling.",
+      "Step:2 Bend your knees and lift your legs off the ground, creating a 90-degree angle at your hips and knees.",
+      "Step:3 Engage your core and lower back to press your lower back into the ground.",
+      "Step:4 Slowly lower your right arm and left leg towards the ground, keeping them straight and hovering just above the floor.",
+      "Step:5 Pause for a moment, then return to the starting position.",
+      "Step:6 Repeat the movement with your left arm and right leg.",
+      "Step:7 Continue alternating sides for the desired number of repetitions."
+    ]
+  },
+  "Bird-Dog": {
+    "matched": false,
+    "slug": "bird-dog"
+  },
+  "Hollow Body Hold": {
+    "matched": true,
+    "slug": "hollow-body-hold",
+    "file": "assets/exercises/hollow-body-hold.gif",
+    "apiName": "roller body saw",
+    "exerciseId": "XeMvLgE",
+    "score": 33,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Start in a plank position with your forearms on the roller and your body in a straight line.",
+      "Step:2 Engage your core and slowly roll the roller forward, extending your body as far as you can while maintaining control.",
+      "Step:3 Pause for a moment at the furthest point, then slowly roll the roller back towards your starting position.",
+      "Step:4 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Hollow Rock": {
+    "matched": false,
+    "slug": "hollow-rock"
+  },
+  "Pallof Press": {
+    "matched": true,
+    "slug": "pallof-press",
+    "file": "assets/exercises/pallof-press.gif",
+    "apiName": "band horizontal pallof press",
+    "exerciseId": "9pa4H5m",
+    "score": 100,
+    "targetMuscles": [
+      "abs"
+    ],
+    "bodyParts": [
+      "waist"
+    ],
+    "instructions": [
+      "Step:1 Attach the band to a sturdy anchor point at waist height.",
+      "Step:2 Stand perpendicular to the anchor point with your feet shoulder-width apart.",
+      "Step:3 Grasp the band handle with both hands and step away from the anchor point to create tension in the band.",
+      "Step:4 Bring your hands to your chest, keeping your elbows bent and close to your body.",
+      "Step:5 Engage your core and maintain a stable stance.",
+      "Step:6 Extend your arms straight out in front of you, pushing the band away from your body.",
+      "Step:7 Hold the extended position for a few seconds, focusing on maintaining tension in your core.",
+      "Step:8 Slowly bring your hands back to your chest, resisting the pull of the band.",
+      "Step:9 Repeat for the desired number of repetitions."
+    ]
+  },
+  "Copenhagen Plank": {
+    "matched": false,
+    "slug": "copenhagen-plank"
+  },
+  "Side-Lying Hip Abduction": {
+    "matched": true,
+    "slug": "side-lying-hip-abduction",
+    "file": "assets/exercises/side-lying-hip-abduction.gif",
+    "apiName": "side hip abduction",
+    "exerciseId": "7WaDzyL",
+    "score": 75,
+    "targetMuscles": [
+      "abductors"
+    ],
+    "bodyParts": [
+      "upper legs"
+    ],
+    "instructions": [
+      "Step:1 Stand with your feet shoulder-width apart and your hands on your hips.",
+      "Step:2 Shift your weight to one leg and lift the opposite leg out to the side, keeping it straight.",
+      "Step:3 Pause for a moment at the top, then slowly lower your leg back down to the starting position.",
+      "Step:4 Repeat on the other side.",
+      "Step:5 Continue alternating sides for the desired number of repetitions."
+    ]
+  }
+}

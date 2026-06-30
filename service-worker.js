@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v69';
+const CACHE_NAME = 'rowing-v70';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.
@@ -62,7 +62,34 @@ const PRECACHE_ASSETS = [
   'js/vitals.js',
   'js/meal-planner.js',
   'js/progress.js',
-  'js/app.js'
+  'js/app.js',
+  'js/exercises.js',
+  // Exercise GIFs — ~2.4MB total, cached for offline use
+  'assets/exercises/db-bent-over-row.gif',
+  'assets/exercises/db-bicep-curl.gif',
+  'assets/exercises/db-box-step-up.gif',
+  'assets/exercises/db-external-rotation.gif',
+  'assets/exercises/db-goblet-squat.gif',
+  'assets/exercises/db-lateral-raise.gif',
+  'assets/exercises/db-romanian-deadlift.gif',
+  'assets/exercises/db-single-leg-deadlift.gif',
+  'assets/exercises/db-split-squat.gif',
+  'assets/exercises/dead-bug.gif',
+  'assets/exercises/decline-push-up.gif',
+  'assets/exercises/floor-push-up.gif',
+  'assets/exercises/goblet-squat.gif',
+  'assets/exercises/jump-squat.gif',
+  'assets/exercises/lateral-lunge.gif',
+  'assets/exercises/pallof-press.gif',
+  'assets/exercises/plank.gif',
+  'assets/exercises/prone-superman-hold.gif',
+  'assets/exercises/push-up-to-side-plank.gif',
+  'assets/exercises/ring-dip.gif',
+  'assets/exercises/ring-push-up.gif',
+  'assets/exercises/ring-row.gif',
+  'assets/exercises/side-lying-hip-abduction.gif',
+  'assets/exercises/side-plank.gif',
+  'assets/exercises/single-leg-glute-bridge.gif'
   // ✗ NOT caching Google Fonts — they are cross-origin and manage
   //   their own HTTP cache headers. Trying to cache them here
   //   causes opaque response issues and cache bloat.

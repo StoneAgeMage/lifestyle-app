@@ -206,6 +206,20 @@
 </div>
 
 
+<!-- ===== EXERCISE GIF MODAL ===== -->
+<div class="ex-modal-overlay" id="ex-modal" onclick="closeExGif(event)">
+  <div class="ex-modal-box">
+    <button class="ex-modal-close" onclick="_closeExGif()">✕</button>
+    <img class="ex-modal-gif" id="ex-modal-gif" src="" alt="">
+    <div class="ex-modal-no-gif" id="ex-modal-no-gif">
+      <span style="font-size:32px">🏋️</span>
+      <span>No demo available</span>
+    </div>
+    <div class="ex-modal-name" id="ex-modal-name"></div>
+    <div class="ex-modal-cue" id="ex-modal-cue"></div>
+  </div>
+</div>
+
 <!-- ===== SCRIPTS — order matters ===== -->
 <!-- 0. Storage layer -->
 <script src="js/storage.js"></script>
@@ -227,6 +241,7 @@
 <script src="js/vitals.js"></script>
 <script src="js/meal-planner.js"></script>
 <script src="js/progress.js"></script>
+<script src="js/exercises.js"></script>
 <!-- 3. App entry point -->
 <script src="js/app.js"></script>
 
