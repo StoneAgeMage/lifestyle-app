@@ -6,8 +6,9 @@
 
 var _PW_DOW    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 var _PW_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var _PW_ABBR   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
-var _pwOffset = -1; // index of first visible day relative to today (default: today centered)
+var _pwOffset = 0; // days from today currently viewed (0 = today)
 
 function pwShift(n) {
   _pwOffset += n;
@@ -15,7 +16,12 @@ function pwShift(n) {
 }
 
 function pwGoToday() {
-  _pwOffset = -1;
+  _pwOffset = 0;
+  renderPlanWeeks();
+}
+
+function pwJumpTo(offset) {
+  _pwOffset = offset;
   renderPlanWeeks();
 }
 
@@ -32,68 +38,92 @@ function renderPlanWeeks() {
       .map(function(e) { return e.date; })
   );
 
-  // 3-day window
-  var dates = [0, 1, 2].map(function(i) {
-    var d = new Date(todayD);
-    d.setDate(todayD.getDate() + _pwOffset + i);
-    d.setHours(12, 0, 0, 0);
-    return d;
-  });
+  // Currently viewed date
+  var viewDate = new Date(todayD);
+  viewDate.setDate(todayD.getDate() + _pwOffset);
+  viewDate.setHours(12, 0, 0, 0);
 
-  var first = dates[0], last = dates[2];
-  var rangeLabel = _PW_MONTHS[first.getMonth()] + ' ' + first.getDate() +
-    ' – ' + _PW_MONTHS[last.getMonth()] + ' ' + last.getDate();
+  // ---- Week strip: Mon–Sun of the viewed week ----
+  var viewDow = viewDate.getDay();
+  var daysToMon = viewDow === 0 ? -6 : 1 - viewDow;
+  var weekStart = new Date(viewDate);
+  weekStart.setDate(viewDate.getDate() + daysToMon);
+  weekStart.setHours(12, 0, 0, 0);
 
-  var cards = dates.map(function(date) {
-    var isToday  = date.toDateString() === todayD.toDateString();
-    var dateKey  = date.getFullYear() + '-' +
-      String(date.getMonth() + 1).padStart(2, '0') + '-' +
-      String(date.getDate()).padStart(2, '0');
-    var isLogged = loggedDates.has(dateKey);
-    var wf       = TrainingEngine.getWorkoutForDate(plan, date);
+  var stripHtml = '<div class="pw-week-strip">';
+  for (var i = 0; i < 7; i++) {
+    var sd = new Date(weekStart);
+    sd.setDate(weekStart.getDate() + i);
+    var sdWf = TrainingEngine.getWorkoutForDate(plan, sd);
+    var sdKey = sd.getFullYear() + '-' + String(sd.getMonth() + 1).padStart(2, '0') + '-' + String(sd.getDate()).padStart(2, '0');
+    var sdOffset = Math.round((sd - todayD) / 86400000);
+    var sdIsActive = sd.toDateString() === viewDate.toDateString();
+    var sdIsToday  = sd.toDateString() === todayD.toDateString();
+    var sdLogged   = loggedDates.has(sdKey);
+    var dotBg      = sdWf ? sdWf.workoutBg : 'bg-restore';
+    var cls = 'pw-strip-day' + (sdIsActive ? ' pw-strip-active' : '') + (sdIsToday ? ' pw-strip-today' : '');
+    stripHtml +=
+      '<div class="' + cls + '" onclick="pwJumpTo(' + sdOffset + ')">' +
+        '<div class="pw-strip-abbr">' + _PW_ABBR[sd.getDay()] + '</div>' +
+        '<div class="pw-strip-num">' + sd.getDate() + '</div>' +
+        (sdLogged
+          ? '<div class="pw-strip-check">✓</div>'
+          : '<div class="pw-strip-dot ' + dotBg + '"></div>') +
+      '</div>';
+  }
+  stripHtml += '</div>';
 
-    var dowHtml = '<div class="pw-3d-dow">' + _PW_DOW[date.getDay()] + '</div>';
-    var numHtml = '<div class="pw-3d-num">' + date.getDate() + '</div>';
+  // ---- Single main card ----
+  var isToday  = viewDate.toDateString() === todayD.toDateString();
+  var dateKey  = viewDate.getFullYear() + '-' +
+    String(viewDate.getMonth() + 1).padStart(2, '0') + '-' +
+    String(viewDate.getDate()).padStart(2, '0');
+  var isLogged = loggedDates.has(dateKey);
+  var wf       = TrainingEngine.getWorkoutForDate(plan, viewDate);
 
-    if (!wf) {
-      return '<div class="pw-3day-card pw-3day-noplan' + (isToday ? ' pw-today' : '') + '">' +
-        dowHtml + numHtml +
-        '<div class="pw-3d-rest">Rest</div>' +
-        '</div>';
-    }
+  var headerHtml =
+    '<div class="pw-1d-dow">' + _PW_DOW[viewDate.getDay()] +
+      (isToday ? '<span class="pw-1d-today-tag">Today</span>' : '') +
+    '</div>' +
+    '<div class="pw-1d-date">' + _PW_MONTHS[viewDate.getMonth()] + ' ' + viewDate.getDate() + '</div>';
 
-    var meals = MealEngine.getMealsForDate(plan, date, wf);
+  var bodyHtml;
+  if (!wf) {
+    bodyHtml = '<div class="pw-1d-rest">Rest Day</div>';
+  } else {
+    var meals = MealEngine.getMealsForDate(plan, viewDate, wf);
     if (typeof mpLoadWeekPlanForDate === 'function' && typeof mpEnrichMeals === 'function') {
-      var wp = mpLoadWeekPlanForDate(date);
-      if (wp) meals = mpEnrichMeals(meals, wp, date.getDay());
+      var wp = mpLoadWeekPlanForDate(viewDate);
+      if (wp) meals = mpEnrichMeals(meals, wp, viewDate.getDay());
     }
-
-    var mealRows = ['Breakfast', 'Lunch', 'Dinner'].map(function(type) {
+    var mealRows = ['Breakfast','Lunch','Dinner'].map(function(type) {
       var m = meals.find(function(x) { return x.type === type; });
       if (!m) return '';
-      return '<div class="pw-3d-meal"><span class="pw-3d-meal-abbr">' + type[0] + '</span>' + m.name + '</div>';
+      return '<div class="pw-1d-meal"><span class="pw-1d-meal-lbl">' + type[0] + '</span>' + m.name + '</div>';
     }).join('');
 
-    return '<div class="pw-3day-card' + (isToday ? ' pw-today' : '') + '"' +
-      ' onclick="openModal(' + date.getFullYear() + ',' + date.getMonth() + ',' + date.getDate() + ')">' +
-      dowHtml + numHtml +
-      '<span class="pw-badge pw-3d-badge ' + wf.workoutBg + '">' + wf.workoutShort + '</span>' +
-      '<div class="pw-3d-meals">' + mealRows + '</div>' +
-      (isLogged ? '<div class="pw-3d-done">&#10003; Done</div>' : '') +
-      '</div>';
-  }).join('');
+    bodyHtml =
+      '<span class="pw-badge pw-1d-badge ' + wf.workoutBg + '">' + wf.workoutShort + '</span>' +
+      '<div class="pw-1d-meals">' + mealRows + '</div>';
+  }
 
-  var rangeRow = '<div class="pw-3day-range-row"><span class="pw-3day-range">' + rangeLabel + '</span></div>';
+  var card =
+    '<div class="pw-1day-card' + (isToday ? ' pw-today' : '') + '"' +
+    (wf ? ' onclick="openModal(' + viewDate.getFullYear() + ',' + viewDate.getMonth() + ',' + viewDate.getDate() + ')"' : '') + '>' +
+    (isLogged ? '<div class="pw-3d-done">&#10003; Done</div>' : '') +
+    headerHtml + bodyHtml +
+    '</div>';
 
-  var wrap = '<div class="pw-3day-wrap">' +
-    '<button class="pw-nav-btn" onclick="pwShift(-1)">&#8249;</button>' +
-    '<div class="pw-3day-grid">' + cards + '</div>' +
-    '<button class="pw-nav-btn" onclick="pwShift(1)">&#8250;</button>' +
+  var wrap =
+    '<div class="pw-1day-wrap">' +
+      '<button class="pw-nav-btn" onclick="pwShift(-1)">&#8249;</button>' +
+      card +
+      '<button class="pw-nav-btn" onclick="pwShift(1)">&#8250;</button>' +
     '</div>';
 
   var footer = '<div class="pw-3day-footer"><button class="pw-today-btn" onclick="pwGoToday()">Today</button></div>';
 
-  el.innerHTML = _buildLegend() + rangeRow + wrap + footer;
+  el.innerHTML = _buildLegend() + stripHtml + wrap + footer;
 }
 
 function _buildLegend() {

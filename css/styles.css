@@ -526,6 +526,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--foam);color:var(--txt);fo
 .pw-3d-meal-abbr{font-family:'DM Mono',monospace;font-size:9px;color:var(--txl);margin-right:4px;font-weight:600}
 .pw-3d-done{font-family:'DM Mono',monospace;font-size:9px;background:var(--grn);color:#fff;padding:3px 9px;border-radius:10px;position:absolute;top:12px;right:12px}
 
+/* ---- Plan: week strip ---- */
+.pw-week-strip{display:flex;gap:2px;margin-bottom:14px;background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:10px 6px}
+.pw-strip-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border-radius:10px;padding:6px 2px;transition:background .15s}
+.pw-strip-abbr{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--txl)}
+.pw-strip-num{font-size:13px;font-weight:600;color:var(--txm)}
+.pw-strip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pw-strip-check{font-size:10px;color:var(--grn);font-weight:700;line-height:1}
+.pw-strip-today .pw-strip-abbr,.pw-strip-today .pw-strip-num{color:var(--water)}
+.pw-strip-active{background:var(--water)}
+.pw-strip-active .pw-strip-abbr,.pw-strip-active .pw-strip-num{color:#fff}
+.pw-strip-active .pw-strip-check{color:rgba(255,255,255,.9)}
+
+/* ---- Plan: single day card ---- */
+.pw-1day-wrap{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.pw-1day-card{flex:1;background:var(--card);border:1.5px solid var(--bdr);border-radius:16px;padding:20px 18px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:box-shadow .15s;position:relative;min-height:160px}
+.pw-1day-card:hover{box-shadow:0 3px 14px rgba(10,79,110,.13)}
+.pw-1day-card.pw-today{border-color:var(--water);box-shadow:0 0 0 2px rgba(10,79,110,.1)}
+.pw-1d-dow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--txl);display:flex;align-items:center;gap:8px}
+.pw-1day-card.pw-today .pw-1d-dow{color:var(--water)}
+.pw-1d-today-tag{font-size:9px;background:var(--water);color:#fff;padding:2px 8px;border-radius:10px;letter-spacing:1px;font-weight:600}
+.pw-1d-date{font-size:36px;font-weight:700;color:var(--txt);line-height:1;margin-bottom:4px}
+.pw-1day-card.pw-today .pw-1d-date{color:var(--water)}
+.pw-1d-badge{font-size:12px!important;padding:5px 12px!important;border-radius:8px!important;align-self:flex-start}
+.pw-1d-rest{font-size:14px;color:var(--txl);font-style:italic}
+.pw-1d-meals{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.pw-1d-meal{font-size:13px;color:var(--txm);line-height:1.4;font-weight:400}
+.pw-1d-meal-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--txl);margin-right:5px;font-weight:600}
+
 /* ===== EXECUTE — collapsible log forms ===== */
 .td-log-details{margin-top:12px;overflow:hidden}
 .td-log-details summary{display:flex;align-items:center;font-family:'Bebas Neue',cursive;font-size:18px;color:var(--water);cursor:pointer;user-select:none;list-style:none;padding:0 0 0 2px;margin-bottom:0}
