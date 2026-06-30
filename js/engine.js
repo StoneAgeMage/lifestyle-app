@@ -112,7 +112,7 @@ const TrainingEngine = (function () {
       return {
         workoutId:    'wk_restoration',
         workoutBg:    'bg-restore',
-        workoutShort: 'Restore',
+        workoutShort: 'Recovery',
         workoutItems: restWk.items || [],
         weekIndex:    wi,
         blockWeek:    wib,

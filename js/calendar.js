@@ -100,7 +100,7 @@ function _buildLegend() {
   return '<div class="pw-legend">' +
     [['bg-lift','Lift A/B'],['bg-z1','UT2'],['bg-z2','UT1'],
      ['bg-at','AT'],['bg-vo2','TR'],['bg-spd','Speed'],
-     ['bg-restore','Restore/Recovery']].map(function(x) {
+     ['bg-restore','Recovery']].map(function(x) {
       return '<div class="pw-leg"><span class="pw-leg-dot ' + x[0] + '"></span>' + x[1] + '</div>';
     }).join('') +
     '</div>';

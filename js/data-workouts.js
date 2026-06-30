@@ -214,7 +214,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_wint_A', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'Goblet Squat', sets: 3, reps: 10, cue: 'Chest tall, knees track toes' },
         { name: 'Ring Row', sets: 3, reps: 8, cue: 'Straight body, pull chest to rings' },
@@ -226,7 +226,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 3×10', 'Ring Row 3×8', 'SL RDL 3×10/leg', 'Ring Push-Up 3×12', 'Pallof Press 2×10/side', 'Hollow Body Hold 2×20s']
     },
     travel: {
-      label: 'Travel (Zero Equipment — Floor + Wall Only)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Bodyweight Squat', sets: 3, reps: 15, cue: 'Full depth, 2s pause at bottom' },
         { name: 'Prone Superman Hold', sets: 3, reps: 10, cue: 'Lift arms + legs simultaneously, 3s hold' },
@@ -254,7 +254,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 2×10 (light)', 'Ring Row 2×8', 'SL RDL 2×8/leg', 'Ring Push-Up 2×10', 'Hollow Body Hold 2×15s']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Bodyweight Squat', sets: 2, reps: 12, cue: 'Easy pace, quality movement' },
         { name: 'Prone Superman Hold', sets: 2, reps: 8, cue: '2s hold' },
@@ -270,7 +270,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_wint_B', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Romanian Deadlift', sets: 3, reps: 8, cue: 'Neutral spine, feel hamstring load' },
         { name: 'Ring Dip', sets: 3, reps: 8, cue: 'Elbows back, chest slight forward lean' },
@@ -282,7 +282,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 3×8', 'Ring Dip 3×8', 'DB Single-Arm Row 3×10/arm', 'DB Lateral Raise 2×12', 'Copenhagen Plank 2×20s/side', 'Dead Bug 2×8/side']
     },
     travel: {
-      label: 'Travel (Zero Equipment — Floor + Wall Only)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 3, reps: 12, cue: 'Drive through heel, 1s squeeze at top' },
         { name: 'Prone I/Y/T Raises', sets: 3, reps: 10, cue: '10 reps each letter; scapular retraction focus' },
@@ -309,7 +309,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 2×8 (light)', 'Ring Dip 2×6 (BW)', 'DB Row 2×8/arm', 'Dead Bug 2×6/side']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: 'Quality reps' },
         { name: 'Prone I/Y/T Raises', sets: 2, reps: 8, cue: '8 reps each letter' },
@@ -514,7 +514,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_spr_A', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Goblet Jump Squat', sets: 3, reps: 8, cue: 'Land soft, full depth before each jump' },
         { name: 'Pull-Up (weighted if able)', sets: 3, reps: 6, cue: 'Dead hang start, chin over bar' },
@@ -526,7 +526,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB Jump Squat 3×8', 'Pull-Up 3×6', 'DB Split Squat 3×10/leg', 'Ring Push-Up+Dip 3×8+4', 'KB Swing 3×15', 'Pallof Press 2×12/side']
     },
     travel: {
-      label: 'Travel (Zero Equipment)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Jump Squat', sets: 3, reps: 10, cue: 'Full depth, explosive push through floor' },
         { name: 'Prone Y-Raise', sets: 3, reps: 12, cue: 'Thumbs up, squeeze shoulder blades together' },
@@ -553,7 +553,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 2×10', 'Ring Row 2×8', 'Split Squat 2×8/leg', 'Ring Push-Up 2×10']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Bodyweight Squat', sets: 2, reps: 12, cue: 'Easy depth, quality' },
         { name: 'Prone Y-Raise', sets: 2, reps: 10, cue: '2s hold at top' },
@@ -568,7 +568,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_spr_B', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Single-Leg Deadlift', sets: 3, reps: 8, cue: '8/leg, reach DB toward opposite foot' },
         { name: 'Ring Dip + Negative', sets: 3, reps: 8, cue: '8 dips + 3s negative on last rep' },
@@ -580,7 +580,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB SL Deadlift 3×8/leg', 'Ring Dip+Neg 3×8', 'DB Bent-Over Row 3×10', 'DB Ext Rotation 2×15/arm', 'Side Plank Hip Dip 2×8/side', 'Bird-Dog 2×10/side']
     },
     travel: {
-      label: 'Travel (Zero Equipment)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 3, reps: 15, cue: '15/leg, drive heel through floor' },
         { name: 'Push-Up to Side Plank', sets: 3, reps: 8, cue: '8/side: push up, rotate to plank, return' },
@@ -607,7 +607,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 2×8', 'Ring Dip 2×6', 'DB Row 2×8/arm', 'Bird-Dog 2×8/side']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: 'Easy' },
         { name: 'Prone Superman Alternating', sets: 2, reps: 8, cue: '8/side' },
@@ -756,7 +756,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_sum_A', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Goblet Squat', sets: 2, reps: 12, cue: 'Full depth, controlled descent' },
         { name: 'Ring Row', sets: 3, reps: 10, cue: 'Bodyweight, focus on scapular retraction' },
@@ -768,7 +768,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 2×12', 'Ring Row 3×10', 'DB Step-Up 2×12/leg', 'Ring Push-Up 2×15', 'Pallof Press 2×10/side', 'Dead Bug 2×8/side']
     },
     travel: {
-      label: 'Travel (Zero Equipment)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Wall Sit', sets: 2, reps: 1, cue: '45s hold, thighs parallel to floor' },
         { name: 'Prone Y-Raise', sets: 3, reps: 12, cue: 'Thumbs up, hold 2s at top' },
@@ -795,7 +795,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 2×10', 'Ring Row 2×8', 'Ring Push-Up 2×10', 'Dead Bug 2×6/side']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Wall Sit', sets: 2, reps: 1, cue: '30s hold' },
         { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Easy' },
@@ -810,7 +810,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_sum_B', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Romanian Deadlift', sets: 2, reps: 10, cue: 'Moderate weight, perfect hinge' },
         { name: 'Ring Dip', sets: 2, reps: 10, cue: 'Full depth, chest forward' },
@@ -822,7 +822,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 2×10', 'Ring Dip 2×10', 'DB Lateral Raise 2×12', 'DB Bicep Curl 2×12', 'Copenhagen Plank 2×20s/side', 'Hollow Body Hold 2×25s']
     },
     travel: {
-      label: 'Travel (Zero Equipment)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 2, reps: 15, cue: '15/leg, max hip extension' },
         { name: 'Decline Push-Up (feet on wall)', sets: 2, reps: 12, cue: 'Hands on floor, feet 18in up wall' },
@@ -849,7 +849,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 2×8', 'Ring Dip 2×6', 'Lateral Raise 2×10', 'Hollow Body 2×20s']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: '10/leg' },
         { name: 'Floor Push-Up', sets: 2, reps: 10, cue: 'Easy' },
@@ -1053,7 +1053,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_fall_A', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift A', mobilityBias: 'leg', logSession: 'A',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Goblet Squat', sets: 3, reps: 8, cue: 'Loaded, controlled tempo 3-1-1' },
         { name: 'Pull-Up or Ring Row', sets: 3, reps: 8, cue: 'Full hang to chin over bar' },
@@ -1065,7 +1065,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 3×8', 'Pull-Up/Ring Row 3×8', 'SL RDL 3×8/leg', 'Ring Push-Up 3×10', 'KB Swing 3×12', 'Pallof Press 2×10/side']
     },
     travel: {
-      label: 'Travel (Zero Equipment)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Jump Squat', sets: 3, reps: 8, cue: 'Land soft, immediate descent' },
         { name: 'Prone I/Y/T Raises', sets: 3, reps: 10, cue: '10 reps each letter' },
@@ -1092,7 +1092,7 @@ var WORKOUT_LIBRARY = {
       items: ['Goblet Squat 2×8', 'Ring Row 2×8', 'Ring Push-Up 2×8', 'Hollow Body 2×15s']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'BW Squat', sets: 2, reps: 10, cue: 'Easy' },
         { name: 'Prone Y-Raise', sets: 2, reps: 8, cue: 'Hold 2s' },
@@ -1107,7 +1107,7 @@ var WORKOUT_LIBRARY = {
     id: 'lift_fall_B', type: 'lift', bgClass: 'bg-lift',
     calShort: 'Lift B', mobilityBias: 'upper', logSession: 'B',
     primary: {
-      label: 'Primary (DB + Gymnastics Rings)',
+      label: 'Primary',
       exercises: [
         { name: 'DB Romanian Deadlift', sets: 3, reps: 8, cue: 'Loaded, neutral spine' },
         { name: 'Ring Dip', sets: 3, reps: 8, cue: 'Full depth, forward lean' },
@@ -1119,7 +1119,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 3×8', 'Ring Dip 3×8', 'DB Single-Arm Row 3×8/arm', 'DB Ext Rotation 2×12/arm', 'Copenhagen Plank 2×20s/side', 'Bird-Dog 2×10/side']
     },
     travel: {
-      label: 'Travel (Zero Equipment)',
+      label: 'Bodyweight',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 3, reps: 12, cue: '12/leg, full hip extension' },
         { name: 'Scapular Wall Slide', sets: 3, reps: 15, cue: 'Elbows on wall, slide overhead' },
@@ -1146,7 +1146,7 @@ var WORKOUT_LIBRARY = {
       items: ['DB RDL 2×8', 'Ring Dip 2×6', 'DB Row 2×8/arm', 'Bird-Dog 2×8/side']
     },
     travel: {
-      label: 'Travel Deload',
+      label: 'Bodyweight Deload',
       exercises: [
         { name: 'Single-Leg Glute Bridge', sets: 2, reps: 10, cue: '10/leg' },
         { name: 'Scapular Wall Slide', sets: 2, reps: 12, cue: 'Easy' },
@@ -1173,7 +1173,7 @@ var WORKOUT_LIBRARY = {
 
   wk_restoration: {
     id: 'wk_restoration', type: 'restoration', bgClass: 'bg-restore',
-    calShort: 'Restore', mobilityBias: null,
+    calShort: 'Recovery', mobilityBias: null,
     items: [
       '20-min deep restoration flow',
       'Hips → Spine → Shoulders sequence',

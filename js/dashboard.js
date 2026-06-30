@@ -240,13 +240,12 @@ function _renderLiftCard(wf, blockBadge, done) {
   var travelPanel =
     '<div class="db-opt-panel" id="db-panel-travel">' +
     '<div class="db-workout-body">' +
-    '<div class="db-travel-note">Zero equipment — floor + wall only</div>' +
     _exRows(travel.exercises) + liftMob + '</div></div>';
 
   var tabs =
     '<div class="db-opt-tabs">' +
     '<button class="db-opt-tab active" onclick="switchWorkoutTab(\'primary\')">' + (primary.label || 'Primary') + '</button>' +
-    '<button class="db-opt-tab" onclick="switchWorkoutTab(\'travel\')">' + (travel.label || 'Travel') + '</button>' +
+    '<button class="db-opt-tab" onclick="switchWorkoutTab(\'travel\')">' + (travel.label || 'Bodyweight') + '</button>' +
     '</div>';
 
   var logBtns =

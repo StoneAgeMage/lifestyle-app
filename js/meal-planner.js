@@ -358,9 +358,6 @@ function _renderWeekPlanReview(weekPlan, settings) {
   return '<div class="mp-plan-review">' +
     '<div class="rm-section-title">Recipe Selection</div>' +
     '<div class="mp-plan-recipes">' + _renderRecipeCards(weekPlan, settings) + '</div>' +
-    '<div class="rm-section-title" style="margin-top:16px">Week Schedule</div>' +
-    _renderDayGrid(weekPlan) +
-    _renderDayMacros(weekPlan, settings) +
     _renderWeekendShelf(weekPlan) +
     _renderMacroStats(weekPlan, settings) +
     '<div class="mp-review-actions">' +
