@@ -56,20 +56,20 @@ function renderPlanWeeks() {
     sd.setDate(weekStart.getDate() + i);
     var sdWf = TrainingEngine.getWorkoutForDate(plan, sd);
     var sdKey = sd.getFullYear() + '-' + String(sd.getMonth() + 1).padStart(2, '0') + '-' + String(sd.getDate()).padStart(2, '0');
-    var sdOffset = Math.round((sd - todayD) / 86400000);
+    var sdOffset = Math.floor((sd - todayD) / 86400000);
     var sdIsActive = sd.toDateString() === viewDate.toDateString();
     var sdIsToday  = sd.toDateString() === todayD.toDateString();
     var sdLogged   = loggedDates.has(sdKey);
     var dotBg      = sdWf ? sdWf.workoutBg : 'bg-restore';
     var cls = 'pw-strip-day' + (sdIsActive ? ' pw-strip-active' : '') + (sdIsToday ? ' pw-strip-today' : '');
     stripHtml +=
-      '<div class="' + cls + '" onclick="pwJumpTo(' + sdOffset + ')">' +
+      '<button class="' + cls + '" onclick="pwJumpTo(' + sdOffset + ')">' +
         '<div class="pw-strip-abbr">' + _PW_ABBR[sd.getDay()] + '</div>' +
         '<div class="pw-strip-num">' + sd.getDate() + '</div>' +
         (sdLogged
           ? '<div class="pw-strip-check">✓</div>'
           : '<div class="pw-strip-dot ' + dotBg + '"></div>') +
-      '</div>';
+      '</button>';
   }
   stripHtml += '</div>';
 
