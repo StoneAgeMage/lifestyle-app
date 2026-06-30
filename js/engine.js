@@ -718,23 +718,25 @@ const HREngine = (function() {
 
   // Percentages of MaxHR — C2 / British Rowing consensus, anchored to
   // VT1 (~70% HRmax, Lucía et al. 2000) and VT2 (~87% HRmax).
+  // Calibrated for competitive trained athletes. LT1 ≈ 75–82% HRmax
+  // (Seiler & Tønnessen 2009; Lucía et al. 2000); MLSS in rowers ≈ 83–91%
+  // (Beneke 1995); British Rowing competitive coaching framework.
   var ZONES_PCT_MAX = [
-    { label: 'UT2', name: 'Aerobic Base', minPct: 0.60, maxPct: 0.70 },
-    { label: 'UT1', name: 'Aerobic',      minPct: 0.70, maxPct: 0.80 },
-    { label: 'AT',  name: 'Threshold',    minPct: 0.80, maxPct: 0.87 },
-    { label: 'TR',  name: 'Transport',    minPct: 0.87, maxPct: 0.93 },
-    { label: 'AN',  name: 'Anaerobic',    minPct: 0.93, maxPct: 1.00 },
+    { label: 'UT2', name: 'Aerobic Base', minPct: 0.65, maxPct: 0.75 },
+    { label: 'UT1', name: 'Aerobic',      minPct: 0.75, maxPct: 0.82 },
+    { label: 'AT',  name: 'Threshold',    minPct: 0.82, maxPct: 0.89 },
+    { label: 'TR',  name: 'Transport',    minPct: 0.89, maxPct: 0.95 },
+    { label: 'AN',  name: 'Anaerobic',    minPct: 0.95, maxPct: 1.00 },
   ];
 
-  // Percentages of Heart Rate Reserve (Karvonen formula).
-  // %HRR ≈ %VO2R (Swain & Franklin, Med Sci Sports Exerc 2002).
-  // ACSM moderate = 40–59% HRR, vigorous = 60–89% HRR.
+  // %HRR ≈ %VO2R (Swain & Franklin 2002). LT1 at ~70–80% HRR and
+  // LT2 at ~85–92% HRR in trained athletes; Karvonen et al. 1957.
   var ZONES_HRR = [
-    { label: 'UT2', name: 'Aerobic Base', minPct: 0.40, maxPct: 0.60 },
-    { label: 'UT1', name: 'Aerobic',      minPct: 0.60, maxPct: 0.70 },
-    { label: 'AT',  name: 'Threshold',    minPct: 0.70, maxPct: 0.80 },
-    { label: 'TR',  name: 'Transport',    minPct: 0.80, maxPct: 0.90 },
-    { label: 'AN',  name: 'Anaerobic',    minPct: 0.90, maxPct: 1.00 },
+    { label: 'UT2', name: 'Aerobic Base', minPct: 0.55, maxPct: 0.70 },
+    { label: 'UT1', name: 'Aerobic',      minPct: 0.70, maxPct: 0.80 },
+    { label: 'AT',  name: 'Threshold',    minPct: 0.80, maxPct: 0.88 },
+    { label: 'TR',  name: 'Transport',    minPct: 0.88, maxPct: 0.95 },
+    { label: 'AN',  name: 'Anaerobic',    minPct: 0.95, maxPct: 1.00 },
   ];
 
   // Tanaka formula: 208 − (0.7 × age). Uses knownMaxHR when valid.
