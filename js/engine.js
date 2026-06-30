@@ -716,12 +716,25 @@ const CalorieEngine = (function() {
 
 const HREngine = (function() {
 
-  var ZONES = [
-    { label: 'UT2', name: 'Aerobic Base', minPct: 0.55, maxPct: 0.65 },
-    { label: 'UT1', name: 'Aerobic',      minPct: 0.65, maxPct: 0.75 },
-    { label: 'AT',  name: 'Threshold',    minPct: 0.75, maxPct: 0.85 },
-    { label: 'TR',  name: 'Transport',    minPct: 0.85, maxPct: 0.95 },
-    { label: 'AN',  name: 'Anaerobic',    minPct: 0.95, maxPct: 1.00 },
+  // Percentages of MaxHR — C2 / British Rowing consensus, anchored to
+  // VT1 (~70% HRmax, Lucía et al. 2000) and VT2 (~87% HRmax).
+  var ZONES_PCT_MAX = [
+    { label: 'UT2', name: 'Aerobic Base', minPct: 0.60, maxPct: 0.70 },
+    { label: 'UT1', name: 'Aerobic',      minPct: 0.70, maxPct: 0.80 },
+    { label: 'AT',  name: 'Threshold',    minPct: 0.80, maxPct: 0.87 },
+    { label: 'TR',  name: 'Transport',    minPct: 0.87, maxPct: 0.93 },
+    { label: 'AN',  name: 'Anaerobic',    minPct: 0.93, maxPct: 1.00 },
+  ];
+
+  // Percentages of Heart Rate Reserve (Karvonen formula).
+  // %HRR ≈ %VO2R (Swain & Franklin, Med Sci Sports Exerc 2002).
+  // ACSM moderate = 40–59% HRR, vigorous = 60–89% HRR.
+  var ZONES_HRR = [
+    { label: 'UT2', name: 'Aerobic Base', minPct: 0.40, maxPct: 0.60 },
+    { label: 'UT1', name: 'Aerobic',      minPct: 0.60, maxPct: 0.70 },
+    { label: 'AT',  name: 'Threshold',    minPct: 0.70, maxPct: 0.80 },
+    { label: 'TR',  name: 'Transport',    minPct: 0.80, maxPct: 0.90 },
+    { label: 'AN',  name: 'Anaerobic',    minPct: 0.90, maxPct: 1.00 },
   ];
 
   // Tanaka formula: 208 − (0.7 × age). Uses knownMaxHR when valid.
@@ -731,17 +744,33 @@ const HREngine = (function() {
     return null;
   }
 
-  function getZones(age, knownMaxHR) {
-    var maxHR = getMaxHR(age, knownMaxHR);
+  // mode: 'pctMax' (default) | 'hrr'
+  // restingHR required for HRR; falls back to pctMax if missing.
+  function getZones(age, knownMaxHR, restingHR, mode) {
+    var maxHR  = getMaxHR(age, knownMaxHR);
     if (!maxHR) return null;
-    return ZONES.map(function(z) {
+
+    var useHRR = mode === 'hrr'
+      && restingHR >= 30
+      && restingHR < maxHR;
+    var zones  = useHRR ? ZONES_HRR : ZONES_PCT_MAX;
+    var hrr    = useHRR ? (maxHR - restingHR) : null;
+
+    return zones.map(function(z) {
+      var minBPM = useHRR
+        ? Math.round(restingHR + z.minPct * hrr)
+        : Math.round(maxHR * z.minPct);
+      var maxBPM = useHRR
+        ? Math.round(restingHR + z.maxPct * hrr)
+        : Math.round(maxHR * z.maxPct);
       return {
         label:  z.label,
         name:   z.name,
         minPct: z.minPct,
         maxPct: z.maxPct,
-        minBPM: Math.round(maxHR * z.minPct),
-        maxBPM: Math.round(maxHR * z.maxPct),
+        minBPM: minBPM,
+        maxBPM: maxBPM,
+        mode:   useHRR ? 'hrr' : 'pctMax',
       };
     });
   }

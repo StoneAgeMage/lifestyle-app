@@ -14,6 +14,8 @@ const SETTINGS_DEFAULTS = {
   mealPrepDay:            0,
   age:                    null,
   knownMaxHR:             null,
+  restingHR:              null,
+  hrMode:                 'pctMax',  // 'pctMax' | 'hrr'
 };
 
 // Exposed globally so other modules can use it for day names

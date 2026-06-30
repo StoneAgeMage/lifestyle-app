@@ -171,20 +171,39 @@ function renderVitals() {
     '</div>' +
 
     // ── Heart Rate Zones card ──
-    '<div class="card" style="max-width:560px;margin-top:16px">' +
-    '<div class="log-form-title">Training Intensity Zones</div>' +
-    '<div class="lf-row" style="margin-bottom:12px">' +
-      '<div class="lf-group">' +
-        '<label class="lf-label">Age</label>' +
-        '<input type="number" id="vt-hr-age" class="lf-input" value="' + (s.age || '') + '" min="15" max="90" placeholder="e.g. 45" style="max-width:100px" oninput="updateHRZones()">' +
+    (function() {
+      var hrMode = s.hrMode || 'pctMax';
+      return '<div class="card" style="max-width:560px;margin-top:16px">' +
+      '<div class="log-form-title">Training Intensity Zones</div>' +
+
+      '<div class="lf-row" style="margin-bottom:14px">' +
+        '<div class="lf-group">' +
+          '<label class="lf-label">Calculation Method</label>' +
+          '<div class="st-radio-group">' +
+            '<label class="st-radio"><input type="radio" name="vt-hr-mode" value="pctMax"' + (hrMode !== 'hrr' ? ' checked' : '') + ' onchange="updateHRZones()"><span>% Max HR</span></label>' +
+            '<label class="st-radio"><input type="radio" name="vt-hr-mode" value="hrr"'    + (hrMode === 'hrr' ? ' checked' : '') + ' onchange="updateHRZones()"><span>Heart Rate Reserve (HRR)</span></label>' +
+          '</div>' +
+        '</div>' +
       '</div>' +
-      '<div class="lf-group">' +
-        '<label class="lf-label">Known Max HR <span style="color:var(--txl);font-weight:400">(optional)</span></label>' +
-        '<input type="number" id="vt-hr-max" class="lf-input" value="' + (s.knownMaxHR || '') + '" min="100" max="220" placeholder="e.g. 178" style="max-width:100px" oninput="updateHRZones()">' +
+
+      '<div class="lf-row" style="margin-bottom:12px">' +
+        '<div class="lf-group">' +
+          '<label class="lf-label">Age</label>' +
+          '<input type="number" id="vt-hr-age" class="lf-input" value="' + (s.age || '') + '" min="15" max="90" placeholder="e.g. 55" style="max-width:100px" oninput="updateHRZones()">' +
+        '</div>' +
+        '<div class="lf-group">' +
+          '<label class="lf-label">Known Max HR <span style="color:var(--txl);font-weight:400">(optional)</span></label>' +
+          '<input type="number" id="vt-hr-max" class="lf-input" value="' + (s.knownMaxHR || '') + '" min="100" max="220" placeholder="e.g. 178" style="max-width:100px" oninput="updateHRZones()">' +
+        '</div>' +
+        '<div class="lf-group" id="vt-rhr-row" style="display:' + (hrMode === 'hrr' ? '' : 'none') + '">' +
+          '<label class="lf-label">Resting HR <span style="color:var(--txl);font-weight:400">(for HRR)</span></label>' +
+          '<input type="number" id="vt-hr-resting" class="lf-input" value="' + (s.restingHR || '') + '" min="30" max="100" placeholder="e.g. 55" style="max-width:100px" oninput="updateHRZones()">' +
+        '</div>' +
       '</div>' +
-    '</div>' +
-    '<div id="vt-hr-zones">' + _buildHRZonesHTML(s.age, s.knownMaxHR) + '</div>' +
-    '</div>';
+
+      '<div id="vt-hr-zones">' + _buildHRZonesHTML(s.age, s.knownMaxHR, s.restingHR, hrMode) + '</div>' +
+      '</div>';
+    })();
 }
 
 // ---- Macro UI helpers ---------------------------------------
@@ -366,15 +385,24 @@ function initVitals() {
 
 var _HR_ZONE_COLORS = ['#1a8fbe', '#3aab78', '#d4a817', '#e07838', '#d63845'];
 
-function _buildHRZonesHTML(age, knownMaxHR) {
-  var zones = HREngine.getZones(age, knownMaxHR);
+function _buildHRZonesHTML(age, knownMaxHR, restingHR, mode) {
+  var useHRR = mode === 'hrr' && restingHR >= 30;
+  var zones  = HREngine.getZones(age, knownMaxHR, restingHR, mode);
   if (!zones) {
     return '<div class="vt-hr-empty">Enter your age above to calculate your training zones.</div>';
   }
-  var maxHR  = HREngine.getMaxHR(age, knownMaxHR);
-  var source = knownMaxHR
-    ? 'Using known max HR: ' + maxHR + ' bpm'
-    : 'Estimated max HR: ' + maxHR + ' bpm (Tanaka formula)';
+  var maxHR = HREngine.getMaxHR(age, knownMaxHR);
+  var source;
+  if (useHRR) {
+    var hrr = maxHR - restingHR;
+    var maxSrc = knownMaxHR ? maxHR + ' bpm (measured)' : maxHR + ' bpm (Tanaka estimate)';
+    source = 'Max HR: ' + maxSrc + ' · Resting HR: ' + restingHR + ' bpm · HRR: ' + hrr + ' bpm';
+  } else {
+    source = knownMaxHR
+      ? 'Using known max HR: ' + maxHR + ' bpm'
+      : 'Estimated max HR: ' + maxHR + ' bpm (Tanaka formula)';
+  }
+  var pctLabel = useHRR ? '% HRR' : '% MHR';
   return '<div class="vt-hr-source">' + source + '</div>' +
     '<div class="vt-hr-list">' +
     zones.map(function(z, i) {
@@ -382,7 +410,7 @@ function _buildHRZonesHTML(age, knownMaxHR) {
       return '<div class="vt-hr-row">' +
         '<div class="vt-hr-badge" style="background:' + c + '22;color:' + c + '">' + z.label + '</div>' +
         '<div class="vt-hr-name">' + z.name + '</div>' +
-        '<div class="vt-hr-pct">' + Math.round(z.minPct * 100) + '–' + Math.round(z.maxPct * 100) + '%</div>' +
+        '<div class="vt-hr-pct">' + Math.round(z.minPct * 100) + '–' + Math.round(z.maxPct * 100) + ' ' + pctLabel + '</div>' +
         '<div class="vt-hr-bpm">' + z.minBPM + '–' + z.maxBPM + ' bpm</div>' +
       '</div>';
     }).join('') +
@@ -392,15 +420,24 @@ function _buildHRZonesHTML(age, knownMaxHR) {
 function updateHRZones() {
   var ageEl   = document.getElementById('vt-hr-age');
   var maxEl   = document.getElementById('vt-hr-max');
+  var rhrEl   = document.getElementById('vt-hr-resting');
+  var modeEl  = document.querySelector('input[name="vt-hr-mode"]:checked');
   var zonesEl = document.getElementById('vt-hr-zones');
+  var rhrRow  = document.getElementById('vt-rhr-row');
   if (!zonesEl) return;
 
-  var age        = ageEl && ageEl.value    ? parseInt(ageEl.value, 10)    : null;
-  var knownMaxHR = maxEl && maxEl.value    ? parseInt(maxEl.value, 10)    : null;
-  if (age !== null        && isNaN(age))        age        = null;
+  var age        = ageEl && ageEl.value ? parseInt(ageEl.value, 10) : null;
+  var knownMaxHR = maxEl && maxEl.value ? parseInt(maxEl.value, 10) : null;
+  var restingHR  = rhrEl && rhrEl.value ? parseInt(rhrEl.value, 10) : null;
+  var mode       = modeEl ? modeEl.value : 'pctMax';
+
+  if (age        !== null && isNaN(age))        age        = null;
   if (knownMaxHR !== null && isNaN(knownMaxHR)) knownMaxHR = null;
+  if (restingHR  !== null && isNaN(restingHR))  restingHR  = null;
+
+  if (rhrRow) rhrRow.style.display = mode === 'hrr' ? '' : 'none';
 
   var s = loadSettings();
-  saveSettings(Object.assign({}, s, { age: age, knownMaxHR: knownMaxHR }));
-  zonesEl.innerHTML = _buildHRZonesHTML(age, knownMaxHR);
+  saveSettings(Object.assign({}, s, { age: age, knownMaxHR: knownMaxHR, restingHR: restingHR, hrMode: mode }));
+  zonesEl.innerHTML = _buildHRZonesHTML(age, knownMaxHR, restingHR, mode);
 }

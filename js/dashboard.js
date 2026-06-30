@@ -118,10 +118,11 @@ function _renderUtStrip(wf) {
   if (idx === undefined) return '';
   var LABELS = ['UT2', 'UT1', 'AT', 'TR', 'AN'];
   var s = loadSettings();
-  var zones = HREngine.getZones(s.age, s.knownMaxHR);
+  var zones = HREngine.getZones(s.age, s.knownMaxHR, s.restingHR, s.hrMode);
   var z = zones && zones[idx];
+  var pctSuffix = z && z.mode === 'hrr' ? '% HRR' : '%';
   var text = z
-    ? z.label + ' · ' + Math.round(z.minPct * 100) + '–' + Math.round(z.maxPct * 100) + '% · ' + z.minBPM + '–' + z.maxBPM + ' bpm'
+    ? z.label + ' · ' + Math.round(z.minPct * 100) + '–' + Math.round(z.maxPct * 100) + pctSuffix + ' · ' + z.minBPM + '–' + z.maxBPM + ' bpm'
     : LABELS[idx];
   return '<div class="db-ut-strip">' + text + '</div>';
 }
