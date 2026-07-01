@@ -220,10 +220,10 @@ var WORKOUT_LIBRARY = {
         { name: 'Ring Row', sets: 3, reps: 8, cue: 'Straight body, pull chest to rings' },
         { name: 'Single-Leg RDL (DB)', sets: 3, reps: 10, cue: 'Hinge from hip, soft knee on standing leg' },
         { name: 'Ring Push-Up', sets: 3, reps: 12, cue: 'Elbows 45°, rings rotate inward at top' },
-        { name: 'Pallof Press', sets: 2, reps: 10, cue: 'Press and hold 2s, resist rotation' },
+        { name: 'Ab Wheel Rollout', sets: 2, reps: 8, cue: 'Brace hard, roll until hips sag, return with lats' },
         { name: 'Hollow Body Hold', sets: 2, reps: 1, cue: '20s hold, lower back pressed to floor' }
       ],
-      items: ['Goblet Squat 3×10', 'Ring Row 3×8', 'SL RDL 3×10/leg', 'Ring Push-Up 3×12', 'Pallof Press 2×10/side', 'Hollow Body Hold 2×20s']
+      items: ['Goblet Squat 3×10', 'Ring Row 3×8', 'SL RDL 3×10/leg', 'Ring Push-Up 3×12', 'Ab Wheel Rollout 2×8', 'Hollow Body Hold 2×20s']
     },
     travel: {
       label: 'Bodyweight',
@@ -521,9 +521,9 @@ var WORKOUT_LIBRARY = {
         { name: 'DB Split Squat', sets: 3, reps: 10, cue: '10/leg, front knee tracks over toes' },
         { name: 'Ring Push-Up + Ring Dip', sets: 3, reps: 8, cue: '8 push-ups + 4 dips = 1 set' },
         { name: 'KB Swing', sets: 3, reps: 15, cue: 'Hip hinge power, not a squat' },
-        { name: 'Pallof Press', sets: 2, reps: 12, cue: '12/side, arms fully extended each rep' }
+        { name: 'Ab Wheel Rollout', sets: 2, reps: 8, cue: 'Explosive block — brace hard before each rep' }
       ],
-      items: ['DB Jump Squat 3×8', 'Pull-Up 3×6', 'DB Split Squat 3×10/leg', 'Ring Push-Up+Dip 3×8+4', 'KB Swing 3×15', 'Pallof Press 2×12/side']
+      items: ['DB Jump Squat 3×8', 'Pull-Up 3×6', 'DB Split Squat 3×10/leg', 'Ring Push-Up+Dip 3×8+4', 'KB Swing 3×15', 'Ab Wheel Rollout 2×8']
     },
     travel: {
       label: 'Bodyweight',
@@ -762,10 +762,10 @@ var WORKOUT_LIBRARY = {
         { name: 'Ring Row', sets: 3, reps: 10, cue: 'Bodyweight, focus on scapular retraction' },
         { name: 'DB Box Step-Up', sets: 2, reps: 12, cue: '12/leg, drive through heel' },
         { name: 'Ring Push-Up', sets: 2, reps: 15, cue: 'Full range, rings rotate inward at top' },
-        { name: 'Pallof Press', sets: 2, reps: 10, cue: '10/side, control the return' },
+        { name: 'Ab Wheel Rollout', sets: 2, reps: 8, cue: 'Full extension if able, pause, return with lats' },
         { name: 'Dead Bug', sets: 2, reps: 8, cue: '8/side, lower back pinned to floor' }
       ],
-      items: ['Goblet Squat 2×12', 'Ring Row 3×10', 'DB Step-Up 2×12/leg', 'Ring Push-Up 2×15', 'Pallof Press 2×10/side', 'Dead Bug 2×8/side']
+      items: ['Goblet Squat 2×12', 'Ring Row 3×10', 'DB Step-Up 2×12/leg', 'Ring Push-Up 2×15', 'Ab Wheel Rollout 2×8', 'Dead Bug 2×8/side']
     },
     travel: {
       label: 'Bodyweight',
@@ -1060,9 +1060,9 @@ var WORKOUT_LIBRARY = {
         { name: 'Single-Leg RDL (DB)', sets: 3, reps: 8, cue: '8/leg, slow eccentric' },
         { name: 'Ring Push-Up', sets: 3, reps: 10, cue: 'Rings rotate inward, full range' },
         { name: 'KB Swing', sets: 3, reps: 12, cue: 'Hip drive only, arms are ropes' },
-        { name: 'Pallof Press', sets: 2, reps: 10, cue: '10/side, 2s hold extended' }
+        { name: 'Ab Wheel Rollout', sets: 2, reps: 8, cue: 'Crisp reps — stop before hips sag' }
       ],
-      items: ['Goblet Squat 3×8', 'Pull-Up/Ring Row 3×8', 'SL RDL 3×8/leg', 'Ring Push-Up 3×10', 'KB Swing 3×12', 'Pallof Press 2×10/side']
+      items: ['Goblet Squat 3×8', 'Pull-Up/Ring Row 3×8', 'SL RDL 3×8/leg', 'Ring Push-Up 3×10', 'KB Swing 3×12', 'Ab Wheel Rollout 2×8']
     },
     travel: {
       label: 'Bodyweight',

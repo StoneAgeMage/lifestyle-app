@@ -6,13 +6,13 @@
 // Session exercises are loaded dynamically from WORKOUT_LIBRARY when available,
 // falling back to these defaults if the session ID can't be resolved.
 const sessionExercises = {
-  A: ['Goblet Squat','Ring Row','Single-Leg RDL (DB)','Ring Push-Up','Pallof Press','Hollow Body Hold'],
+  A: ['Goblet Squat','Ring Row','Single-Leg RDL (DB)','Ring Push-Up','Ab Wheel Rollout','Hollow Body Hold'],
   B: ['DB Romanian Deadlift','Ring Dip','DB Single-Arm Row','DB Lateral Raise','Copenhagen Plank','Dead Bug']
 };
 
 const timeBasedEx = new Set([
   'Copenhagen Plank','Plank','Dead Bug','Side Plank','Hollow Body Hold','Ring Ab Fallout',
-  'Pallof Press','Hollow Rock','Wall Sit','Bird-Dog','Prone Superman Hold','Prone I/Y/T Raises',
+  'Ab Wheel Rollout','Hollow Rock','Wall Sit','Bird-Dog','Prone Superman Hold','Prone I/Y/T Raises',
   'Scapular Wall Slide','Wall Plank','Side-Lying Hip Raise','Side-Lying Hip Abduction','Hollow Body Rock'
 ]);
 

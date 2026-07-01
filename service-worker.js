@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v73';
+const CACHE_NAME = 'rowing-v74';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.
@@ -80,7 +80,7 @@ const PRECACHE_ASSETS = [
   'assets/exercises/goblet-squat.gif',
   'assets/exercises/jump-squat.gif',
   'assets/exercises/lateral-lunge.gif',
-  'assets/exercises/pallof-press.gif',
+  // 'assets/exercises/ab-wheel-rollout.gif',  // add when GIF is available
   'assets/exercises/plank.gif',
   'assets/exercises/prone-superman-hold.gif',
   'assets/exercises/push-up-to-side-plank.gif',

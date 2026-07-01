@@ -19,7 +19,7 @@ var _EX_HAS_GIF = {
   'goblet-squat': 1,
   'jump-squat': 1,
   'lateral-lunge': 1,
-  'pallof-press': 1,
+  'ab-wheel-rollout': 0,  // no GIF yet — shows cue text fallback
   'plank': 1,
   'prone-superman-hold': 1,
   'push-up-to-side-plank': 1,
