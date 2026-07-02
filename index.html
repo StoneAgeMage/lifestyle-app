@@ -245,9 +245,20 @@
 <!-- 3. App entry point -->
 <script src="js/app.js"></script>
 
+<!-- Update available notification -->
+<div id="sw-update-bar" style="display:none">
+  <span class="sw-update-msg">App updated — reload to get the latest version.</span>
+  <button class="sw-update-btn" onclick="window.location.reload()">Reload</button>
+</div>
+
 <!-- ===== SERVICE WORKER REGISTRATION ===== -->
 <script>
   if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', function (event) {
+      if (event.data && event.data.type === 'SW_UPDATED') {
+        document.getElementById('sw-update-bar').style.display = 'flex';
+      }
+    });
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('service-worker.js')
         .then(function (registration) {

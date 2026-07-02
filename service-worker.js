@@ -29,7 +29,7 @@
 
 // ---- Version ----
 // This is the ONLY string you need to change when deploying updates.
-const CACHE_NAME = 'rowing-v74';
+const CACHE_NAME = 'rowing-v75';
 
 // ---- Files to cache ----
 // Every file here is fetched and stored during the install step.
@@ -135,26 +135,33 @@ self.addEventListener('install', function (event) {
 // user's device every time you bump the version number.
 // ============================================================
 self.addEventListener('activate', function (event) {
+  var hadOldCaches = false;
   event.waitUntil(
     caches.keys()
       .then(function (allCacheNames) {
+        var oldCaches = allCacheNames.filter(function (name) { return name !== CACHE_NAME; });
+        hadOldCaches = oldCaches.length > 0;
         return Promise.all(
-          allCacheNames
-            .filter(function (name) {
-              // Keep only the current cache; delete everything else.
-              // This automatically removes 'rowing-v1' when you move to 'rowing-v2'.
-              return name !== CACHE_NAME;
-            })
-            .map(function (name) {
-              console.log('[SW] Deleting old cache:', name);
-              return caches.delete(name);
-            })
+          oldCaches.map(function (name) {
+            console.log('[SW] Deleting old cache:', name);
+            return caches.delete(name);
+          })
         );
       })
       .then(function () {
         // clients.claim() makes this SW the active controller for
         // all open tabs immediately, without requiring a page reload.
         return self.clients.claim();
+      })
+      .then(function () {
+        // Notify any open tabs so they can prompt the user to reload.
+        // Only fires on updates (hadOldCaches), not on first install.
+        if (!hadOldCaches) return;
+        return self.clients.matchAll({ type: 'window' }).then(function (clients) {
+          clients.forEach(function (client) {
+            client.postMessage({ type: 'SW_UPDATED' });
+          });
+        });
       })
   );
 });
